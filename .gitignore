@@ -22,3 +22,6 @@ local.properties
 .classpath
 .project
 .settings
+
+# API key file
+key.cfg
