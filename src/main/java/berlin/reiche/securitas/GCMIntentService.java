@@ -2,10 +2,13 @@ package berlin.reiche.securitas;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
 
 public class GCMIntentService extends GCMBaseIntentService {
+
+    private static String TAG = "security-cam";
 
     /**
      * Called when the device tries to register or unregister, but GCM returned
@@ -15,9 +18,8 @@ public class GCMIntentService extends GCMBaseIntentService {
      *      java.lang.String)
      */
     @Override
-    protected void onError(Context arg0, String arg1) {
-        // TODO Auto-generated method stub
-
+    protected void onError(Context context, String errorId) {
+        Log.e(TAG, "onError, errorId = " + errorId);
     }
 
     /**
@@ -29,9 +31,8 @@ public class GCMIntentService extends GCMBaseIntentService {
      *      android.content.Intent)
      */
     @Override
-    protected void onMessage(Context arg0, Intent arg1) {
-        // TODO Auto-generated method stub
-
+    protected void onMessage(Context context, Intent intent) {
+        Log.i(TAG, "onMessage, intent = " + intent.getDataString());
     }
 
     /**
@@ -42,9 +43,8 @@ public class GCMIntentService extends GCMBaseIntentService {
      *      java.lang.String)
      */
     @Override
-    protected void onRegistered(Context arg0, String arg1) {
-        // TODO Auto-generated method stub
-
+    protected void onRegistered(Context context, String registrationId) {
+        Log.i(TAG, "onRegistered, registrationId = " + registrationId);
     }
 
     /**
@@ -54,8 +54,8 @@ public class GCMIntentService extends GCMBaseIntentService {
      *      java.lang.String)
      */
     @Override
-    protected void onUnregistered(Context arg0, String arg1) {
-        // TODO Auto-generated method stub
+    protected void onUnregistered(Context context, String registrationId) {
+        Log.i(TAG, "onUnregistered, registrationId = " + registrationId);
 
     }
 

@@ -9,7 +9,7 @@ import android.util.Log;
 public class HelloAndroidActivity extends Activity {
 
     private static String TAG = "security-cam";
-    private static String SENDER_ID = "";
+    private static String SENDER_ID = "958926895848";
 
     /**
      * Called when the activity is first created.
