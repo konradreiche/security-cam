@@ -25,7 +25,7 @@ class MainHandler(RequestHandler):
                         data = { 'message' : 'Alarm!' }
                         device = self.application.device
                         print 'Send Message to Device %s' % device
-                        self.gcm.json_request(registration_ids = device, data = data)
+                        self.gcm.plaintext_request(registration_id = device, data = data)
 
                 self.set_status(200)
                 self.finish()

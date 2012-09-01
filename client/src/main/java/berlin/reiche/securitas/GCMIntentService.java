@@ -1,6 +1,9 @@
 package berlin.reiche.securitas;
 
 import static berlin.reiche.securitas.HelloAndroidActivity.SENDER_ID;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -48,7 +51,24 @@ public class GCMIntentService extends GCMBaseIntentService {
     @Override
     protected void onMessage(Context context, Intent intent) {
         Log.i(TAG, "onMessage, intent = " + intent.getDataString());
+        String ns = Context.NOTIFICATION_SERVICE;
+        NotificationManager nm = (NotificationManager) getSystemService(ns);
 
+        int icon = R.drawable.icon;
+        CharSequence tickerText = "Alert!";
+        long when = System.currentTimeMillis();
+        Notification notification = new Notification(icon, tickerText, when);
+        notification.defaults |= Notification.DEFAULT_ALL;
+        
+        context = getApplicationContext();
+        CharSequence contentTitle = "Motion Alert!";
+        CharSequence contentText = "Motion Alert!";
+        Intent notificationIntent = new Intent(this, HelloAndroidActivity.class);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                notificationIntent, 0);
+        
+        notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+        nm.notify(1, notification);
     }
 
     /**
