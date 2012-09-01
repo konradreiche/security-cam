@@ -1,6 +1,6 @@
 package berlin.reiche.securitas;
 
-import static berlin.reiche.securitas.HelloAndroidActivity.SENDER_ID;
+import static berlin.reiche.securitas.MainActivity.SENDER_ID;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -63,7 +63,7 @@ public class GCMIntentService extends GCMBaseIntentService {
         context = getApplicationContext();
         CharSequence contentTitle = "Motion Alert!";
         CharSequence contentText = "Motion Alert!";
-        Intent notificationIntent = new Intent(this, HelloAndroidActivity.class);
+        Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
                 notificationIntent, 0);
         

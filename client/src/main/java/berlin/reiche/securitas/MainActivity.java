@@ -7,7 +7,7 @@ import android.view.View;
 
 import com.google.android.gcm.GCMRegistrar;
 
-public class HelloAndroidActivity extends Activity {
+public class MainActivity extends Activity {
 
     private static final String TAG = "security-cam";
     
