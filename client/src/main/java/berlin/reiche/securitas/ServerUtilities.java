@@ -9,6 +9,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
 import com.google.android.gcm.GCMRegistrar;
 
 import android.content.Context;
@@ -43,6 +49,7 @@ public class ServerUtilities {
             executePostRequest(url + "/register", parameter);
             GCMRegistrar.setRegisteredOnServer(context, true);
         } catch (IOException e) {
+            GCMRegistrar.setRegisteredOnServer(context, false);
             Log.e(TAG, "Exception executing POST request:" + e);
         }
     }
@@ -110,6 +117,26 @@ public class ServerUtilities {
         connection.disconnect();
     }
 
+    /**
+     * Executes a HTTP GET request.
+     * 
+     * @throws IOException
+     */
+    private static void executeGetRequest(String endpoint,
+            Map<String, String> parameters) throws IOException {
+
+        HttpClient client = new DefaultHttpClient();
+        HttpGet get = new HttpGet(endpoint);
+        get.setHeader("Content-Type",
+                "application/x-www-form-urlencoded;charset=UTF-8");
+        HttpResponse responseGet = client.execute(get);
+        HttpEntity resEntityGet = responseGet.getEntity();
+        if (resEntityGet == null) {
+            throw new IOException("Status Code"
+                    + responseGet.getStatusLine().getStatusCode());
+        }
+    }
+
     private static String constructBody(Map<String, String> parameters) {
 
         StringBuilder sb = new StringBuilder();
@@ -124,5 +151,23 @@ public class ServerUtilities {
             }
         }
         return sb.toString();
+    }
+
+    public static void startDetection(Context context) {
+        String url = getEndpoint(context);
+        try {
+            executeGetRequest(url + "/start", new HashMap<String, String>());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void stopDetection(Context context) {
+        String url = getEndpoint(context);
+        try {
+            executeGetRequest(url + "/stop", new HashMap<String, String>());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

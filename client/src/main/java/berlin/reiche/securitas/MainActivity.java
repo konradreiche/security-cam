@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.gcm.GCMRegistrar;
 
@@ -33,6 +35,14 @@ public class MainActivity extends Activity {
         register();
     }
 
+    public void startDetection(View view) {
+        ServerUtilities.startDetection(this);
+    }
+
+    public void stopDetection(View view) {
+        ServerUtilities.stopDetection(this);
+    }
+
     private void register() {
         GCMRegistrar.checkDevice(this);
         GCMRegistrar.checkManifest(this);
@@ -47,11 +57,19 @@ public class MainActivity extends Activity {
             ServerUtilities.registerDevice(this, regId);
         }
     }
-    
+
     @Override
     public void onResume() {
         super.onResume();
         register();
+
+        TextView status = (TextView) findViewById(R.id.connectionStatus);
+        if (GCMRegistrar.isRegisteredOnServer(this)) {
+            status.setText("Connection Status: OK");
+        } else {
+            status.setText("Connection Status: Error");
+        }
+
     }
 
     @Override

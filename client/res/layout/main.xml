@@ -2,10 +2,30 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:padding="16dp" >
 
     <TextView
+        android:id="@+id/connectionStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/default_connection_status"
+        android:textAppearance="?android:attr/textAppearanceLarge" 
+        android:layout_marginBottom="32dp"/>
+
+    <Button
+        android:id="@+id/start_detection"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="@string/button_start_detection"
+        android:layout_marginBottom="16dp"
+        android:onClick="startDetection"/>
     
+        <Button
+        android:id="@+id/stop_detection"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/button_stop_detection"
+        android:onClick="stopDetection"/>
+
 </LinearLayout>
