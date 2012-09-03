@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello security-cam!</string>
-    <string name="app_name">security-cam</string>
+
+    <string name="app_name">Security Cam</string>
     <string name="button_unregister">Unregister</string>
+    <string name="menu_settings">Settings</string>
+    
+    <string name="pref_host">Host</string>
+    <string name="pref_port">Port</string>
+
 </resources>

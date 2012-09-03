@@ -27,10 +27,12 @@
 
     <!-- Keeps the processor from sleeping when a message is received. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:icon="@drawable/icon"
         android:label="@string/app_name" >
+        
         <activity android:name=".MainActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,6 +40,14 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/menu_settings" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="berlin.reiche.securitas.MainActivity" />
+        </activity>
+        
         <!-- Broadcast receiver is responsible for handling the 2 intents that can be sent by GCM -->
         <receiver
             android:name="com.google.android.gcm.GCMBroadcastReceiver"

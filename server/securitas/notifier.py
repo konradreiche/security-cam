@@ -27,7 +27,7 @@ class MainHandler(RequestHandler):
                 uri = self.request.uri
                 if (uri == '/register'):
                         self.control.device = self.get_argument('registrationId')
-                        print 'Registering Device %s' % self.application.device
+                        print 'Registering Device %s' % self.control.device
                 elif (uri == '/unregister'):
                         self.control.device = None
                         print 'Unregistering device'
@@ -50,7 +50,7 @@ class MainHandler(RequestHandler):
                 elif (uri == '/stop'):
                         print 'Shutting detection down..'
                         if (self.control.process != None):
-                                self.control.process.terminate()
+                                self.control.process.kill()
                                 self.control.process = None
 
                 self.set_status(200)
