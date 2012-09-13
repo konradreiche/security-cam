@@ -46,7 +46,7 @@ public class ServerUtilities {
         Map<String, String> parameter = new HashMap<String, String>();
         parameter.put("registrationId", registrationId);
         try {
-            executePostRequest(url + "/register", parameter);
+            executePostRequest(url + "/control/register", parameter);
             GCMRegistrar.setRegisteredOnServer(context, true);
         } catch (IOException e) {
             GCMRegistrar.setRegisteredOnServer(context, false);
@@ -62,7 +62,7 @@ public class ServerUtilities {
         Map<String, String> parameter = new HashMap<String, String>();
         parameter.put("registrationId", registrationId);
         try {
-            executePostRequest(url + "/unregister", parameter);
+            executePostRequest(url + "/control/unregister", parameter);
             GCMRegistrar.setRegisteredOnServer(context, false);
         } catch (IOException e) {
             Log.e(TAG, "Exception executing POST request:" + e);
@@ -156,7 +156,7 @@ public class ServerUtilities {
     public static void startDetection(Context context) {
         String url = getEndpoint(context);
         try {
-            executeGetRequest(url + "/start", new HashMap<String, String>());
+            executeGetRequest(url + "/control/start", new HashMap<String, String>());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -165,7 +165,7 @@ public class ServerUtilities {
     public static void stopDetection(Context context) {
         String url = getEndpoint(context);
         try {
-            executeGetRequest(url + "/stop", new HashMap<String, String>());
+            executeGetRequest(url + "/control/stop", new HashMap<String, String>());
         } catch (IOException e) {
             e.printStackTrace();
         }

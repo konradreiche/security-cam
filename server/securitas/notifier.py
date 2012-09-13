@@ -1,7 +1,7 @@
 from gcm import GCM
 
 from tornado import httpserver, ioloop, web
-from tornado.web import RequestHandler
+from tornado.web import RequestHandler, StaticFileHandler
 
 import ConfigParser
 import subprocess
@@ -25,33 +25,37 @@ class MainHandler(RequestHandler):
         def post(self): 
 
                 uri = self.request.uri
-                if (uri == '/register'):
+                print uri
+                if (uri == '/control/register'):
                         self.control.device = self.get_argument('registrationId')
                         print 'Registering Device %s' % self.control.device
-                elif (uri == '/unregister'):
+                elif (uri == '/control/unregister'):
                         self.control.device = None
                         print 'Unregistering device'
                         
         def get(self):
 
                 uri = self.request.uri
-                if (uri == '/alarm' and self.control.device != None):
-                        data = { 'message' : 'Alarm!' }
+                if (uri.startswith('/control/alarm') and self.control.device != None):
+
+                        picturePath = self.get_arguments('picture')
+                        data = { 'picture' : picturePath[0] }
                         device = self.control.device
                         print 'Send Message to Device %s' % device
                         self.gcm.plaintext_request(registration_id = device, data = data)
 
-                elif (uri == '/start'):
+                elif (uri == '/control/start'):
                         print 'Start detection..'
                         if (self.control.process == None):
                                 process = subprocess.Popen(['motion', '-c', '/etc/motion/motion.conf'])
                                 self.control.process = process
 
-                elif (uri == '/stop'):
+                elif (uri == '/control/stop'):
                         print 'Shutting detection down..'
                         if (self.control.process != None):
                                 self.control.process.kill()
                                 self.control.process = None
+
 
                 self.set_status(200)
                 self.finish()
@@ -65,10 +69,12 @@ if __name__ == "__main__":
         api_key = config.get('API', 'key') 
         gcm = GCM(api_key)
         control = ProcessControl()
-        
+       
         application = web.Application([
-                (r'.*', MainHandler, dict(gcm = gcm, control = control)),
-                ])
-        
+                (r'/control/.*', MainHandler, dict(gcm = gcm, control = control)),
+                (r'/picture/(.*)', StaticFileHandler, { 'path' : 'picture' })
+                ],
+                )
+
         application.listen(3030)
         ioloop.IOLoop.instance().start()

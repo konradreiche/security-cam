@@ -52,6 +52,8 @@ public class GCMIntentService extends GCMBaseIntentService {
     protected void onMessage(Context context, Intent intent) {
         Log.i(TAG, "onMessage, intent = " + intent.getDataString());
         
+        String path = intent.getExtras().getString("picture");
+        
         String ns = Context.NOTIFICATION_SERVICE;
         NotificationManager nm = (NotificationManager) getSystemService(ns);
 
