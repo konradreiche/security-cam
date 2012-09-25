@@ -9,23 +9,37 @@
         android:id="@+id/connectionStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
         android:text="@string/default_connection_status"
-        android:textAppearance="?android:attr/textAppearanceLarge" 
-        android:layout_marginBottom="32dp"/>
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Button
         android:id="@+id/start_detection"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/button_start_detection"
         android:layout_marginBottom="16dp"
-        android:onClick="startDetection"/>
-    
-        <Button
+        android:onClick="startDetection"
+        android:text="@string/button_start_detection" />
+
+    <Button
         android:id="@+id/stop_detection"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/button_stop_detection"
-        android:onClick="stopDetection"/>
+        android:layout_marginBottom="32dp"
+        android:onClick="stopDetection"
+        android:text="@string/button_stop_detection" />
+
+    <WebView
+        android:id="@+id/webView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="64dp" />
+
+    <Button
+        android:id="@+id/refresh"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="refresh"
+        android:text="@string/button_refresh" />
 
 </LinearLayout>

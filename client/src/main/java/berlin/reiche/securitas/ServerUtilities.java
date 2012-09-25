@@ -69,7 +69,7 @@ public class ServerUtilities {
         }
     }
 
-    private static String getEndpoint(Context context) {
+    public static String getEndpoint(Context context) {
 
         SharedPreferences preferences = PreferenceManager
                 .getDefaultSharedPreferences(context);
@@ -156,7 +156,8 @@ public class ServerUtilities {
     public static void startDetection(Context context) {
         String url = getEndpoint(context);
         try {
-            executeGetRequest(url + "/control/start", new HashMap<String, String>());
+            executeGetRequest(url + "/control/start",
+                    new HashMap<String, String>());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -165,7 +166,18 @@ public class ServerUtilities {
     public static void stopDetection(Context context) {
         String url = getEndpoint(context);
         try {
-            executeGetRequest(url + "/control/stop", new HashMap<String, String>());
+            executeGetRequest(url + "/control/stop",
+                    new HashMap<String, String>());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void requestSnapshot(Context context) {
+        String url = getEndpoint(context);
+        try {
+            executeGetRequest(url + "/control/snapshot",
+                    new HashMap<String, String>());
         } catch (IOException e) {
             e.printStackTrace();
         }

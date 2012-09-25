@@ -23,6 +23,11 @@ public class GCMIntentService extends GCMBaseIntentService {
      * Intent's extra that contains the message to be displayed.
      */
     static final String EXTRA_MESSAGE = "message";
+    
+    /**
+     * The number of motions until the first notification response.
+     */
+    static volatile int motions = 0;
 
     public GCMIntentService() {
         super(SENDER_ID);
@@ -50,25 +55,33 @@ public class GCMIntentService extends GCMBaseIntentService {
      */
     @Override
     protected void onMessage(Context context, Intent intent) {
-        Log.i(TAG, "onMessage, intent = " + intent.getDataString());
         
+        motions++;
+        Log.i(TAG, "onMessage, intent = " + intent.getDataString());
         String path = intent.getExtras().getString("picture");
         
         String ns = Context.NOTIFICATION_SERVICE;
         NotificationManager nm = (NotificationManager) getSystemService(ns);
 
+        String text = "Motion Alert";
+        if (motions > 1) {
+            text += " (" + motions + ")";
+        }
+        
         int icon = R.drawable.icon;
-        CharSequence tickerText = "Alert!";
+        CharSequence tickerText = text;
         long when = System.currentTimeMillis();
         Notification notification = new Notification(icon, tickerText, when);
         notification.defaults |= Notification.DEFAULT_ALL;
+        notification.defaults |= Notification.FLAG_AUTO_CANCEL;
         
         context = getApplicationContext();
-        CharSequence contentTitle = "Motion Alert!";
-        CharSequence contentText = "Motion Alert!";
+        CharSequence contentTitle = text;
+        CharSequence contentText = text;
         Intent notificationIntent = new Intent(this, MainActivity.class);
+        notificationIntent.putExtra("picture", path);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                notificationIntent, 0);
+                notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         
         notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
         nm.notify(1, notification);

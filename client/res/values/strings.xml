@@ -10,5 +10,6 @@
     <string name="default_connection_status">Connection Status: &#8230;</string>
     <string name="button_start_detection">Start Detection</string>
     <string name="button_stop_detection">Stop Detection</string>
+    <string name="button_refresh">Refresh</string>
 
 </resources>

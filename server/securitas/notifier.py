@@ -1,6 +1,6 @@
 from gcm import GCM
 
-from tornado import httpserver, ioloop, web
+from tornado import httpserver, httpclient, ioloop, web
 from tornado.web import RequestHandler, StaticFileHandler
 
 import ConfigParser
@@ -56,6 +56,14 @@ class MainHandler(RequestHandler):
                                 self.control.process.kill()
                                 self.control.process = None
 
+                elif (uri == '/control/snapshot'):
+                        if (self.control.process is not None):
+                               httpClient = httpclient.HTTPClient() 
+                               try:
+                                        response = httpClient.fetch('http://localhost:8080/0/action/snapshot')
+                               except httpclient.HTTPERror, e:
+                                       print 'Error:', e
+                               httpClient.close()
 
                 self.set_status(200)
                 self.finish()
