@@ -33,13 +33,13 @@ public class ServerUtilities {
 
     private static final String TAG = "security-cam";
 
-    public static void registerDevice(Context context, String registrationId) {
+    public static boolean registerDevice(Context context, String registrationId) {
 
         String url = getEndpoint(context);
         if (url == null) {
             Toast.makeText(context, "There is no server defined yet.",
                     Toast.LENGTH_LONG).show();
-            return;
+            return false;
         }
 
         Log.i(TAG, "Registering device");
@@ -48,35 +48,49 @@ public class ServerUtilities {
         try {
             executePostRequest(url + "/control/register", parameter);
             GCMRegistrar.setRegisteredOnServer(context, true);
+            return true;
         } catch (IOException e) {
             GCMRegistrar.setRegisteredOnServer(context, false);
             Log.e(TAG, "Exception executing POST request:" + e);
+            return false;
         }
+
     }
 
     public static void unregisterDevice(Context context, String registrationId) {
+        unregisterDevice(context, registrationId, null, null);
+    }
 
-        String url = getEndpoint(context);
+    public static void unregisterDevice(Context context, String registrationId,
+            String host, String port) {
 
+        String url = getEndpoint(context, host, port);
         Log.i(TAG, "Unregistering device");
         Map<String, String> parameter = new HashMap<String, String>();
         parameter.put("registrationId", registrationId);
+        GCMRegistrar.setRegisteredOnServer(context, false);
         try {
             executePostRequest(url + "/control/unregister", parameter);
-            GCMRegistrar.setRegisteredOnServer(context, false);
         } catch (IOException e) {
             Log.e(TAG, "Exception executing POST request:" + e);
         }
     }
 
-    public static String getEndpoint(Context context) {
+    static String getEndpoint(Context context) {
+        return getEndpoint(context, null, null);
+    }
+
+    static String getEndpoint(Context context, String host, String port) {
 
         SharedPreferences preferences = PreferenceManager
                 .getDefaultSharedPreferences(context);
-        String host = preferences.getString(SettingsActivity.HOST, null);
-        String port = preferences.getString(SettingsActivity.PORT, null);
-        if (host == null || port == null || host.equals("") || port.equals("")) {
-            return null;
+
+        if (host == null) {
+            host = preferences.getString(SettingsActivity.HOST, "");
+        }
+
+        if (port == null) {
+            port = preferences.getString(SettingsActivity.PORT, "");
         }
 
         if (!host.startsWith("http://")) {
