@@ -11,7 +11,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.WebView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gcm.GCMRegistrar;
@@ -32,8 +32,8 @@ public class MainActivity extends Activity {
 
     String port;
 
-    boolean isCameraOn;
-    
+    ImageDownloader imageDownloader;
+
     /**
      * Task responsible for registering the device on the GCM service.
      */
@@ -61,20 +61,18 @@ public class MainActivity extends Activity {
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         host = pref.getString(SettingsActivity.HOST, null);
         port = pref.getString(SettingsActivity.PORT, null);
-        isCameraOn = false;
+        imageDownloader = new ImageDownloader();
     }
 
     public void startDetection(View view) {
         ServerUtilities.startDetection(this);
-        isCameraOn = true;
-        findViewById(R.id.webView).setVisibility(View.VISIBLE);
+        findViewById(R.id.imageView).setVisibility(View.VISIBLE);
         findViewById(R.id.refresh).setVisibility(View.VISIBLE);
     }
 
     public void stopDetection(View view) {
         ServerUtilities.stopDetection(this);
-        isCameraOn = false;
-        findViewById(R.id.webView).setVisibility(View.INVISIBLE);
+        findViewById(R.id.imageView).setVisibility(View.INVISIBLE);
         findViewById(R.id.refresh).setVisibility(View.INVISIBLE);
     }
 
@@ -96,12 +94,14 @@ public class MainActivity extends Activity {
     }
 
     public void refresh(View view) {
+
         ServerUtilities.requestSnapshot(this);
-        WebView webView = (WebView) findViewById(R.id.webView);
-        webView.setInitialScale(1);
         String endpoint = ServerUtilities.getEndpoint(this);
         String url = endpoint + "/picture/lastsnap.jpg";
-        webView.loadUrl(url);
+        ImageView imageView = (ImageView) findViewById(R.id.imageView);
+
+        imageDownloader = new ImageDownloader();
+        imageDownloader.download(url, imageView);
     }
 
     @Override
@@ -123,8 +123,7 @@ public class MainActivity extends Activity {
             registerDevice();
         }
 
-        WebView webView = (WebView) findViewById(R.id.webView);
-        webView.setInitialScale(1);
+        ImageView imageView = (ImageView) findViewById(R.id.imageView);
         String endpoint = ServerUtilities.getEndpoint(this);
         String url = endpoint + "/picture/";
 
@@ -136,14 +135,16 @@ public class MainActivity extends Activity {
             if (o != null) {
                 String path = (String) o;
                 url += path;
-                webView.loadUrl(url);
+                findViewById(R.id.imageView).setVisibility(View.VISIBLE);
+                findViewById(R.id.refresh).setVisibility(View.VISIBLE);
+                imageDownloader.download(url, imageView);
                 GCMIntentService.motions = 0;
                 ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
                         .cancelAll();
             }
         } else {
             url += "lastsnap.jpg";
-            webView.loadUrl(url);
+            imageDownloader.download(url, imageView);
         }
 
         TextView status = (TextView) findViewById(R.id.connectionStatus);
