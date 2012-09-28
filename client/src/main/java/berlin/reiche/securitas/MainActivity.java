@@ -26,11 +26,14 @@ import com.google.android.gcm.GCMRegistrar;
  */
 public class MainActivity extends Activity {
 
-    public static final String SENDER_ID = "958926895848";
+    static final String SENDER_ID = "958926895848";
 
     String host;
+
     String port;
 
+    boolean isCameraOn;
+    
     /**
      * Task responsible for registering the device on the GCM service.
      */
@@ -58,14 +61,21 @@ public class MainActivity extends Activity {
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         host = pref.getString(SettingsActivity.HOST, null);
         port = pref.getString(SettingsActivity.PORT, null);
+        isCameraOn = false;
     }
 
     public void startDetection(View view) {
         ServerUtilities.startDetection(this);
+        isCameraOn = true;
+        findViewById(R.id.webView).setVisibility(View.VISIBLE);
+        findViewById(R.id.refresh).setVisibility(View.VISIBLE);
     }
 
     public void stopDetection(View view) {
         ServerUtilities.stopDetection(this);
+        isCameraOn = false;
+        findViewById(R.id.webView).setVisibility(View.INVISIBLE);
+        findViewById(R.id.refresh).setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -96,17 +106,18 @@ public class MainActivity extends Activity {
 
     @Override
     public void onResume() {
-        
+
         super.onResume();
         String host = pref.getString(SettingsActivity.HOST, "");
         String port = pref.getString(SettingsActivity.PORT, "");
         if (!host.equals(this.host) || !port.equals(this.port)) {
-            
+
             if (GCMRegistrar.isRegisteredOnServer(this)) {
                 String registrationId = GCMRegistrar.getRegistrationId(this);
-                ServerUtilities.unregisterDevice(this, registrationId, this.host, this.port);
+                ServerUtilities.unregisterDevice(this, registrationId,
+                        this.host, this.port);
             }
-            
+
             this.host = host;
             this.port = port;
             registerDevice();
