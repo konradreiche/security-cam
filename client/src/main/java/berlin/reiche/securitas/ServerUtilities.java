@@ -1,27 +1,29 @@
 package berlin.reiche.securitas;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
-
-import com.google.android.gcm.GCMRegistrar;
+import org.apache.http.message.BasicNameValuePair;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.google.android.gcm.GCMRegistrar;
 
 /**
  * A collection of methods to control the server application.
@@ -120,27 +122,21 @@ public class ServerUtilities {
     private static void executePostRequest(String endpoint,
             Map<String, String> parameters) throws IOException {
 
-        URL url = new URL(endpoint);
-        String body = constructBody(parameters);
-        byte[] bytes = body.getBytes();
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setDoOutput(true);
-        connection.setUseCaches(false);
-        connection.setFixedLengthStreamingMode(bytes.length);
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type",
-                "application/x-www-form-urlencoded;charset=UTF-8");
-
-        OutputStream writer = connection.getOutputStream();
-        writer.write(bytes);
-        writer.close();
-
-        int status = connection.getResponseCode();
-        if (status != 200) {
-            throw new IOException("HTTP Error Code" + status);
+        List<NameValuePair> data = new ArrayList<NameValuePair>();
+        for (Entry<String, String> entry : parameters.entrySet()) {
+            data.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
         }
 
-        connection.disconnect();
+        HttpClient client = new DefaultHttpClient();
+        HttpPost post = new HttpPost(endpoint);
+        post.setHeader("Content-Type", "application/x-www-form-urlencoded");
+        post.setEntity(new UrlEncodedFormEntity(data));
+        HttpResponse responsePost = client.execute(post);
+        HttpEntity resEntityPost = responsePost.getEntity();
+        if (resEntityPost == null) {
+            throw new IOException("Status Code"
+                    + responsePost.getStatusLine().getStatusCode());
+        }
     }
 
     /**
@@ -161,22 +157,6 @@ public class ServerUtilities {
             throw new IOException("Status Code"
                     + responseGet.getStatusLine().getStatusCode());
         }
-    }
-
-    private static String constructBody(Map<String, String> parameters) {
-
-        StringBuilder sb = new StringBuilder();
-        Iterator<Entry<String, String>> it = parameters.entrySet().iterator();
-        while (it.hasNext()) {
-            Entry<String, String> parameter = it.next();
-            sb.append(parameter.getKey());
-            sb.append("=");
-            sb.append(parameter.getValue());
-            if (it.hasNext()) {
-                sb.append("&");
-            }
-        }
-        return sb.toString();
     }
 
     public static void startDetection(Context context) {
