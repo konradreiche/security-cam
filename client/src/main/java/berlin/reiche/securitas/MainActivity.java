@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
         GCMRegistrar.checkDevice(this);
         GCMRegistrar.checkManifest(this);
         setContentView(R.layout.main);
-        register();
+        registerDevice();
 
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         host = pref.getString(SettingsActivity.HOST, null);
@@ -72,7 +72,7 @@ public class MainActivity extends Activity {
      * Registers the device on the GCM service. If the device is already
      * registered the cached registration ID will be used.
      */
-    private void register() {
+    private void registerDevice() {
 
         final String registrationId = GCMRegistrar.getRegistrationId(this);
         if (registrationId.equals("")) {
@@ -109,7 +109,7 @@ public class MainActivity extends Activity {
             
             this.host = host;
             this.port = port;
-            register();
+            registerDevice();
         }
 
         WebView webView = (WebView) findViewById(R.id.webView);

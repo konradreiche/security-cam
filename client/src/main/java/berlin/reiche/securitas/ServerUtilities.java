@@ -24,15 +24,24 @@ import android.util.Log;
 import android.widget.Toast;
 
 /**
- * Offers methods to communicate with the server.
+ * A collection of methods to control the server application.
  * 
  * @author Konrad Reiche
  * 
  */
 public class ServerUtilities {
 
-    private static final String TAG = "security-cam";
+    private static final String TAG = "ServerUtilities";
 
+    /**
+     * Tries to register the device on the server application.
+     * 
+     * @param context
+     *            the context which invoked the method.
+     * @param registrationId
+     *            the registration ID of the device
+     * @return whether the registration was successful
+     */
     public static boolean registerDevice(Context context, String registrationId) {
 
         String url = getEndpoint(context);
@@ -42,7 +51,6 @@ public class ServerUtilities {
             return false;
         }
 
-        Log.i(TAG, "Registering device");
         Map<String, String> parameter = new HashMap<String, String>();
         parameter.put("registrationId", registrationId);
         try {
@@ -91,6 +99,10 @@ public class ServerUtilities {
 
         if (port == null) {
             port = preferences.getString(SettingsActivity.PORT, "");
+        }
+
+        if (host.equals("")) {
+            return null;
         }
 
         if (!host.startsWith("http://")) {
