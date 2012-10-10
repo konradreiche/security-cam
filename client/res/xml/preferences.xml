@@ -3,9 +3,11 @@
 
     <EditTextPreference
         android:key="pref_host"
+        android:defaultValue=""
         android:title="@string/pref_host" />
     
     <EditTextPreference
         android:key="pref_port"
+        android:defaultValue=""
         android:title="@string/pref_port" />
 </PreferenceScreen>

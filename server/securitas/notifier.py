@@ -35,35 +35,37 @@ class MainHandler(RequestHandler):
                         
         def get(self):
 
-                uri = self.request.uri
-                if (uri.startswith('/control/alarm') and self.control.device != None):
+                if (self.control.device is not None):
 
-                        picturePath = self.get_arguments('picture')
-                        data = { 'picture' : picturePath[0] }
-                        device = self.control.device
-                        print 'Send Message to Device %s' % device
-                        self.gcm.plaintext_request(registration_id = device, data = data)
+                        uri = self.request.uri
+                        if (uri.startswith('/control/alarm')):
 
-                elif (uri == '/control/start'):
-                        print 'Start detection..'
-                        if (self.control.process == None):
-                                process = subprocess.Popen(['motion', '-c', '/etc/motion/motion.conf'])
-                                self.control.process = process
+                                picturePath = self.get_arguments('picture')
+                                data = { 'picture' : picturePath[0] }
+                                device = self.control.device
+                                print 'Send Message to Device %s' % device
+                                self.gcm.plaintext_request(registration_id = device, data = data)
 
-                elif (uri == '/control/stop'):
-                        print 'Shutting detection down..'
-                        if (self.control.process != None):
-                                self.control.process.kill()
-                                self.control.process = None
+                        elif (uri == '/control/start'):
+                                print 'Start detection..'
+                                if (self.control.process == None):
+                                        process = subprocess.Popen(['motion', '-c', '/etc/motion/motion.conf'])
+                                        self.control.process = process
 
-                elif (uri == '/control/snapshot'):
-                        if (self.control.process is not None):
-                               httpClient = httpclient.HTTPClient() 
-                               try:
-                                        response = httpClient.fetch('http://localhost:8080/0/action/snapshot')
-                               except httpclient.HTTPERror, e:
-                                       print 'Error:', e
-                               httpClient.close()
+                        elif (uri == '/control/stop'):
+                                print 'Shutting detection down..'
+                                if (self.control.process != None):
+                                        self.control.process.kill()
+                                        self.control.process = None
+
+                        elif (uri == '/control/snapshot'):
+                                if (self.control.process is not None):
+                                       httpClient = httpclient.HTTPClient() 
+                                       try:
+                                                response = httpClient.fetch('http://localhost:8080/0/action/snapshot')
+                                       except httpclient.HTTPERror, e:
+                                               print 'Error:', e
+                                       httpClient.close()
 
                 self.set_status(200)
                 self.finish()

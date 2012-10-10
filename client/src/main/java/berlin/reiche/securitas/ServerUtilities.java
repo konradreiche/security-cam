@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gcm.GCMRegistrar;
 
@@ -48,8 +47,6 @@ public class ServerUtilities {
 
         String url = getEndpoint(context);
         if (url == null) {
-            Toast.makeText(context, "There is no server defined yet.",
-                    Toast.LENGTH_LONG).show();
             return false;
         }
 

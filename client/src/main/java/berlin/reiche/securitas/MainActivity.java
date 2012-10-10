@@ -98,8 +98,8 @@ public class MainActivity extends Activity {
         ServerUtilities.requestSnapshot(this);
         String endpoint = ServerUtilities.getEndpoint(this);
         String url = endpoint + "/picture/lastsnap.jpg";
+        
         ImageView imageView = (ImageView) findViewById(R.id.imageView);
-
         imageDownloader = new ImageDownloader();
         imageDownloader.download(url, imageView);
     }
