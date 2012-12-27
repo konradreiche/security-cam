@@ -23,5 +23,8 @@ local.properties
 .project
 .settings
 
+# Rope
+.ropeproject
+
 # API key file
 key.cfg
