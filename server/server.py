@@ -51,8 +51,8 @@ class MotionProcess(object):
 def read_settings(path):
     config = ConfigParser.RawConfigParser()
     config.read(path)
-    user = config.get('Authentification', 'user')
-    password = config.get('Authentification', 'password')
+    user = config.get('Authentication', 'user')
+    password = config.get('Authentication', 'password')
     return {'user': user, 'password': password}
 
 
