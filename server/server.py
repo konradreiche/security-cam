@@ -28,12 +28,19 @@ class MotionProcess(object):
 
     def start(self):
         if self.process is None and self.device is not None:
+            LOG('Start motion process')
             self.process = subprocess.Popen(['motion'])
 
     def stop(self):
         if self.process is not None:
             self.process.kill()
             self.process = None
+
+    def status(self):
+        if self.process is None:
+            return 'Idle'
+        else:
+            return 'Running'
 
     def alert(self):
         data = {}
@@ -76,6 +83,11 @@ def authenticate(func):
 
 
 motion = MotionProcess()
+
+
+@get('/status', apply=[authenticate])
+def get_status():
+    return motion.status()
 
 
 @get('/motion/detection/start', apply=[authenticate])
