@@ -1,10 +1,12 @@
 from bottle import abort, get, post, request, run, static_file, parse_auth
 from gcm import GCM
-import ConfigParser
-import fileinput
+from securitas import util
+import datetime
 import logging
 import subprocess
 import requests
+import threading
+import time
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
@@ -14,22 +16,21 @@ LOG.addHandler(logging.StreamHandler())
 class MotionProcess(object):
     """Encapsulates the motion process handling"""
 
-    def __init__(self):
+    def __init__(self, settings):
         self.process = None
         self.device = None
-        self.gcm = GCM('API_KEY')
-
-        for line in fileinput.input('motion.conf'):
-            split = line.split('control_port')
-            if len(split) is 2:
-                self.control_port = int(split[1])
-                LOG.debug('Found control port %d' % self.control_port)
-                break
+        self.gcm = GCM(settings['gcm_api_key'])
+        self.control_port = settings['control_port']
+        self.snapshot_ready = threading.Event()
 
     def start(self):
-        if self.process is None and self.device is not None:
-            LOG('Start motion process')
+        if self.device is None:
+            abort(409, 'Cannot start motion detection without device')
+        elif self.process is None:
+            LOG.info('Start motion process')
             self.process = subprocess.Popen(['motion'])
+        else:
+            LOG.info('Motion process already running')
 
     def stop(self):
         if self.process is not None:
@@ -37,14 +38,21 @@ class MotionProcess(object):
             self.process = None
 
     def status(self):
-        if self.process is None:
+        if self.device is None:
             return 'Idle'
+        elif self.process is None:
+            return 'Ready'
         else:
             return 'Running'
 
     def alert(self):
-        data = {}
-        self.gcm.plaintext_request(registration_id=self.device, data=data)
+        timestamp = datetime.datetime.now()
+        timestamp = timestamp.strftime('%A, %d. %B %Y at %I:%M%p')
+        data = {'timestamp': timestamp}
+        try:
+            self.gcm.plaintext_request(registration_id=self.device, data=data)
+        except Exception as e:
+            LOG.error(e)
 
     def set_device(self, id):
         self.device = id
@@ -53,17 +61,12 @@ class MotionProcess(object):
         if self.process is not None:
             url = 'http://localhost:%d/0/action/snapshot' % self.control_port
             requests.get(url)
+            self.snapshot_ready.wait()
+            return static_file('lastsnap.jpg', root='captures',
+                               mimetype='image/jpg')
 
 
-def read_settings(path):
-    config = ConfigParser.RawConfigParser()
-    config.read(path)
-    user = config.get('Authentication', 'user')
-    password = config.get('Authentication', 'password')
-    return {'user': user, 'password': password}
-
-
-settings = read_settings('settings.cfg')
+settings = util.read_settings('settings.cfg')
 
 
 def authenticate(func):
@@ -82,7 +85,7 @@ def authenticate(func):
     return validate
 
 
-motion = MotionProcess()
+motion = MotionProcess(settings)
 
 
 @get('/status', apply=[authenticate])
@@ -94,6 +97,7 @@ def get_status():
 def start_motion_detection():
     """Starts the motion process including detection for motion"""
     motion.start()
+    time.sleep(3)  # camera initialization phase
 
 
 @get('/motion/detection/stop', apply=[authenticate])
@@ -105,32 +109,42 @@ def stop_motion_detection():
 @get('/alerts/motion', apply=[authenticate])
 def notify_device_about_motion():
     LOG.debug('Notify device about motion')
+    motion.alert()
 
 
 @get('/server/action/snapshot', apply=[authenticate])
 def make_snapshot():
     LOG.debug('Request a current snapshot')
-    motion.request_snapshot()
+    return motion.request_snapshot()
 
 
-@get('/static/snapshots/<filename:re:.*\.jpg>', apply=[authenticate])
+@get('/server/action/snapshot/ready', apply=[authenticate])
+def notify_server_about_snapshot():
+    motion.snapshot_ready.set()
+    motion.snapshot_ready.clear()
+
+
+@get('/static/captures/<filename:re:.*\.jpg>', apply=[authenticate])
 def send_snapshot(filename):
-    return static_file(filename, root='snapshots', mimetype='image/jpg')
+    return static_file(filename, root='captures', mimetype='image/jpg')
 
 
 @post('/device/register', apply=[authenticate])
 def register_device():
     id = request.forms.get('id')
-    LOG.debug('Received id %s' % id)
-    motion.set_device(id)
+    if id is None:
+        abort(400, 'Bad request')
+    else:
+        LOG.debug('Register device %s' % id)
+        motion.set_device(id)
 
 
 @post('/device/unregister', apply=[authenticate])
 def unregister_device():
     id = request.forms.get('id')
-    LOG.debug('Unregister device with id %s' % id)
+    LOG.debug('Unregister device %s' % id)
     motion.set_device(None)
 
 
 if __name__ == '__main__':
-    run(host='localhost', port=4000)
+    run(server='paste', host='0.0.0.0', port=4000)
