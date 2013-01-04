@@ -4,10 +4,12 @@
     android:versionCode="1"
     android:versionName="0.0.1-SNAPSHOT" >
 
-    <!-- Application cannot work without GCM -->
     <uses-sdk
         android:minSdkVersion="8"
-        android:targetSdkVersion="16" />
+        android:targetSdkVersion="17" />
+
+    <!-- HTTP requests and GCM connects to Google Services -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- Restrict GCM messages to this application -->
     <permission
@@ -19,9 +21,6 @@
     <!-- Application receives GCM messages -->
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
-    <!-- GCM connects to Google Services -->
-    <uses-permission android:name="android.permission.INTERNET" />
-
     <!-- GCM requires a Google account -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
 
@@ -29,18 +28,24 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- Network availability -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
+        android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name" >
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="portrait" >
+            android:theme="@android:style/Theme.Black.NoTitleBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Activity for setting the preferences -->
         <activity
             android:name=".SettingsActivity"
             android:label="@string/menu_settings" >
@@ -48,9 +53,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="berlin.reiche.securitas.MainActivity" />
         </activity>
-
-        <!-- Broadcast receiver is responsible for handling the 2 intents that can be sent by GCM -->
-        <receiver
+        
+         <receiver
             android:name="com.google.android.gcm.GCMBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
@@ -61,7 +65,7 @@
             </intent-filter>
         </receiver>
 
-        <!-- Intent service will be called by the GCMBroadcastReceiver -->
+        <!-- Intent service will be called by the GCMBroadcastReceiver. -->
         <service android:name=".GCMIntentService" />
     </application>
 

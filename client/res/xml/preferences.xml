@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <EditTextPreference
@@ -8,6 +8,18 @@
     
     <EditTextPreference
         android:key="pref_port"
+        android:numeric="integer"
         android:defaultValue=""
         android:title="@string/pref_port" />
+    
+    <EditTextPreference 
+        android:key="pref_user"
+        android:defaultValue=""
+        android:title="@string/pref_user"/>
+    
+    <EditTextPreference 
+        android:key="pref_password"
+        android:defaultValue=""
+        android:title="@string/pref_password"/>
+    
 </PreferenceScreen>

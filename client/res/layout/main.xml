@@ -2,46 +2,53 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
-    android:padding="8dp" >
+    android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/connectionStatus"
-        android:layout_width="wrap_content"
+        android:id="@+id/headline"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="@string/default_connection_status"
+        android:gravity="center"
+        android:text="@string/headline"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <Button
-        android:id="@+id/start_detection"
+    <TextView
+        android:id="@+id/subtitle"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:onClick="startDetection"
-        android:text="@string/button_start_detection" />
-
-    <Button
-        android:id="@+id/stop_detection"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:onClick="stopDetection"
-        android:text="@string/button_stop_detection" />
+        android:gravity="center"
+        android:text="@string/sub_headline"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/snapshotView"
         android:layout_width="fill_parent"
-        android:layout_height="256dp"
-        android:contentDescription="@string/image_view_description"
+        android:layout_height="150dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="40dp"
+        android:contentDescription="@string/snapshot_description" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="40dp"
         android:visibility="invisible" />
 
-    <Button
-        android:id="@+id/refresh"
+    <TextView
+        android:id="@+id/connection_error"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:onClick="refresh"
-        android:text="@string/button_refresh"
-        android:visibility="invisible" />
+        android:layout_marginTop="10dp"
+        android:gravity="center" />
 
-    
+    <Button
+        android:id="@+id/toggle_motion_detection"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:onClick="toggleMotionDetection"
+        android:text="@string/button_start_detection" />
+
 </LinearLayout>

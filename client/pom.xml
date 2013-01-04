@@ -9,8 +9,7 @@
 	<name>security-cam</name>
 
 	<properties>
-		<platform.version> 2.3.3
-		</platform.version>
+		<platform.version>2.3.3</platform.version>
 	</properties>
 
 	<repositories>
@@ -27,7 +26,6 @@
 			<version>${platform.version}</version>
 			<scope>provided</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>com.google.android.gcm</groupId>
 			<artifactId>gcm-server</artifactId>
@@ -40,7 +38,7 @@
 			<plugin>
 				<groupId>com.jayway.maven.plugins.android.generation2</groupId>
 				<artifactId>android-maven-plugin</artifactId>
-				<version>3.1.1</version>
+				<version>3.5.0</version>
 				<configuration>
 					<androidManifestFile>${project.basedir}/AndroidManifest.xml</androidManifestFile>
 					<assetsDirectory>${project.basedir}/assets</assetsDirectory>
@@ -56,7 +54,7 @@
 
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
+				<version>2.5.1</version>
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>

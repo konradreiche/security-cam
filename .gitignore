@@ -26,5 +26,11 @@ local.properties
 # Rope
 .ropeproject
 
+# Python
+*.pyc
+
 # API key file
 key.cfg
+
+#Vim
+*.swp

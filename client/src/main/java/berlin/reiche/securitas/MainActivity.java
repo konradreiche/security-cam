@@ -1,194 +1,150 @@
 package berlin.reiche.securitas;
 
 import android.app.Activity;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
+import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import berlin.reiche.securitas.util.Settings;
 
 import com.google.android.gcm.GCMRegistrar;
 
-/**
- * The main activity is the screen that is shown after the application is
- * started. The main activity deals with the user inputs to control the motion
- * detection and reception of camera pictures.
- * 
- * @author Konrad Reiche
- * 
- */
 public class MainActivity extends Activity {
 
-    static final String SENDER_ID = "958926895848";
+	private static String TAG = MainActivity.class.getSimpleName();
 
-    String host;
+	static final String GCM_SENDER_ID = "958926895848";
 
-    String port;
+	private SharedPreferences settings;
 
-    ImageDownloader imageDownloader;
+	/**
+	 * Whether the motion detection on the endpoint is running.
+	 */
 
-    /**
-     * Task responsible for registering the device on the GCM service.
-     */
-    RegistrationTask registrationTask;
+	/**
+	 * Called when the activity is first created.
+	 * 
+	 * @param savedInstanceState
+	 *            If the activity is being re-initialized after previously being
+	 *            shut down then this Bundle contains the data it most recently
+	 *            supplied in onSaveInstanceState(Bundle). <b>Note: Otherwise it
+	 *            is null.</b>
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		Log.i(TAG, "onCreate");
+		setContentView(R.layout.main);
+		Client.detectionActive = false;
+	}
 
-    SharedPreferences pref;
+	@Override
+	public void onResume() {
+		super.onResume();
+		Log.i(TAG, "onResume");
+		updateSettings();
+		GCMIntentService.resetMotionsDetected();
+		
+	}
 
-    /**
-     * Called when the activity is first created.
-     * 
-     * @param savedInstanceState
-     *            If the activity is being re-initialized after previously being
-     *            shut down then this Bundle contains the data it most recently
-     *            supplied in onSaveInstanceState(Bundle). <b>Note: Otherwise it
-     *            is null.</b>
-     */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        GCMRegistrar.checkDevice(this);
-        GCMRegistrar.checkManifest(this);
-        setContentView(R.layout.main);
-        registerDevice();
+	private void updateSettings() {
+		settings = PreferenceManager.getDefaultSharedPreferences(this);
+		String host = settings.getString(SettingsActivity.HOST, null);
+		String port = settings.getString(SettingsActivity.PORT, null);
+		String username = settings.getString(SettingsActivity.USER, null);
+		String password = settings.getString(SettingsActivity.PASSWORD, null);
 
-        pref = PreferenceManager.getDefaultSharedPreferences(this);
-        host = pref.getString(SettingsActivity.HOST, null);
-        port = pref.getString(SettingsActivity.PORT, null);
-        imageDownloader = new ImageDownloader();
-    }
+		if (!isConfigured()) {
+			startSettingsActivity(true);
+		} else {
+			Client.endpoint = "http://" + host + ":" + port;
+			Client.settings = new Settings(host, port, username, password);
+			Log.i(TAG, "Updated endpoint to " + Client.endpoint);
+			manageDeviceRegistration();
+		}
+	}
 
-    public void startDetection(View view) {
-        ServerUtilities.startDetection(this);
-        findViewById(R.id.imageView).setVisibility(View.VISIBLE);
-        findViewById(R.id.refresh).setVisibility(View.VISIBLE);
-    }
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.menu, menu);
+		return true;
+	}
 
-    public void stopDetection(View view) {
-        ServerUtilities.stopDetection(this);
-        findViewById(R.id.imageView).setVisibility(View.INVISIBLE);
-        findViewById(R.id.refresh).setVisibility(View.INVISIBLE);
-    }
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.settings:
+			startSettingsActivity(false);
+			break;
+		}
+		return true;
+	}
 
-    /**
-     * Registers the device on the GCM service. If the device is already
-     * registered the cached registration ID will be used.
-     */
-    private void registerDevice() {
+	private void startSettingsActivity(boolean forceConfiguration) {
+		Intent intent = new Intent(this, SettingsActivity.class);
+		intent.putExtra(SettingsActivity.DISPLAY_INSTRUCTION,
+				forceConfiguration);
+		startActivity(intent);
+	}
 
-        final String registrationId = GCMRegistrar.getRegistrationId(this);
-        if (registrationId.equals("")) {
-            GCMRegistrar.register(this, SENDER_ID);
-        } else {
-            if (!GCMRegistrar.isRegisteredOnServer(this)) {
-                registrationTask = new RegistrationTask(this, registrationId);
-                registrationTask.execute(null, null);
-            }
-        }
-    }
+	private boolean isConfigured() {
+		settings = PreferenceManager.getDefaultSharedPreferences(this);
+		String host = settings.getString(SettingsActivity.HOST, "");
+		String port = settings.getString(SettingsActivity.PORT, "");
+		String username = settings.getString(SettingsActivity.USER, "");
+		String password = settings.getString(SettingsActivity.PASSWORD, "");
 
-    public void refresh(View view) {
+		boolean configured = !host.equals("") && !port.equals("")
+				&& !username.equals("") && !password.equals("");
+		return configured;
+	}
 
-        ServerUtilities.requestSnapshot(this);
-        String endpoint = ServerUtilities.getEndpoint(this);
-        String url = endpoint + "/picture/lastsnap.jpg";
-        
-        ImageView imageView = (ImageView) findViewById(R.id.imageView);
-        imageDownloader = new ImageDownloader();
-        imageDownloader.download(url, imageView);
-    }
+	public void toggleMotionDetection(View view) {
 
-    @Override
-    public void onResume() {
+		TextView text = (TextView) findViewById(R.id.connection_error);
+		text.setText(null);
+		Button button = (Button) findViewById(R.id.toggle_motion_detection);
+		button.setEnabled(false);
+		ProgressBar progress = (ProgressBar) findViewById(R.id.progress_bar);
+		progress.setVisibility(View.VISIBLE);
+		Client.toggleMotionDetection(this);
+	}
 
-        super.onResume();
-        String host = pref.getString(SettingsActivity.HOST, "");
-        String port = pref.getString(SettingsActivity.PORT, "");
-        if (!host.equals(this.host) || !port.equals(this.port)) {
+	/**
+	 * Registers the device on the GCM service. If the device is already
+	 * registered the cached registration ID will be used.
+	 */
+	public void manageDeviceRegistration() {
+		GCMRegistrar.checkDevice(this);
+		GCMRegistrar.checkManifest(this);
+		final String id = GCMRegistrar.getRegistrationId(this);
+		if (id.equals("")) {
+			Log.i(TAG, "No device id yet, issue registration indent.");
+			GCMRegistrar.register(this, GCM_SENDER_ID);
+		} else if (!GCMRegistrar.isRegisteredOnServer(this)) {
+			Client.registerDevice(id, this);
+		}
+	}
 
-            if (GCMRegistrar.isRegisteredOnServer(this)) {
-                String registrationId = GCMRegistrar.getRegistrationId(this);
-                ServerUtilities.unregisterDevice(this, registrationId,
-                        this.host, this.port);
-            }
+	public boolean isNetworkAvailable() {
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+		if (networkInfo != null && networkInfo.isConnected()) {
+			return true;
+		}
+		return false;
+	}
 
-            this.host = host;
-            this.port = port;
-            registerDevice();
-        }
-
-        ImageView imageView = (ImageView) findViewById(R.id.imageView);
-        String endpoint = ServerUtilities.getEndpoint(this);
-        String url = endpoint + "/picture/";
-
-        Intent intent = getIntent();
-        if (intent != null && intent.getExtras() != null) {
-
-            Object o = intent.getExtras().get("picture");
-
-            if (o != null) {
-                String path = (String) o;
-                url += path;
-                findViewById(R.id.imageView).setVisibility(View.VISIBLE);
-                findViewById(R.id.refresh).setVisibility(View.VISIBLE);
-                imageDownloader.download(url, imageView);
-                GCMIntentService.motions = 0;
-                ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
-                        .cancelAll();
-            }
-        } else {
-            url += "lastsnap.jpg";
-            imageDownloader.download(url, imageView);
-        }
-
-        TextView status = (TextView) findViewById(R.id.connectionStatus);
-        if (GCMRegistrar.isRegisteredOnServer(this)) {
-            status.setText("Connection Status: OK");
-        } else {
-            status.setText("Connection Status: Error");
-        }
-
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-
-        case R.id.settings:
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-            break;
-        }
-        return true;
-    }
-
-    /**
-     * If the activity is finishing or being destroyed by the system it has to
-     * made sure that the registration is canceled or undone.
-     * 
-     * @see android.app.Activity#onDestroy()
-     */
-    @Override
-    public void onDestroy() {
-
-        if (registrationTask != null) {
-            registrationTask.cancel(true);
-        }
-        GCMRegistrar.setRegisteredOnServer(this, false);
-        GCMRegistrar.onDestroy(this);
-        super.onDestroy();
-    }
 }

@@ -1,6 +1,5 @@
 package berlin.reiche.securitas;
 
-import static berlin.reiche.securitas.MainActivity.SENDER_ID;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -12,7 +11,7 @@ import com.google.android.gcm.GCMBaseIntentService;
 
 public class GCMIntentService extends GCMBaseIntentService {
 
-    private static String TAG = "security-cam";
+    private static String TAG = GCMIntentService.class.getSimpleName();
 
     /**
      * Intent used to display a message in the screen.
@@ -27,10 +26,10 @@ public class GCMIntentService extends GCMBaseIntentService {
     /**
      * The number of motions until the first notification response.
      */
-    static volatile int motions = 0;
+    static volatile int motionsDetected = 0;
 
     public GCMIntentService() {
-        super(SENDER_ID);
+        super(MainActivity.GCM_SENDER_ID);
     }
 
     /**
@@ -56,16 +55,16 @@ public class GCMIntentService extends GCMBaseIntentService {
     @Override
     protected void onMessage(Context context, Intent intent) {
         
-        motions++;
+        motionsDetected++;
         Log.i(TAG, "onMessage, intent = " + intent.getDataString());
-        String path = intent.getExtras().getString("picture");
         
         String ns = Context.NOTIFICATION_SERVICE;
         NotificationManager nm = (NotificationManager) getSystemService(ns);
-
+        String timestamp = intent.getExtras().getString("timestamp");        
+        
         String text = "Motion Alert";
-        if (motions > 1) {
-            text += " (" + motions + ")";
+        if (motionsDetected > 1) {
+            text += " (" + motionsDetected + ")";
         }
         
         int icon = R.drawable.icon;
@@ -73,13 +72,14 @@ public class GCMIntentService extends GCMBaseIntentService {
         long when = System.currentTimeMillis();
         Notification notification = new Notification(icon, tickerText, when);
         notification.defaults |= Notification.DEFAULT_ALL;
-        notification.defaults |= Notification.FLAG_AUTO_CANCEL;
+        notification.flags |= Notification.FLAG_AUTO_CANCEL;
         
         context = getApplicationContext();
         CharSequence contentTitle = text;
-        CharSequence contentText = text;
+        CharSequence contentText =  timestamp;
         Intent notificationIntent = new Intent(this, MainActivity.class);
-        notificationIntent.putExtra("picture", path);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
                 notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         
@@ -97,7 +97,7 @@ public class GCMIntentService extends GCMBaseIntentService {
     @Override
     protected void onRegistered(Context context, String registrationId) {
         Log.i(TAG, "onRegistered, registrationId = " + registrationId);
-        ServerUtilities.registerDevice(context, registrationId);
+        Client.registerDevice(registrationId, context);
     }
 
     /**
@@ -109,7 +109,11 @@ public class GCMIntentService extends GCMBaseIntentService {
     @Override
     protected void onUnregistered(Context context, String registrationId) {
         Log.i(TAG, "onUnregistered, registrationId = " + registrationId);
-        ServerUtilities.unregisterDevice(context, registrationId);
+        Client.unregisterDevice(registrationId, context);
+    }
+    
+    public static void resetMotionsDetected() {
+    	motionsDetected = 0;
     }
 
 }
