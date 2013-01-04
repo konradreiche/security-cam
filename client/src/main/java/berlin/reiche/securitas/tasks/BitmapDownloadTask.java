@@ -15,6 +15,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ImageView;
 import berlin.reiche.securitas.Client;
+import berlin.reiche.securitas.MainActivity;
 import berlin.reiche.securitas.util.FlushedInputStream;
 import berlin.reiche.securitas.util.HttpUtilities;
 
@@ -59,6 +60,7 @@ public class BitmapDownloadTask extends AsyncTask<String, Void, Bitmap> {
 	@Override
 	protected void onPostExecute(Bitmap result) {
 		imageView.setImageBitmap(result);
+		((MainActivity)activity).unlockUI();
 	}
 
 }

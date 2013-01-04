@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import berlin.reiche.securitas.util.Settings;
@@ -55,7 +56,7 @@ public class MainActivity extends Activity {
 		Log.i(TAG, "onResume");
 		updateSettings();
 		GCMIntentService.resetMotionsDetected();
-		
+
 	}
 
 	private void updateSettings() {
@@ -115,11 +116,34 @@ public class MainActivity extends Activity {
 
 		TextView text = (TextView) findViewById(R.id.connection_error);
 		text.setText(null);
+		lockUI();
+		Client.toggleMotionDetection(this);
+	}
+
+	public void refreshSnapshot(View view) {
+		lockUI();
+		Client.downloadLatestSnapshot(this,
+				(ImageView) findViewById(R.id.snapshotView));
+	}
+
+	public void lockUI() {
 		Button button = (Button) findViewById(R.id.toggle_motion_detection);
 		button.setEnabled(false);
+		ImageView view = (ImageView) findViewById(R.id.snapshotView);
+		view.setEnabled(false);
+		view.setVisibility(View.INVISIBLE);
 		ProgressBar progress = (ProgressBar) findViewById(R.id.progress_bar);
 		progress.setVisibility(View.VISIBLE);
-		Client.toggleMotionDetection(this);
+	}
+
+	public void unlockUI() {
+		Button button = (Button) findViewById(R.id.toggle_motion_detection);
+		button.setEnabled(true);
+		ImageView view = (ImageView) findViewById(R.id.snapshotView);
+		view.setEnabled(true);
+		view.setVisibility(View.VISIBLE);
+		ProgressBar progress = (ProgressBar) findViewById(R.id.progress_bar);
+		progress.setVisibility(View.INVISIBLE);
 	}
 
 	/**

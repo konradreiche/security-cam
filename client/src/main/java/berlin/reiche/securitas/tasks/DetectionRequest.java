@@ -92,7 +92,6 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 			}
 		}
 
-		button.setEnabled(true);
-		progress.setVisibility(View.INVISIBLE);
+		((MainActivity)activity).unlockUI();
 	}
 }
