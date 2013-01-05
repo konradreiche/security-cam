@@ -21,6 +21,8 @@ public class Client {
 	static Settings settings;
 
 	static boolean detectionActive;
+	
+	static MainActivity activity;
 
 	public static void toggleMotionDetection(Activity activity) {
 		if (!detectionActive) {
@@ -83,6 +85,11 @@ public class Client {
 
 	public static void toggleDetectionActive() {
 		detectionActive = !detectionActive;
+		if (detectionActive) {
+			activity.enableDetectionUI();
+		} else {
+			activity.disableDetectionUI();
+		}
 	}
 
 }

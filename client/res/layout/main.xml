@@ -24,7 +24,7 @@
     <ImageView
         android:id="@+id/snapshot"
         android:layout_width="fill_parent"
-        android:layout_height="150dp"
+        android:layout_height="200dp"
         android:layout_below="@+id/subtitle"
         android:layout_gravity="center"
         android:layout_marginTop="70dp"

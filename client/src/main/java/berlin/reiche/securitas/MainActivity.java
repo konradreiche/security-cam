@@ -4,6 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -13,9 +17,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import berlin.reiche.securitas.util.Settings;
 
@@ -34,6 +42,10 @@ public class MainActivity extends Activity {
 	public TextView errors;
 
 	public ProgressBar progress;
+
+	public TextView headline;
+
+	public TextView subtitle;
 
 	private SharedPreferences settings;
 
@@ -62,9 +74,35 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.main);
 		initialize();
 		updateSettings();
+
+		if (getLastNonConfigurationInstance() != null) {
+			Bitmap bitmap = (Bitmap) getLastNonConfigurationInstance();
+			snapshot.setImageBitmap(bitmap);
+		}
+
 		if (isConfigured()) {
 			Client.retrieveServerStatus(this);
 		}
+	}
+
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		super.onRetainNonConfigurationInstance();
+		return ((BitmapDrawable) snapshot.getDrawable()).getBitmap();
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle savedInstanceState) {
+		super.onSaveInstanceState(savedInstanceState);
+		savedInstanceState.putString("button", detectionToggle.getText()
+				.toString());
+	}
+
+	@Override
+	public void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		String text = savedInstanceState.getString("button");
+		detectionToggle.setText(text);
 	}
 
 	@Override
@@ -73,6 +111,29 @@ public class MainActivity extends Activity {
 		Log.i(TAG, "onResume");
 		updateSettings();
 		GCMIntentService.resetMotionsDetected(this);
+
+		int orientation = getResources().getConfiguration().orientation;
+		switch (orientation) {
+		case Configuration.ORIENTATION_LANDSCAPE:
+			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+					WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+			snapshot.setScaleType(ScaleType.FIT_XY);
+			RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
+					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+
+			snapshot.setLayoutParams(layoutParams);
+			headline.setVisibility(View.GONE);
+			subtitle.setVisibility(View.GONE);
+			break;
+		case Configuration.ORIENTATION_PORTRAIT:
+			snapshot.setScaleType(ScaleType.FIT_CENTER);
+			headline.setVisibility(View.VISIBLE);
+			subtitle.setVisibility(View.VISIBLE);
+			break;
+		default:
+			Log.i(TAG, "Unexpected orientation " + orientation);
+		}
 	}
 
 	public void initialize() {
@@ -81,6 +142,9 @@ public class MainActivity extends Activity {
 			detectionToggle = (Button) findViewById(R.id.detection_toggle);
 			errors = (TextView) findViewById(R.id.errors);
 			progress = (ProgressBar) findViewById(R.id.progress_bar);
+			headline = (TextView) findViewById(R.id.headline);
+			subtitle = (TextView) findViewById(R.id.subtitle);
+			Client.activity = this;
 			initialized = true;
 		}
 	}
@@ -162,6 +226,14 @@ public class MainActivity extends Activity {
 		snapshot.setEnabled(true);
 		snapshot.setVisibility(View.VISIBLE);
 		progress.setVisibility(View.INVISIBLE);
+	}
+
+	public void enableDetectionUI() {
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+	}
+
+	public void disableDetectionUI() {
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 	}
 
 	public void toggleButtonText() {
