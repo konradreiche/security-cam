@@ -1,15 +1,13 @@
 import requests
-from securitas import util
-from sys import argv
+import util
 
 settings = util.read_settings('settings.cfg')
 
 
 def notify():
     auth = (settings['user'], settings['password'])
-    requests.get('http://localhost:%d/server/action/snapshot/ready'
+    requests.get('http://localhost:%d/alerts/motion'
                  % 4000, auth=auth)
 
 if __name__ == '__main__':
-    if argv[1].endswith('-snapshot.jpg'):
-        notify()
+    notify()

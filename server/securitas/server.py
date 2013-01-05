@@ -1,12 +1,12 @@
 from bottle import abort, get, post, request, run, static_file, parse_auth
 from gcm import GCM
-from securitas import util
 import datetime
 import logging
 import subprocess
 import requests
 import threading
 import time
+import util
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
@@ -22,6 +22,7 @@ class MotionProcess(object):
         self.gcm = GCM(settings['gcm_api_key'])
         self.control_port = settings['control_port']
         self.snapshot_ready = threading.Event()
+        self.latest_snapshot = None
 
     def start(self):
         if self.device is None:
@@ -51,6 +52,7 @@ class MotionProcess(object):
         data = {'timestamp': timestamp}
         try:
             self.gcm.plaintext_request(registration_id=self.device, data=data)
+            time.slee(5)
         except Exception as e:
             LOG.error(e)
 
@@ -62,8 +64,7 @@ class MotionProcess(object):
             url = 'http://localhost:%d/0/action/snapshot' % self.control_port
             requests.get(url)
             self.snapshot_ready.wait()
-            return static_file('lastsnap.jpg', root='captures',
-                               mimetype='image/jpg')
+            return self.latest_snapshot
 
 
 settings = util.read_settings('settings.cfg')
@@ -88,7 +89,7 @@ def authenticate(func):
 motion = MotionProcess(settings)
 
 
-@get('/status', apply=[authenticate])
+@get('/server/status', apply=[authenticate])
 def get_status():
     return motion.status()
 
@@ -115,11 +116,15 @@ def notify_device_about_motion():
 @get('/server/action/snapshot', apply=[authenticate])
 def make_snapshot():
     LOG.debug('Request a current snapshot')
-    return motion.request_snapshot()
+    filename = motion.request_snapshot()
+    LOG.debug('Filename is %s' % filename)
+    return static_file(filename, root='captures',
+                       mimetype='image/jpg')
 
 
-@get('/server/action/snapshot/ready', apply=[authenticate])
+@post('/server/action/snapshot/ready', apply=[authenticate])
 def notify_server_about_snapshot():
+    motion.latest_snapshot = request.forms.get('filename')
     motion.snapshot_ready.set()
     motion.snapshot_ready.clear()
 

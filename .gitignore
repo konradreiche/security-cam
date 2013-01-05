@@ -29,8 +29,11 @@ local.properties
 # Python
 *.pyc
 
-# API key file
-key.cfg
+# Settings file
+settings.cfg
 
-#Vim
+# Vim
 *.swp
+
+# Motion captures
+server/securitas/captures
