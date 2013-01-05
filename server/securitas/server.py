@@ -29,7 +29,7 @@ class MotionProcess(object):
             abort(409, 'Cannot start motion detection without device')
         elif self.process is None:
             LOG.info('Start motion process')
-            self.process = subprocess.Popen(['motion'])
+            self.process = subprocess.Popen(['motion','-c','etc/motion.conf'])
         else:
             LOG.info('Motion process already running')
 
@@ -67,7 +67,7 @@ class MotionProcess(object):
             return self.latest_snapshot
 
 
-settings = util.read_settings('settings.cfg')
+settings = util.read_settings('etc/settings.cfg')
 
 
 def authenticate(func):

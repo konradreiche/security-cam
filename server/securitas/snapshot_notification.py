@@ -2,7 +2,7 @@ from sys import argv
 import requests
 import util
 
-settings = util.read_settings('settings.cfg')
+settings = util.read_settings('etc/settings.cfg')
 
 
 def notify(filename):

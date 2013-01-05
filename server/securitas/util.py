@@ -9,7 +9,7 @@ def read_settings(path):
     password = config.get('Authentication', 'password')
     gcm_api_key = config.get('GCM', 'api_key')
 
-    for line in fileinput.input('motion.conf'):
+    for line in fileinput.input('etc/motion.conf'):
         split = line.split('control_port')
         if len(split) is 2:
             control_port = int(split[1])
