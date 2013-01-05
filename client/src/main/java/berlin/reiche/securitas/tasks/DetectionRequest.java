@@ -1,5 +1,6 @@
 package berlin.reiche.securitas.tasks;
 
+import static berlin.reiche.securitas.tasks.DetectionRequest.DetectionCommand.START;
 import static org.apache.http.HttpStatus.SC_CONFLICT;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
@@ -14,28 +15,30 @@ import org.apache.http.client.methods.HttpGet;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.MainActivity;
-import berlin.reiche.securitas.R;
 import berlin.reiche.securitas.util.HttpUtilities;
 
 import com.google.android.gcm.GCMRegistrar;
 
 public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 
+	public enum DetectionCommand {
+		START, STOP
+	};
+
 	IOException exception;
 
 	Activity activity;
 
+	DetectionCommand command;
+
 	private static String TAG = DetectionRequest.class.getSimpleName();
 
-	public DetectionRequest(Activity activity) {
+	public DetectionRequest(Activity activity, DetectionCommand command) {
 		this.activity = activity;
+		this.command = command;
 	}
 
 	@Override
@@ -57,41 +60,40 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 
 	protected void onPostExecute(HttpResponse response) {
 
-		Button button = (Button) activity
-				.findViewById(R.id.toggle_motion_detection);
-		TextView text = (TextView) activity.findViewById(R.id.connection_error);
-		ProgressBar progress = (ProgressBar) activity
-				.findViewById(R.id.progress_bar);
-
+		MainActivity activity = (MainActivity) this.activity;
 		if (exception != null && response == null) {
-			text.setText(exception.getMessage());
+			activity.errors.setText(exception.getMessage());
 		} else if (response == null) {
 			Log.e(TAG, "Response is null without an exception. "
 					+ "The endpoint probably ran into a problem.");
 		} else {
-
 			switch (response.getStatusLine().getStatusCode()) {
 			case SC_OK:
-				Client.downloadLatestSnapshot(activity, (ImageView) activity.findViewById(R.id.snapshotView));
-				String current = button.getText().toString();
-				button.setText(current.equals("Start") ? "Stop" : "Start");
 				Client.toggleDetectionActive();
-				break;
+				activity.toggleButtonText();
+				if (command == START) {
+					Client.downloadLatestSnapshot(activity, activity.snapshot);
+					return;
+				} else {
+					activity.unlockUI();
+					activity.snapshot.setVisibility(ImageView.INVISIBLE);
+					return;
+				}
 			case SC_UNAUTHORIZED:
-				text.setText("Unauthorized request, check authentication data");
+				activity.errors.setText("Unauthorized request, check "
+						+ "authentication data");
 				break;
 			case SC_CONFLICT:
 				GCMRegistrar.setRegisteredOnServer(activity, false);
-				((MainActivity) activity).manageDeviceRegistration();
+				activity.manageDeviceRegistration();
 				Client.toggleMotionDetection(activity);
 				return;
 			default:
 				StatusLine status = response.getStatusLine();
-				text.setText(String.valueOf(status.getStatusCode()) + " "
-						+ status.getReasonPhrase());
+				activity.errors.setText(String.valueOf(status.getStatusCode())
+						+ " " + status.getReasonPhrase());
 			}
 		}
-
-		((MainActivity)activity).unlockUI();
+		activity.unlockUI();
 	}
 }

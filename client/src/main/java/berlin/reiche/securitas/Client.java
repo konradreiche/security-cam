@@ -1,18 +1,18 @@
 package berlin.reiche.securitas;
 
+import static berlin.reiche.securitas.tasks.DetectionRequest.DetectionCommand.START;
+import static berlin.reiche.securitas.tasks.DetectionRequest.DetectionCommand.STOP;
 import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
 import android.widget.ImageView;
 import berlin.reiche.securitas.tasks.BitmapDownloadTask;
 import berlin.reiche.securitas.tasks.DetectionRequest;
 import berlin.reiche.securitas.tasks.DeviceRegistration;
 import berlin.reiche.securitas.tasks.DeviceRegistration.DeviceCommand;
+import berlin.reiche.securitas.tasks.StatusTask;
 import berlin.reiche.securitas.util.Settings;
 
 public class Client {
-
-	private static final String TAG = Client.class.getSimpleName();
 
 	// TODO: define enum constant for REST operations
 
@@ -47,13 +47,13 @@ public class Client {
 	private static void startMotionDetection(Activity activity) {
 		String operation = "/motion/detection/start";
 		String uri = endpoint + operation;
-		new DetectionRequest(activity).execute(uri);
+		new DetectionRequest(activity, START).execute(uri);
 	}
 
 	private static void stopMotionDetection(Activity activity) {
 		String operation = "/motion/detection/stop";
 		String uri = endpoint + operation;
-		new DetectionRequest(activity).execute(uri);
+		new DetectionRequest(activity, STOP).execute(uri);
 	}
 
 	public static void downloadLatestSnapshot(Activity activity,
@@ -65,8 +65,12 @@ public class Client {
 	public static void downloadSnapshot(Activity activity, ImageView imageView,
 			String filename) {
 		String url = endpoint + "/static/captures/" + filename;
-		Log.d(TAG, url);
 		new BitmapDownloadTask(activity, imageView).execute(url);
+	}
+	
+	public static void retrieveServerStatus(Activity activity) {
+		String url = endpoint + "/server/status";
+		new StatusTask(activity).execute(url);
 	}
 
 	public static Settings getSettings() {

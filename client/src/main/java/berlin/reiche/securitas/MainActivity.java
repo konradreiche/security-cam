@@ -27,7 +27,20 @@ public class MainActivity extends Activity {
 
 	static final String GCM_SENDER_ID = "958926895848";
 
+	public ImageView snapshot;
+
+	public Button detectionToggle;
+
+	public TextView errors;
+
+	public ProgressBar progress;
+
 	private SharedPreferences settings;
+
+	/**
+	 * Whether all components are initialized and can be referenced.
+	 */
+	private boolean initialized;
 
 	/**
 	 * Whether the motion detection on the endpoint is running.
@@ -47,7 +60,11 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		Log.i(TAG, "onCreate");
 		setContentView(R.layout.main);
-		Client.detectionActive = false;
+		initialize();
+		updateSettings();
+		if (isConfigured()) {
+			Client.retrieveServerStatus(this);
+		}
 	}
 
 	@Override
@@ -55,8 +72,17 @@ public class MainActivity extends Activity {
 		super.onResume();
 		Log.i(TAG, "onResume");
 		updateSettings();
-		GCMIntentService.resetMotionsDetected();
+		GCMIntentService.resetMotionsDetected(this);
+	}
 
+	public void initialize() {
+		if (!initialized) {
+			snapshot = (ImageView) findViewById(R.id.snapshot);
+			detectionToggle = (Button) findViewById(R.id.detection_toggle);
+			errors = (TextView) findViewById(R.id.errors);
+			progress = (ProgressBar) findViewById(R.id.progress_bar);
+			initialized = true;
+		}
 	}
 
 	private void updateSettings() {
@@ -113,37 +139,38 @@ public class MainActivity extends Activity {
 	}
 
 	public void toggleMotionDetection(View view) {
-
-		TextView text = (TextView) findViewById(R.id.connection_error);
-		text.setText(null);
+		errors.setText("");
 		lockUI();
 		Client.toggleMotionDetection(this);
 	}
 
 	public void refreshSnapshot(View view) {
 		lockUI();
-		Client.downloadLatestSnapshot(this,
-				(ImageView) findViewById(R.id.snapshotView));
+		Client.downloadLatestSnapshot(this, snapshot);
 	}
 
 	public void lockUI() {
-		Button button = (Button) findViewById(R.id.toggle_motion_detection);
-		button.setEnabled(false);
-		ImageView view = (ImageView) findViewById(R.id.snapshotView);
-		view.setEnabled(false);
-		view.setVisibility(View.INVISIBLE);
+		detectionToggle.setEnabled(false);
+		snapshot.setEnabled(false);
+		snapshot.setVisibility(View.INVISIBLE);
 		ProgressBar progress = (ProgressBar) findViewById(R.id.progress_bar);
 		progress.setVisibility(View.VISIBLE);
 	}
 
 	public void unlockUI() {
-		Button button = (Button) findViewById(R.id.toggle_motion_detection);
-		button.setEnabled(true);
-		ImageView view = (ImageView) findViewById(R.id.snapshotView);
-		view.setEnabled(true);
-		view.setVisibility(View.VISIBLE);
-		ProgressBar progress = (ProgressBar) findViewById(R.id.progress_bar);
+		detectionToggle.setEnabled(true);
+		snapshot.setEnabled(true);
+		snapshot.setVisibility(View.VISIBLE);
 		progress.setVisibility(View.INVISIBLE);
+	}
+
+	public void toggleButtonText() {
+		String current = detectionToggle.getText().toString();
+		if (current.equals(getString(R.string.button_start_detection))) {
+			detectionToggle.setText(R.string.button_stop_detection);
+		} else {
+			detectionToggle.setText(R.string.button_start_detection);
+		}
 	}
 
 	/**

@@ -1,5 +1,6 @@
 package berlin.reiche.securitas.tasks;
 
+import static berlin.reiche.securitas.tasks.DeviceRegistration.DeviceCommand.REGISTER;
 import static org.apache.http.HttpStatus.SC_OK;
 
 import java.io.IOException;
@@ -76,7 +77,7 @@ public class DeviceRegistration extends AsyncTask<String, Void, HttpResponse> {
 		} else {
 			switch (response.getStatusLine().getStatusCode()) {
 			case SC_OK:
-				boolean registered = command == DeviceCommand.REGISTER;
+				boolean registered = command == REGISTER;
 				GCMRegistrar.setRegisteredOnServer(context, registered);
 				break;
 			default:

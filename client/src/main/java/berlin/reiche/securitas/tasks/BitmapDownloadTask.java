@@ -59,8 +59,9 @@ public class BitmapDownloadTask extends AsyncTask<String, Void, Bitmap> {
 
 	@Override
 	protected void onPostExecute(Bitmap result) {
+		MainActivity activity = (MainActivity) this.activity;
 		imageView.setImageBitmap(result);
-		((MainActivity)activity).unlockUI();
+		activity.unlockUI();
 	}
 
 }
