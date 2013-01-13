@@ -29,7 +29,8 @@ class MotionProcess(object):
             abort(409, 'Cannot start motion detection without device')
         elif self.process is None:
             LOG.info('Start motion process')
-            self.process = subprocess.Popen(['motion','-c','etc/motion.conf'])
+            self.process = subprocess.Popen(['motion', '-c',
+                                             'etc/motion.conf'])
         else:
             LOG.info('Motion process already running')
 
@@ -46,13 +47,13 @@ class MotionProcess(object):
         else:
             return 'Running'
 
-    def alert(self):
+    def alert(self, filename):
         timestamp = datetime.datetime.now()
         timestamp = timestamp.strftime('%A, %d. %B %Y at %I:%M%p')
-        data = {'timestamp': timestamp}
+        data = {'timestamp': timestamp, 'filename': filename}
         try:
+            LOG.debug(filename)
             self.gcm.plaintext_request(registration_id=self.device, data=data)
-            time.slee(5)
         except Exception as e:
             LOG.error(e)
 
@@ -107,10 +108,11 @@ def stop_motion_detection():
     motion.stop()
 
 
-@get('/alerts/motion', apply=[authenticate])
+@post('/alerts/motion', apply=[authenticate])
 def notify_device_about_motion():
     LOG.debug('Notify device about motion')
-    motion.alert()
+    filename = request.forms.get('filename')
+    motion.alert(filename)
 
 
 @get('/server/action/snapshot', apply=[authenticate])
