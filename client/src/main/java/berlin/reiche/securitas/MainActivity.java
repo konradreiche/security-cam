@@ -1,5 +1,7 @@
 package berlin.reiche.securitas;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -17,11 +19,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -39,7 +39,9 @@ public class MainActivity extends Activity {
 
 	public Button detectionToggle;
 
-	public TextView errors;
+	public TextView status;
+
+	public RelativeLayout snapshotArea;
 
 	public ProgressBar progress;
 
@@ -80,9 +82,21 @@ public class MainActivity extends Activity {
 			snapshot.setImageBitmap(bitmap);
 		}
 
-		if (isConfigured()) {
-			Client.retrieveServerStatus(this);
+		if (savedInstanceState != null) {
+			String stateKey = getString(R.string.is_detection_active_key);
+			String snapshotKey = getString(R.string.snapshot_key);
+
+			boolean state = savedInstanceState.getBoolean(stateKey);
+			Bitmap bitmap = savedInstanceState.getParcelable(snapshotKey);
+			
+			snapshot.setImageBitmap(bitmap);
+			Client.restoreClientState(state);
+		} else {
+			// maybe the user hit the *Back* button with the motion detection
+			// still activate on the server, hence restore the state
+			Client.synchronizeServerStatus();
 		}
+
 	}
 
 	@Override
@@ -94,15 +108,27 @@ public class MainActivity extends Activity {
 	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {
 		super.onSaveInstanceState(savedInstanceState);
-		savedInstanceState.putString("button", detectionToggle.getText()
-				.toString());
+		String stateKey = getString(R.string.is_detection_active_key);
+		String snapshotKey = getString(R.string.snapshot_key);
+
+		Bitmap bitmap = ((BitmapDrawable) snapshot.getDrawable()).getBitmap();
+		boolean state = Client.isMotionDetectionActive();
+
+		savedInstanceState.putParcelable(snapshotKey, bitmap);
+		savedInstanceState.putBoolean(stateKey, state);
 	}
 
 	@Override
-	public void onRestoreInstanceState(Bundle savedInstanceState) {
-		super.onRestoreInstanceState(savedInstanceState);
-		String text = savedInstanceState.getString("button");
-		detectionToggle.setText(text);
+	public void onNewIntent(Intent intent) {
+
+		if (intent.getExtras() != null) {
+			String filename = intent.getExtras().getString("filename");
+			Log.d(TAG, "filename " + filename);
+			if (filename != null) {
+				lockInterface();
+				Client.downloadSnapshot(this, snapshot, filename);
+			}
+		}
 	}
 
 	@Override
@@ -113,26 +139,18 @@ public class MainActivity extends Activity {
 		GCMIntentService.resetMotionsDetected(this);
 
 		int orientation = getResources().getConfiguration().orientation;
-		switch (orientation) {
-		case Configuration.ORIENTATION_LANDSCAPE:
-			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-					WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
 
-			snapshot.setScaleType(ScaleType.FIT_XY);
-			RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
-					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+			getWindow().setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN);
+			LayoutParams params = new LayoutParams(MATCH_PARENT, MATCH_PARENT);
 
-			snapshot.setLayoutParams(layoutParams);
+			snapshotArea.setLayoutParams(params);
 			headline.setVisibility(View.GONE);
 			subtitle.setVisibility(View.GONE);
-			break;
-		case Configuration.ORIENTATION_PORTRAIT:
-			snapshot.setScaleType(ScaleType.FIT_CENTER);
-			headline.setVisibility(View.VISIBLE);
-			subtitle.setVisibility(View.VISIBLE);
-			break;
-		default:
-			Log.i(TAG, "Unexpected orientation " + orientation);
+		} else {
+			Log.i(TAG, "Orientation changed back");
+			Log.i(TAG, "Client active = " + Client.isMotionDetectionActive());
+			reflectClientState();
 		}
 	}
 
@@ -140,8 +158,9 @@ public class MainActivity extends Activity {
 		if (!initialized) {
 			snapshot = (ImageView) findViewById(R.id.snapshot);
 			detectionToggle = (Button) findViewById(R.id.detection_toggle);
-			errors = (TextView) findViewById(R.id.errors);
+			status = (TextView) findViewById(R.id.errors);
 			progress = (ProgressBar) findViewById(R.id.progress_bar);
+			snapshotArea = (RelativeLayout) findViewById(R.id.snapshot_area);
 			headline = (TextView) findViewById(R.id.headline);
 			subtitle = (TextView) findViewById(R.id.subtitle);
 			Client.activity = this;
@@ -203,45 +222,36 @@ public class MainActivity extends Activity {
 	}
 
 	public void toggleMotionDetection(View view) {
-		errors.setText("");
-		lockUI();
-		Client.toggleMotionDetection(this);
+		status.setText(null);
+		if (Client.motionDetectionActive) {
+			Client.invokeDetectionStop();
+		} else {
+			Client.invokeDetectionStart();
+		}
 	}
 
-	public void refreshSnapshot(View view) {
-		lockUI();
-		Client.downloadLatestSnapshot(this, snapshot);
-	}
-
-	public void lockUI() {
+	public void lockInterface() {
 		detectionToggle.setEnabled(false);
 		snapshot.setEnabled(false);
-		snapshot.setVisibility(View.INVISIBLE);
 		ProgressBar progress = (ProgressBar) findViewById(R.id.progress_bar);
 		progress.setVisibility(View.VISIBLE);
+		snapshot.setVisibility(View.INVISIBLE);
 	}
 
-	public void unlockUI() {
+	/**
+	 * Unlocks the interface because a request was carried out, independent
+	 * whether it was successful or not.
+	 * 
+	 * Only make {@link ImageView} for snapshot visible again, if the motion
+	 * detection is currently active.
+	 */
+	public void unlockInterface() {
 		detectionToggle.setEnabled(true);
 		snapshot.setEnabled(true);
-		snapshot.setVisibility(View.VISIBLE);
 		progress.setVisibility(View.INVISIBLE);
-	}
 
-	public void enableDetectionUI() {
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-	}
-
-	public void disableDetectionUI() {
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
-	}
-
-	public void toggleButtonText() {
-		String current = detectionToggle.getText().toString();
-		if (current.equals(getString(R.string.button_start_detection))) {
-			detectionToggle.setText(R.string.button_stop_detection);
-		} else {
-			detectionToggle.setText(R.string.button_start_detection);
+		if (Client.isMotionDetectionActive()) {
+			snapshot.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -261,6 +271,7 @@ public class MainActivity extends Activity {
 		}
 	}
 
+	// TODO: make use of it
 	public boolean isNetworkAvailable() {
 		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = cm.getActiveNetworkInfo();
@@ -270,4 +281,38 @@ public class MainActivity extends Activity {
 		return false;
 	}
 
+	public void refreshSnapshot(View view) {
+		Client.downloadLatestSnapshot(snapshot);
+	}
+
+	/**
+	 * After the application is restarted due to application pause, termination,
+	 * etc.
+	 */
+	public void reflectClientState() {
+		if (Client.motionDetectionActive) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+			detectionToggle.setText(R.string.button_stop_detection);
+		} else {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+			detectionToggle.setText(R.string.button_start_detection);
+			snapshot.setVisibility(ImageView.INVISIBLE);
+		}
+
+	}
+
+	/**
+	 * After the user has made an action this method is used to reflect the
+	 * changes.
+	 * 
+	 * Depending on the state if might trigger further changes, for instance
+	 * when the motion detection is activated, then the latest snapshot will be
+	 * requested.
+	 */
+	public void triggerInterfaceUpdate() {
+		reflectClientState();
+		if (Client.motionDetectionActive) {
+			Client.downloadLatestSnapshot(snapshot);
+		}
+	}
 }

@@ -34,11 +34,11 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 
 	@Override
 	protected HttpResponse doInBackground(String... uri) {
-		
+
 		HttpClient client = HttpUtilities.newHttpClient();
 		HttpGet get = new HttpGet(uri[0]);
 		HttpUtilities.setAuthorization(get, Client.getSettings());
-		
+
 		try {
 			return client.execute(get);
 		} catch (IOException e) {
@@ -52,33 +52,33 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 	@Override
 	protected void onPostExecute(HttpResponse response) {
 
+		MainActivity activity = (MainActivity) this.activity;
 		if (response == null) {
 			return;
 		}
 
 		try {
-			MainActivity activity = (MainActivity) this.activity;
 			String content = getString(response.getEntity().getContent());
-			ServerStatus status = ServerStatus.valueOf(content.toUpperCase(Locale.US));
+			content = content.toUpperCase(Locale.US);
+			ServerStatus status = ServerStatus.valueOf(content);
 			switch (status) {
 			case IDLE:
 				if (GCMRegistrar.isRegisteredOnServer(activity)) {
 					GCMRegistrar.setRegisteredOnServer(activity, false);
 					activity.manageDeviceRegistration();
 				}
+				activity.unlockInterface();
 				break;
 			case READY:
+				activity.unlockInterface();
 				break;
 			case RUNNING:
-				if (!Client.isDetectionActive()) {
-					Client.toggleDetectionActive();
-					activity.toggleButtonText();
-					Client.downloadLatestSnapshot(activity, activity.snapshot);
-				}
+				Client.enableMotionDetection();
 				break;
 			}
 		} catch (IOException e) {
 			Log.e(TAG, "The stream of the response could not be created.");
+			activity.unlockInterface();
 		}
 	}
 

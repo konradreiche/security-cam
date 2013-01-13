@@ -62,6 +62,9 @@ public class GCMIntentService extends GCMBaseIntentService {
 
 		NotificationManager nm = (NotificationManager) getSystemService(NS);
 		String timestamp = intent.getExtras().getString("timestamp");
+		String filename = intent.getExtras().getString("filename");
+
+		Log.i(TAG, "Received filename " + filename);
 
 		String text = "Motion Alert";
 		if (motionsDetected > 1) {
@@ -79,7 +82,10 @@ public class GCMIntentService extends GCMBaseIntentService {
 		CharSequence contentTitle = text;
 		CharSequence contentText = timestamp;
 		Intent notificationIntent = new Intent(this, MainActivity.class);
-		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP
+				| Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		
+		notificationIntent.putExtra("filename", filename);
 
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
 				notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);

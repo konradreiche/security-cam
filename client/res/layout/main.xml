@@ -21,33 +21,39 @@
         android:text="@string/sub_headline"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
-    <ImageView
-        android:id="@+id/snapshot"
-        android:layout_width="fill_parent"
+    <RelativeLayout
+        android:id="@+id/snapshot_area"
+        android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_below="@+id/subtitle"
-        android:layout_gravity="center"
         android:layout_marginTop="70dp"
-        android:contentDescription="@string/snapshot_description"
-        android:onClick="refreshSnapshot" />
+        android:orientation="vertical" >
 
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignTop="@+id/snapshot"
-        android:layout_marginTop="50dp"
-        android:visibility="invisible" />
+        <ImageView
+            android:id="@+id/snapshot"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center"
+            android:contentDescription="@string/snapshot_description"
+            android:onClick="refreshSnapshot" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:visibility="invisible" />
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/errors"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/snapshot"
+        android:layout_below="@+id/snapshot_area"
         android:layout_marginTop="80dp"
-        android:textSize="12sp"
-        android:gravity="center" />
+        android:gravity="center"
+        android:textSize="12sp" />
 
     <Button
         android:id="@+id/detection_toggle"

@@ -15,22 +15,14 @@ import berlin.reiche.securitas.util.Settings;
 public class Client {
 
 	// TODO: define enum constant for REST operations
-
+	
 	static String endpoint;
 
 	static Settings settings;
 
-	static boolean detectionActive;
-	
-	static MainActivity activity;
+	static boolean motionDetectionActive;
 
-	public static void toggleMotionDetection(Activity activity) {
-		if (!detectionActive) {
-			startMotionDetection(activity);
-		} else {
-			stopMotionDetection(activity);
-		}
-	}
+	static MainActivity activity;
 
 	public static void registerDevice(String id, Context context) {
 		String operation = "/device/register";
@@ -46,20 +38,22 @@ public class Client {
 				.execute(uri);
 	}
 
-	private static void startMotionDetection(Activity activity) {
+	public static void invokeDetectionStart() {
+		activity.lockInterface();
 		String operation = "/motion/detection/start";
 		String uri = endpoint + operation;
 		new DetectionRequest(activity, START).execute(uri);
 	}
 
-	private static void stopMotionDetection(Activity activity) {
+	public static void invokeDetectionStop() {
+		activity.lockInterface();
 		String operation = "/motion/detection/stop";
 		String uri = endpoint + operation;
 		new DetectionRequest(activity, STOP).execute(uri);
 	}
 
-	public static void downloadLatestSnapshot(Activity activity,
-			ImageView imageView) {
+	public static void downloadLatestSnapshot(ImageView imageView) {
+		activity.lockInterface();
 		String url = endpoint + "/server/action/snapshot";
 		new BitmapDownloadTask(activity, imageView).execute(url);
 	}
@@ -69,8 +63,9 @@ public class Client {
 		String url = endpoint + "/static/captures/" + filename;
 		new BitmapDownloadTask(activity, imageView).execute(url);
 	}
-	
-	public static void retrieveServerStatus(Activity activity) {
+
+	public static void synchronizeServerStatus() {
+		activity.lockInterface();
 		String url = endpoint + "/server/status";
 		new StatusTask(activity).execute(url);
 	}
@@ -79,17 +74,25 @@ public class Client {
 		return settings;
 	}
 
-	public static boolean isDetectionActive() {
-		return detectionActive;
+	public static boolean isMotionDetectionActive() {
+		return motionDetectionActive;
 	}
 
-	public static void toggleDetectionActive() {
-		detectionActive = !detectionActive;
-		if (detectionActive) {
-			activity.enableDetectionUI();
-		} else {
-			activity.disableDetectionUI();
+	public static void restoreClientState(boolean motionDetectionActive) {
+		if (Client.motionDetectionActive != motionDetectionActive) {
+			Client.motionDetectionActive = motionDetectionActive;
 		}
+		activity.reflectClientState();
+	}
+
+	public static void enableMotionDetection() {
+		Client.motionDetectionActive = true;
+		activity.triggerInterfaceUpdate();
+	}
+
+	public static void disableMotionDetection() {
+		Client.motionDetectionActive = false;
+		activity.triggerInterfaceUpdate();
 	}
 
 }

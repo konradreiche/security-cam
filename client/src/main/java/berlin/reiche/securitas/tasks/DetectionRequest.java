@@ -15,7 +15,6 @@ import org.apache.http.client.methods.HttpGet;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.ImageView;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.MainActivity;
 import berlin.reiche.securitas.util.HttpUtilities;
@@ -62,38 +61,35 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 
 		MainActivity activity = (MainActivity) this.activity;
 		if (exception != null && response == null) {
-			activity.errors.setText(exception.getMessage());
+			activity.status.setText(exception.getMessage());
 		} else if (response == null) {
 			Log.e(TAG, "Response is null without an exception. "
 					+ "The endpoint probably ran into a problem.");
 		} else {
 			switch (response.getStatusLine().getStatusCode()) {
 			case SC_OK:
-				Client.toggleDetectionActive();
-				activity.toggleButtonText();
 				if (command == START) {
-					Client.downloadLatestSnapshot(activity, activity.snapshot);
-					return;
+					Client.enableMotionDetection();
 				} else {
-					activity.unlockUI();
-					activity.snapshot.setVisibility(ImageView.INVISIBLE);
-					return;
+					Client.disableMotionDetection();
+					activity.unlockInterface();
 				}
+				break;
 			case SC_UNAUTHORIZED:
-				activity.errors.setText("Unauthorized request, check "
+				activity.status.setText("Unauthorized request, check "
 						+ "authentication data");
+				activity.unlockInterface();
 				break;
 			case SC_CONFLICT:
 				GCMRegistrar.setRegisteredOnServer(activity, false);
 				activity.manageDeviceRegistration();
-				Client.toggleMotionDetection(activity);
-				return;
+				break;
 			default:
 				StatusLine status = response.getStatusLine();
-				activity.errors.setText(String.valueOf(status.getStatusCode())
+				activity.status.setText(String.valueOf(status.getStatusCode())
 						+ " " + status.getReasonPhrase());
+				activity.unlockInterface();
 			}
 		}
-		activity.unlockUI();
 	}
 }
