@@ -31,6 +31,7 @@ local.properties
 
 # Settings file
 settings.cfg
+motion.conf
 
 # Vim
 *.swp
