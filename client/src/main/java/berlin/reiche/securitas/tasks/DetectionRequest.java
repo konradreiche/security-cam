@@ -62,6 +62,7 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 		MainActivity activity = (MainActivity) this.activity;
 		if (exception != null && response == null) {
 			activity.status.setText(exception.getMessage());
+			activity.unlockInterface();
 		} else if (response == null) {
 			Log.e(TAG, "Response is null without an exception. "
 					+ "The endpoint probably ran into a problem.");

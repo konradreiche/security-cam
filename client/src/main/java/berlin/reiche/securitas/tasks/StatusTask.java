@@ -54,6 +54,7 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 
 		MainActivity activity = (MainActivity) this.activity;
 		if (response == null) {
+			activity.unlockInterface();
 			return;
 		}
 

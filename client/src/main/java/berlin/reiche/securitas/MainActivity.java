@@ -83,6 +83,7 @@ public class MainActivity extends Activity {
 		}
 
 		if (savedInstanceState != null) {
+			Log.i(TAG, "Restore saved instance state");
 			String stateKey = getString(R.string.is_detection_active_key);
 			String snapshotKey = getString(R.string.snapshot_key);
 
@@ -111,11 +112,12 @@ public class MainActivity extends Activity {
 		String stateKey = getString(R.string.is_detection_active_key);
 		String snapshotKey = getString(R.string.snapshot_key);
 
-		Bitmap bitmap = ((BitmapDrawable) snapshot.getDrawable()).getBitmap();
 		boolean state = Client.isMotionDetectionActive();
-
-		savedInstanceState.putParcelable(snapshotKey, bitmap);
 		savedInstanceState.putBoolean(stateKey, state);
+		if (snapshot.getDrawable() != null) {
+			Bitmap bitmap = ((BitmapDrawable) snapshot.getDrawable()).getBitmap();			
+			savedInstanceState.putParcelable(snapshotKey, bitmap);
+		}
 	}
 
 	@Override
@@ -148,8 +150,6 @@ public class MainActivity extends Activity {
 			headline.setVisibility(View.GONE);
 			subtitle.setVisibility(View.GONE);
 		} else {
-			Log.i(TAG, "Orientation changed back");
-			Log.i(TAG, "Client active = " + Client.isMotionDetectionActive());
 			reflectClientState();
 		}
 	}
