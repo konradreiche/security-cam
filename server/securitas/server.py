@@ -1,9 +1,11 @@
 from bottle import abort, get, post, request, run, static_file, parse_auth
-from gcm import GCM
-import datetime
+from events import SnapshotEventHandler
+from notifier import AlertNotifier
+from watchdog.observers import Observer
 import logging
-import subprocess
 import requests
+import subprocess
+import sys
 import threading
 import time
 import util
@@ -19,10 +21,11 @@ class MotionProcess(object):
     def __init__(self, settings):
         self.process = None
         self.device = None
-        self.gcm = GCM(settings['gcm_api_key'])
         self.control_port = settings['control_port']
-        self.snapshot_ready = threading.Event()
+        self.settings = settings
+        self.snapshot_event = threading.Event()
         self.latest_snapshot = None
+        self.notifier = None
 
     def start(self):
         if self.device is None:
@@ -47,25 +50,27 @@ class MotionProcess(object):
         else:
             return 'Running'
 
-    def alert(self, filename):
-        timestamp = datetime.datetime.now()
-        timestamp = timestamp.strftime('%A, %d. %B %Y at %I:%M%p')
-        data = {'timestamp': timestamp, 'filename': filename}
-        try:
-            LOG.debug(filename)
-            self.gcm.plaintext_request(registration_id=self.device, data=data)
-        except Exception as e:
-            LOG.error(e)
-
     def set_device(self, id):
         self.device = id
+        if id is None:
+            self.notifier = None
+        else:
+            self.notifier = AlertNotifier(self.settings,  id)
+
+    def alert(self, filename):
+        self.notifier.notify(filename)
 
     def request_snapshot(self):
         if self.process is not None:
             url = 'http://localhost:%d/0/action/snapshot' % self.control_port
             requests.get(url)
-            self.snapshot_ready.wait()
+            self.snapshot_event.wait()
             return self.latest_snapshot
+
+    def notify_about_snapshot(self, filename):
+        self.latest_snapshot = filename
+        self.snapshot_event.set()
+        self.snapshot_event.clear()
 
 
 settings = util.read_settings('etc/settings.cfg')
@@ -88,6 +93,10 @@ def authenticate(func):
 
 
 motion = MotionProcess(settings)
+event_handler = SnapshotEventHandler(motion)
+observer = Observer()
+observer.schedule(event_handler, 'captures', recursive=False)
+observer.start()
 
 
 @get('/server/status', apply=[authenticate])
@@ -108,13 +117,6 @@ def stop_motion_detection():
     motion.stop()
 
 
-@post('/alerts/motion', apply=[authenticate])
-def notify_device_about_motion():
-    LOG.debug('Notify device about motion')
-    filename = request.forms.get('filename')
-    motion.alert(filename)
-
-
 @get('/server/action/snapshot', apply=[authenticate])
 def make_snapshot():
     LOG.debug('Request a current snapshot')
@@ -122,13 +124,6 @@ def make_snapshot():
     LOG.debug('Filename is %s' % filename)
     return static_file(filename, root='captures',
                        mimetype='image/jpg')
-
-
-@post('/server/action/snapshot/ready', apply=[authenticate])
-def notify_server_about_snapshot():
-    motion.latest_snapshot = request.forms.get('filename')
-    motion.snapshot_ready.set()
-    motion.snapshot_ready.clear()
 
 
 @get('/static/captures/<filename:re:.*\.jpg>', apply=[authenticate])
@@ -154,4 +149,9 @@ def unregister_device():
 
 
 if __name__ == '__main__':
-    run(server='paste', host='0.0.0.0', port=4000)
+
+    try:
+        run(server='paste', host='0.0.0.0', port=4000)
+    finally:
+        observer.stop()
+        sys.exit()
