@@ -11,5 +11,8 @@ class SnapshotEventHandler(FileSystemEventHandler):
         filename = basename(event.src_path)
         if filename.endswith('snapshot.jpg'):
             self.motion_process.notify_about_snapshot(filename)
+        elif filename == 'lastsnap.jpg':
+            # swallow
+            pass
         else:
             self.motion_process.alert(filename)
