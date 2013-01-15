@@ -2,7 +2,6 @@ package berlin.reiche.securitas;
 
 import static berlin.reiche.securitas.tasks.DetectionRequest.DetectionCommand.START;
 import static berlin.reiche.securitas.tasks.DetectionRequest.DetectionCommand.STOP;
-import android.app.Activity;
 import android.content.Context;
 import android.widget.ImageView;
 import berlin.reiche.securitas.tasks.BitmapDownloadTask;
@@ -58,7 +57,7 @@ public class Client {
 		new BitmapDownloadTask(activity, imageView).execute(url);
 	}
 
-	public static void downloadSnapshot(Activity activity, ImageView imageView,
+	public static void downloadSnapshot(ImageView imageView,
 			String filename) {
 		String url = endpoint + "/static/captures/" + filename;
 		new BitmapDownloadTask(activity, imageView).execute(url);

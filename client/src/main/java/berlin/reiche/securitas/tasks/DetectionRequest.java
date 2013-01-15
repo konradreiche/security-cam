@@ -84,6 +84,9 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 			case SC_CONFLICT:
 				GCMRegistrar.setRegisteredOnServer(activity, false);
 				activity.manageDeviceRegistration();
+				if (command == START) {
+					Client.invokeDetectionStart();
+				}
 				break;
 			default:
 				StatusLine status = response.getStatusLine();

@@ -128,7 +128,7 @@ public class MainActivity extends Activity {
 			Log.d(TAG, "filename " + filename);
 			if (filename != null) {
 				lockInterface();
-				Client.downloadSnapshot(this, snapshot, filename);
+				Client.downloadSnapshot(snapshot, filename);
 			}
 		}
 	}

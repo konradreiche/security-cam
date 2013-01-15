@@ -7,7 +7,7 @@ class SnapshotEventHandler(FileSystemEventHandler):
     def __init__(self, motion_process):
         self.motion_process = motion_process
 
-    def on_created(self, event):
+    def on_modified(self, event):
         filename = basename(event.src_path)
         if filename.endswith('snapshot.jpg'):
             self.motion_process.notify_about_snapshot(filename)

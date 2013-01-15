@@ -119,9 +119,7 @@ def stop_motion_detection():
 
 @get('/server/action/snapshot', apply=[authenticate])
 def make_snapshot():
-    LOG.debug('Request a current snapshot')
     filename = motion.request_snapshot()
-    LOG.debug('Filename is %s' % filename)
     return static_file(filename, root='captures',
                        mimetype='image/jpg')
 
@@ -152,6 +150,8 @@ if __name__ == '__main__':
 
     try:
         run(server='paste', host='0.0.0.0', port=4000)
+    except Exception as e:
+        LOG.warning(e)
     finally:
         observer.stop()
         sys.exit()
