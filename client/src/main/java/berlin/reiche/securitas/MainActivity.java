@@ -127,6 +127,7 @@ public class MainActivity extends Activity {
 			String filename = intent.getExtras().getString("filename");
 			Log.d(TAG, "filename " + filename);
 			if (filename != null) {
+				GCMIntentService.resetMotionsDetected(this);
 				lockInterface();
 				Client.downloadSnapshot(snapshot, filename);
 			}
@@ -138,7 +139,6 @@ public class MainActivity extends Activity {
 		super.onResume();
 		Log.i(TAG, "onResume");
 		updateSettings();
-		GCMIntentService.resetMotionsDetected(this);
 
 		int orientation = getResources().getConfiguration().orientation;
 		if (orientation == Configuration.ORIENTATION_LANDSCAPE) {

@@ -10,6 +10,6 @@ class AlertNotifier(object):
 
     def notify(self, filename):
         timestamp = datetime.datetime.now()
-        timestamp = timestamp.strftime('%A, %d. %B %Y at %I:%M%p')
+        timestamp = timestamp.strftime('%d. %B %Y at %I:%M%p')
         data = {'timestamp': timestamp, 'filename': filename}
         self.gcm.plaintext_request(registration_id=self.device, data=data)
