@@ -34,7 +34,6 @@ public abstract class Controller {
 	final void notifyOutboxHandlers(int what, int arg1, int arg2, Object obj) {
 
 		if (!outboxHandlers.isEmpty()) {
-
 			for (Handler handler : outboxHandlers) {
 				Message.obtain(handler, what, arg1, arg2, obj).sendToTarget();
 			}

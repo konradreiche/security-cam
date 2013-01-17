@@ -11,6 +11,12 @@ import berlin.reiche.securitas.tasks.DeviceRegistration.DeviceCommand;
 import berlin.reiche.securitas.tasks.StatusTask;
 import berlin.reiche.securitas.util.Settings;
 
+/**
+ * The model of this application.
+ * 
+ * @author Konrad Reiche
+ *
+ */
 public class Client {
 
 	// TODO: define enum constant for REST operations
