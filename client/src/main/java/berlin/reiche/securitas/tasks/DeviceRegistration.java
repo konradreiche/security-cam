@@ -13,7 +13,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import berlin.reiche.securitas.Client;
-import berlin.reiche.securitas.controller.MainActivity;
+import berlin.reiche.securitas.activies.MainActivity;
 import berlin.reiche.securitas.util.HttpUtilities;
 
 import com.google.android.gcm.GCMRegistrar;

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.util.Log;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.R;
+import berlin.reiche.securitas.activies.MainActivity;
 
 import com.google.android.gcm.GCMBaseIntentService;
 

@@ -1,4 +1,4 @@
-package berlin.reiche.securitas.controller;
+package berlin.reiche.securitas.activies;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
@@ -28,6 +28,7 @@ import android.widget.TextView;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.Model;
 import berlin.reiche.securitas.R;
+import berlin.reiche.securitas.controller.GCMIntentService;
 import berlin.reiche.securitas.util.Observer;
 import berlin.reiche.securitas.util.Settings;
 
@@ -37,7 +38,7 @@ public class MainActivity extends Activity implements Observer<Model> {
 
 	private static String TAG = MainActivity.class.getSimpleName();
 
-	static final String GCM_SENDER_ID = "958926895848";
+	public static final String GCM_SENDER_ID = "958926895848";
 
 	public ImageView snapshot;
 

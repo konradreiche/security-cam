@@ -1,4 +1,4 @@
-package berlin.reiche.securitas.controller;
+package berlin.reiche.securitas.activies;
 
 import android.os.Bundle;
 import android.preference.PreferenceActivity;

@@ -1,13 +1,12 @@
 package berlin.reiche.securitas;
 
-import static berlin.reiche.securitas.tasks.DetectionRequest.DetectionCommand.START;
-import static berlin.reiche.securitas.tasks.DetectionRequest.DetectionCommand.STOP;
 import android.content.Context;
 import android.widget.ImageView;
-import berlin.reiche.securitas.controller.MainActivity;
+import berlin.reiche.securitas.activies.MainActivity;
 import berlin.reiche.securitas.tasks.BitmapDownloadTask;
 import berlin.reiche.securitas.tasks.DetectionRequest;
 import berlin.reiche.securitas.tasks.DeviceRegistration;
+import berlin.reiche.securitas.tasks.DetectionRequest.DetectionCommand;
 import berlin.reiche.securitas.tasks.DeviceRegistration.DeviceCommand;
 import berlin.reiche.securitas.tasks.StatusTask;
 import berlin.reiche.securitas.util.Settings;
@@ -16,12 +15,10 @@ import berlin.reiche.securitas.util.Settings;
  * The model of this application.
  * 
  * @author Konrad Reiche
- *
+ * 
  */
 public class Client {
 
-	// TODO: define enum constant for REST operations
-	
 	public static String endpoint;
 
 	public static Settings settings;
@@ -29,9 +26,9 @@ public class Client {
 	public static boolean motionDetectionActive;
 
 	public static MainActivity activity;
-	
+
 	private static final Model model;
-	
+
 	static {
 		model = new Model();
 	}
@@ -54,14 +51,14 @@ public class Client {
 		activity.lockInterface();
 		String operation = "/motion/detection/start";
 		String uri = endpoint + operation;
-		new DetectionRequest(activity, START).execute(uri);
+		new DetectionRequest(activity, DetectionCommand.START).execute(uri);
 	}
 
 	public static void invokeDetectionStop() {
 		activity.lockInterface();
 		String operation = "/motion/detection/stop";
 		String uri = endpoint + operation;
-		new DetectionRequest(activity, STOP).execute(uri);
+		new DetectionRequest(activity, DetectionCommand.STOP).execute(uri);
 	}
 
 	public static void downloadLatestSnapshot(ImageView imageView) {
@@ -70,8 +67,7 @@ public class Client {
 		new BitmapDownloadTask(activity, imageView).execute(url);
 	}
 
-	public static void downloadSnapshot(ImageView imageView,
-			String filename) {
+	public static void downloadSnapshot(ImageView imageView, String filename) {
 		String url = endpoint + "/static/captures/" + filename;
 		new BitmapDownloadTask(activity, imageView).execute(url);
 	}
@@ -108,7 +104,7 @@ public class Client {
 	}
 
 	public static Model getModel() {
-		return model;		
+		return model;
 	}
 
 }
