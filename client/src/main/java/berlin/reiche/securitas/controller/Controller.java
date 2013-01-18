@@ -14,12 +14,19 @@ public abstract class Controller {
 	final List<Handler> outboxHandlers;
 
 	public Controller() {
-		inboxHandlerThread = new HandlerThread("Controller");
-		inboxHandler = new Handler(inboxHandlerThread.getLooper());
+		inboxHandlerThread = new HandlerThread("Controller Inbox");
+		inboxHandlerThread.start();
+		
+		inboxHandler = new InboxHandler(inboxHandlerThread.getLooper(), this);
 		outboxHandlers = new ArrayList<Handler>();
 	}
 
-	public final void dispose() {
+	abstract void handleMessage(Message msg);
+
+	/**
+	 * Asks the inbox handler thread to shutdown gracefully.
+	 */
+	void dispose() {
 		inboxHandlerThread.getLooper().quit();
 	}
 

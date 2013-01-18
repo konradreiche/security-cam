@@ -13,6 +13,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Handler.Callback;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
@@ -34,7 +37,7 @@ import berlin.reiche.securitas.util.Settings;
 
 import com.google.android.gcm.GCMRegistrar;
 
-public class MainActivity extends Activity implements Observer<Model> {
+public class MainActivity extends Activity implements Observer<Model>, Callback {
 
 	private static String TAG = MainActivity.class.getSimpleName();
 
@@ -161,10 +164,11 @@ public class MainActivity extends Activity implements Observer<Model> {
 	}
 
 	public void initialize() {
-		
+
 		if (!initialized) {
 			Client.getModel().addObserver(this);
-			
+			Client.getController().addOutboxHandler(new Handler(this));
+
 			snapshot = (ImageView) findViewById(R.id.snapshot);
 			detectionToggle = (Button) findViewById(R.id.detection_toggle);
 			status = (TextView) findViewById(R.id.errors);
@@ -334,5 +338,11 @@ public class MainActivity extends Activity implements Observer<Model> {
 				triggerInterfaceUpdate();
 			}
 		});
+	}
+
+	@Override
+	public boolean handleMessage(Message msg) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

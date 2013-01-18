@@ -1,5 +1,6 @@
 package berlin.reiche.securitas.controller;
 
+import android.os.Message;
 import berlin.reiche.securitas.Model;
 
 public class ClientController extends Controller {
@@ -22,6 +23,18 @@ public class ClientController extends Controller {
 
 	public Model getModel() {
 		return model;
+	}
+
+	@Override
+	void dispose() {
+		super.dispose();
+		state.dispose();
+	}
+	
+	@Override
+	void handleMessage(Message msg) {
+		// TODO: check return value
+		state.handleMessage(msg);
 	}
 	
 }

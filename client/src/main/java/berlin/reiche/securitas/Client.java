@@ -3,10 +3,12 @@ package berlin.reiche.securitas;
 import android.content.Context;
 import android.widget.ImageView;
 import berlin.reiche.securitas.activies.MainActivity;
+import berlin.reiche.securitas.controller.ClientController;
+import berlin.reiche.securitas.controller.Controller;
 import berlin.reiche.securitas.tasks.BitmapDownloadTask;
 import berlin.reiche.securitas.tasks.DetectionRequest;
-import berlin.reiche.securitas.tasks.DeviceRegistration;
 import berlin.reiche.securitas.tasks.DetectionRequest.DetectionCommand;
+import berlin.reiche.securitas.tasks.DeviceRegistration;
 import berlin.reiche.securitas.tasks.DeviceRegistration.DeviceCommand;
 import berlin.reiche.securitas.tasks.StatusTask;
 import berlin.reiche.securitas.util.Settings;
@@ -27,10 +29,13 @@ public class Client {
 
 	public static MainActivity activity;
 
-	private static final Model model;
+	private static Model model;
+
+	private static Controller controller;
 
 	static {
 		model = new Model();
+		controller = new ClientController(model);
 	}
 
 	public static void registerDevice(String id, Context context) {
@@ -105,6 +110,10 @@ public class Client {
 
 	public static Model getModel() {
 		return model;
+	}
+
+	public static Controller getController() {
+		return controller;
 	}
 
 }
