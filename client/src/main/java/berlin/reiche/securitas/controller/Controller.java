@@ -1,4 +1,4 @@
-package berlin.reiche.securitas;
+package berlin.reiche.securitas.controller;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -14,7 +14,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.widget.ImageView;
 import berlin.reiche.securitas.Client;
-import berlin.reiche.securitas.MainActivity;
+import berlin.reiche.securitas.controller.MainActivity;
 import berlin.reiche.securitas.util.FlushedInputStream;
 import berlin.reiche.securitas.util.HttpUtilities;
 

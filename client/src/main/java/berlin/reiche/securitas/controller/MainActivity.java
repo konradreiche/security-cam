@@ -1,4 +1,4 @@
-package berlin.reiche.securitas;
+package berlin.reiche.securitas.controller;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
@@ -25,11 +25,15 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
+import berlin.reiche.securitas.Client;
+import berlin.reiche.securitas.Model;
+import berlin.reiche.securitas.R;
+import berlin.reiche.securitas.util.Observer;
 import berlin.reiche.securitas.util.Settings;
 
 import com.google.android.gcm.GCMRegistrar;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements Observer<Model> {
 
 	private static String TAG = MainActivity.class.getSimpleName();
 
@@ -89,7 +93,7 @@ public class MainActivity extends Activity {
 
 			boolean state = savedInstanceState.getBoolean(stateKey);
 			Bitmap bitmap = savedInstanceState.getParcelable(snapshotKey);
-			
+
 			snapshot.setImageBitmap(bitmap);
 			Client.restoreClientState(state);
 		} else {
@@ -115,7 +119,8 @@ public class MainActivity extends Activity {
 		boolean state = Client.isMotionDetectionActive();
 		savedInstanceState.putBoolean(stateKey, state);
 		if (snapshot.getDrawable() != null) {
-			Bitmap bitmap = ((BitmapDrawable) snapshot.getDrawable()).getBitmap();			
+			Bitmap bitmap = ((BitmapDrawable) snapshot.getDrawable())
+					.getBitmap();
 			savedInstanceState.putParcelable(snapshotKey, bitmap);
 		}
 	}
@@ -155,7 +160,10 @@ public class MainActivity extends Activity {
 	}
 
 	public void initialize() {
+		
 		if (!initialized) {
+			Client.getModel().addObserver(this);
+			
 			snapshot = (ImageView) findViewById(R.id.snapshot);
 			detectionToggle = (Button) findViewById(R.id.detection_toggle);
 			status = (TextView) findViewById(R.id.errors);
@@ -314,5 +322,16 @@ public class MainActivity extends Activity {
 		if (Client.motionDetectionActive) {
 			Client.downloadLatestSnapshot(snapshot);
 		}
+	}
+
+	@Override
+	public void update(Model subject) {
+		runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				triggerInterfaceUpdate();
+			}
+		});
 	}
 }

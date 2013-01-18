@@ -4,6 +4,7 @@ import static berlin.reiche.securitas.tasks.DetectionRequest.DetectionCommand.ST
 import static berlin.reiche.securitas.tasks.DetectionRequest.DetectionCommand.STOP;
 import android.content.Context;
 import android.widget.ImageView;
+import berlin.reiche.securitas.controller.MainActivity;
 import berlin.reiche.securitas.tasks.BitmapDownloadTask;
 import berlin.reiche.securitas.tasks.DetectionRequest;
 import berlin.reiche.securitas.tasks.DeviceRegistration;
@@ -21,13 +22,19 @@ public class Client {
 
 	// TODO: define enum constant for REST operations
 	
-	static String endpoint;
+	public static String endpoint;
 
-	static Settings settings;
+	public static Settings settings;
 
-	static boolean motionDetectionActive;
+	public static boolean motionDetectionActive;
 
-	static MainActivity activity;
+	public static MainActivity activity;
+	
+	private static final Model model;
+	
+	static {
+		model = new Model();
+	}
 
 	public static void registerDevice(String id, Context context) {
 		String operation = "/device/register";
@@ -98,6 +105,10 @@ public class Client {
 	public static void disableMotionDetection() {
 		Client.motionDetectionActive = false;
 		activity.triggerInterfaceUpdate();
+	}
+
+	public static Model getModel() {
+		return model;		
 	}
 
 }
