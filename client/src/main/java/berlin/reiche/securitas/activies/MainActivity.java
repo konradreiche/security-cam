@@ -30,7 +30,10 @@ import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.Model;
+import berlin.reiche.securitas.Model.State;
+import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.R;
+import berlin.reiche.securitas.controller.Controller;
 import berlin.reiche.securitas.controller.GCMIntentService;
 import berlin.reiche.securitas.util.Observer;
 import berlin.reiche.securitas.util.Settings;
@@ -58,6 +61,10 @@ public class MainActivity extends Activity implements Observer<Model>, Callback 
 	public TextView subtitle;
 
 	private SharedPreferences settings;
+
+	private Model model;
+
+	private Controller controller;
 
 	/**
 	 * Whether all components are initialized and can be referenced.
@@ -115,6 +122,17 @@ public class MainActivity extends Activity implements Observer<Model>, Callback 
 	}
 
 	@Override
+	protected void onDestroy() {
+		try {
+			Client.getController().dispose();
+		} catch (Throwable t) {
+			Log.e(TAG, "Failed to destroy the controller", t);
+		} finally {
+			super.onDestroy();
+		}
+	}
+
+	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {
 		super.onSaveInstanceState(savedInstanceState);
 		String stateKey = getString(R.string.is_detection_active_key);
@@ -159,15 +177,18 @@ public class MainActivity extends Activity implements Observer<Model>, Callback 
 			headline.setVisibility(View.GONE);
 			subtitle.setVisibility(View.GONE);
 		} else {
-			reflectClientState();
+			updateInterface();
 		}
 	}
 
 	public void initialize() {
 
 		if (!initialized) {
-			Client.getModel().addObserver(this);
-			Client.getController().addOutboxHandler(new Handler(this));
+			model = Client.getModel();
+			controller = Client.getController();
+
+			model.addObserver(this);
+			controller.addOutboxHandler(new Handler(this));
 
 			snapshot = (ImageView) findViewById(R.id.snapshot);
 			detectionToggle = (Button) findViewById(R.id.detection_toggle);
@@ -236,10 +257,17 @@ public class MainActivity extends Activity implements Observer<Model>, Callback 
 
 	public void toggleMotionDetection(View view) {
 		status.setText(null);
-		if (Client.motionDetectionActive) {
-			Client.invokeDetectionStop();
-		} else {
-			Client.invokeDetectionStart();
+		Handler handler = controller.getInboxHandler();
+
+		switch (model.getState()) {
+		case IDLE:
+			handler.sendEmptyMessage(Protocol.START_DETECTION.code);
+			break;
+		case DETECTING:
+			handler.sendEmptyMessage(Protocol.STOP_DETECTION.code);
+			break;
+		default:
+			throw new IllegalStateException();
 		}
 	}
 
@@ -302,7 +330,8 @@ public class MainActivity extends Activity implements Observer<Model>, Callback 
 	 * After the application is restarted due to application pause, termination,
 	 * etc.
 	 */
-	public void reflectClientState() {
+	public void updateInterface() {
+
 		if (Client.motionDetectionActive) {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			detectionToggle.setText(R.string.button_stop_detection);
@@ -312,30 +341,26 @@ public class MainActivity extends Activity implements Observer<Model>, Callback 
 			snapshot.setVisibility(ImageView.INVISIBLE);
 		}
 
-	}
-
-	/**
-	 * After the user has made an action this method is used to reflect the
-	 * changes.
-	 * 
-	 * Depending on the state if might trigger further changes, for instance
-	 * when the motion detection is activated, then the latest snapshot will be
-	 * requested.
-	 */
-	public void triggerInterfaceUpdate() {
-		reflectClientState();
-		if (Client.motionDetectionActive) {
+		if (model.getState() == State.DETECTING) {
 			Client.downloadLatestSnapshot(snapshot);
 		}
+
+		if (!model.isRegisteredOnServer()) {
+			Handler handler = controller.getInboxHandler();
+			GCMRegistrar.setRegisteredOnServer(this, false);
+			manageDeviceRegistration();
+			handler.sendEmptyMessage(Protocol.START_DETECTION.code);
+		}
+
 	}
 
 	@Override
 	public void update(Model subject) {
-		runOnUiThread(new Runnable() {
 
+		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				triggerInterfaceUpdate();
+				updateInterface();
 			}
 		});
 	}

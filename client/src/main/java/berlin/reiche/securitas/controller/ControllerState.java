@@ -1,5 +1,6 @@
 package berlin.reiche.securitas.controller;
 
+import berlin.reiche.securitas.Model;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -9,10 +10,16 @@ public abstract class ControllerState {
 	private final Handler handler;
 
 	private final HandlerThread workerThread;
+	
+	protected final Model model;
+	
+	protected final ClientController controller;
 
-	public ControllerState() {
-		handler = new Handler();
-		workerThread = new HandlerThread("Controller State Worker Thread");
+	public ControllerState(ClientController controller) {
+		this.controller = controller;
+		this.model = controller.getModel();
+		this.handler = new Handler();
+		this.workerThread = new HandlerThread("Controller State Worker Thread");
 	}
 
 	public void handleMessage(Message msg) {

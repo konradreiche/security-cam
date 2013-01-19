@@ -12,14 +12,12 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
 import berlin.reiche.securitas.Client;
-import berlin.reiche.securitas.activies.MainActivity;
+import berlin.reiche.securitas.Model;
+import berlin.reiche.securitas.Model.State;
 import berlin.reiche.securitas.util.HttpUtilities;
-
-import com.google.android.gcm.GCMRegistrar;
 
 public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 
@@ -29,15 +27,15 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 
 	IOException exception;
 
-	Activity activity;
-
 	DetectionCommand command;
+
+	Model model;
 
 	private static String TAG = DetectionRequest.class.getSimpleName();
 
-	public DetectionRequest(Activity activity, DetectionCommand command) {
-		this.activity = activity;
+	public DetectionRequest(DetectionCommand command, Model model) {
 		this.command = command;
+		this.model = model;
 	}
 
 	@Override
@@ -59,41 +57,34 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 
 	protected void onPostExecute(HttpResponse response) {
 
-		MainActivity activity = (MainActivity) this.activity;
 		if (exception != null && response == null) {
-			activity.status.setText(exception.getMessage());
-			activity.unlockInterface();
+			model.setStatus(exception.getMessage());
+			model.onRequestFail();
 		} else if (response == null) {
 			Log.e(TAG, "Response is null without an exception. "
 					+ "The endpoint probably ran into a problem.");
 		} else {
-			switch (response.getStatusLine().getStatusCode()) {
+			int code = response.getStatusLine().getStatusCode();
+			switch (code) {
 			case SC_OK:
-				if (command == START) {
-					Client.enableMotionDetection();
-				} else {
-					Client.disableMotionDetection();
-					activity.unlockInterface();
-				}
+				State state = (command == START) ? State.DETECTING : State.IDLE;
+				model.setState(state);
 				break;
 			case SC_UNAUTHORIZED:
-				activity.status.setText("Unauthorized request, check "
-						+ "authentication data");
-				activity.unlockInterface();
+				model.setStatus("Unauthorized request, check authentication data");
+				model.onRequestFail();
 				break;
 			case SC_CONFLICT:
-				GCMRegistrar.setRegisteredOnServer(activity, false);
-				activity.manageDeviceRegistration();
-				if (command == START) {
-					Client.invokeDetectionStart();
-				}
+				model.setRegisteredOnServer(false);
 				break;
 			default:
-				StatusLine status = response.getStatusLine();
-				activity.status.setText(String.valueOf(status.getStatusCode())
-						+ " " + status.getReasonPhrase());
-				activity.unlockInterface();
+				StatusLine statusLine = response.getStatusLine();
+				String status = statusLine.getStatusCode() + " ";
+				status += statusLine.getReasonPhrase();
+				model.setStatus(status);
+				model.onRequestFail();
 			}
 		}
 	}
+
 }

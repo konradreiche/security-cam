@@ -26,7 +26,7 @@ public abstract class Controller {
 	/**
 	 * Asks the inbox handler thread to shutdown gracefully.
 	 */
-	void dispose() {
+	public void dispose() {
 		inboxHandlerThread.getLooper().quit();
 	}
 
@@ -46,5 +46,11 @@ public abstract class Controller {
 			}
 		}
 	}
+
+	public Handler getInboxHandler() {
+		return inboxHandler;
+	}
+	
+	
 
 }

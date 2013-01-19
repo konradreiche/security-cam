@@ -4,16 +4,18 @@ import android.util.SparseArray;
 
 public enum Protocol {
 
-	START(0),
+	START_DETECTION(0, "/motion/detection/start"),
 
-	STOP(1);
+	STOP_DETECTION(1, "/motion/detection/stop");
 
-	private final int code;
-	
-	Protocol(int code) {
+	public final int code;
+
+	public final String operation;
+
+	Protocol(int code, String operation) {
 		this.code = code;
+		this.operation = operation;
 	}
-	
 
 	private static final SparseArray<Protocol> codes;
 

@@ -6,8 +6,6 @@ import berlin.reiche.securitas.activies.MainActivity;
 import berlin.reiche.securitas.controller.ClientController;
 import berlin.reiche.securitas.controller.Controller;
 import berlin.reiche.securitas.tasks.BitmapDownloadTask;
-import berlin.reiche.securitas.tasks.DetectionRequest;
-import berlin.reiche.securitas.tasks.DetectionRequest.DetectionCommand;
 import berlin.reiche.securitas.tasks.DeviceRegistration;
 import berlin.reiche.securitas.tasks.DeviceRegistration.DeviceCommand;
 import berlin.reiche.securitas.tasks.StatusTask;
@@ -52,20 +50,6 @@ public class Client {
 				.execute(uri);
 	}
 
-	public static void invokeDetectionStart() {
-		activity.lockInterface();
-		String operation = "/motion/detection/start";
-		String uri = endpoint + operation;
-		new DetectionRequest(activity, DetectionCommand.START).execute(uri);
-	}
-
-	public static void invokeDetectionStop() {
-		activity.lockInterface();
-		String operation = "/motion/detection/stop";
-		String uri = endpoint + operation;
-		new DetectionRequest(activity, DetectionCommand.STOP).execute(uri);
-	}
-
 	public static void downloadLatestSnapshot(ImageView imageView) {
 		activity.lockInterface();
 		String url = endpoint + "/server/action/snapshot";
@@ -95,17 +79,17 @@ public class Client {
 		if (Client.motionDetectionActive != motionDetectionActive) {
 			Client.motionDetectionActive = motionDetectionActive;
 		}
-		activity.reflectClientState();
+		activity.updateInterface();
 	}
 
 	public static void enableMotionDetection() {
 		Client.motionDetectionActive = true;
-		activity.triggerInterfaceUpdate();
+		activity.updateInterface();
 	}
 
 	public static void disableMotionDetection() {
 		Client.motionDetectionActive = false;
-		activity.triggerInterfaceUpdate();
+		activity.updateInterface();
 	}
 
 	public static Model getModel() {

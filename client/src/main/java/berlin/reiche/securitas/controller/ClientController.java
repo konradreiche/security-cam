@@ -8,12 +8,12 @@ public class ClientController extends Controller {
 	private final Model model;
 
 	private ControllerState state;
-	
+
 	public ClientController(Model model) {
 		this.model = model;
-		this.state = new IdleState();
+		this.state = new IdleState(this);
 	}
-	
+
 	protected void setState(ControllerState state) {
 		if (this.state != null) {
 			this.state.dispose();
@@ -26,15 +26,15 @@ public class ClientController extends Controller {
 	}
 
 	@Override
-	void dispose() {
+	public void dispose() {
 		super.dispose();
 		state.dispose();
 	}
-	
+
 	@Override
 	void handleMessage(Message msg) {
 		// TODO: check return value
 		state.handleMessage(msg);
 	}
-	
+
 }
