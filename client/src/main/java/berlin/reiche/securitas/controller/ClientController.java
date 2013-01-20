@@ -1,15 +1,15 @@
 package berlin.reiche.securitas.controller;
 
 import android.os.Message;
-import berlin.reiche.securitas.Model;
+import berlin.reiche.securitas.ClientModel;
 
 public class ClientController extends Controller {
 
-	private final Model model;
+	private final ClientModel model;
 
 	private ControllerState state;
 
-	public ClientController(Model model) {
+	public ClientController(ClientModel model) {
 		this.model = model;
 		this.state = new IdleState(this);
 	}
@@ -21,7 +21,7 @@ public class ClientController extends Controller {
 		this.state = state;
 	}
 
-	public Model getModel() {
+	public ClientModel getModel() {
 		return model;
 	}
 

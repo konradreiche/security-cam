@@ -1,6 +1,6 @@
 package berlin.reiche.securitas.controller;
 
-import berlin.reiche.securitas.Model;
+import berlin.reiche.securitas.ClientModel;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -11,7 +11,7 @@ public abstract class ControllerState {
 
 	private final HandlerThread workerThread;
 	
-	protected final Model model;
+	protected final ClientModel model;
 	
 	protected final ClientController controller;
 

@@ -27,12 +27,12 @@ public class Client {
 
 	public static MainActivity activity;
 
-	private static Model model;
+	private static ClientModel model;
 
 	private static Controller controller;
 
 	static {
-		model = new Model();
+		model = new ClientModel();
 		controller = new ClientController(model);
 	}
 
@@ -92,7 +92,7 @@ public class Client {
 		activity.updateInterface();
 	}
 
-	public static Model getModel() {
+	public static ClientModel getModel() {
 		return model;
 	}
 

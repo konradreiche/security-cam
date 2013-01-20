@@ -2,8 +2,8 @@ package berlin.reiche.securitas.controller;
 
 import android.os.Message;
 import berlin.reiche.securitas.Client;
-import berlin.reiche.securitas.Model;
-import berlin.reiche.securitas.Model.State;
+import berlin.reiche.securitas.ClientModel;
+import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.tasks.DetectionRequest;
 import berlin.reiche.securitas.tasks.DetectionRequest.DetectionCommand;
@@ -27,23 +27,23 @@ public class IdleState extends ControllerState {
 		switch (request) {
 		case START_DETECTION:
 			requestDetectionStart();
-			model.setState(State.WAIT_FOR_DETECTION_START);
+			model.setState(State.WAIT);
 			break;
 		case STOP_DETECTION:
 			requestDetectionStop();
-			model.setState(State.WAIT_FOR_DETECTION_STOP);
+			model.setState(State.WAIT);
 		}
 	}
 
 	private void requestDetectionStart() {
 		String uri = Client.endpoint + Protocol.START_DETECTION.operation;
-		Model model = controller.getModel();
+		ClientModel model = controller.getModel();
 		new DetectionRequest(DetectionCommand.START, model).execute(uri);
 	}
 
 	private void requestDetectionStop() {
 		String uri = Client.endpoint + Protocol.STOP_DETECTION.operation;
-		Model model = controller.getModel();
+		ClientModel model = controller.getModel();
 		new DetectionRequest(DetectionCommand.STOP, model).execute(uri);
 	}
 

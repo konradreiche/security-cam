@@ -29,8 +29,9 @@ import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import berlin.reiche.securitas.Client;
+import berlin.reiche.securitas.ClientModel;
+import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Model;
-import berlin.reiche.securitas.Model.State;
 import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.R;
 import berlin.reiche.securitas.controller.Controller;
@@ -40,7 +41,7 @@ import berlin.reiche.securitas.util.Settings;
 
 import com.google.android.gcm.GCMRegistrar;
 
-public class MainActivity extends Activity implements Observer<Model>, Callback {
+public class MainActivity extends Activity implements Observer<Model<State>>, Callback {
 
 	private static String TAG = MainActivity.class.getSimpleName();
 
@@ -62,7 +63,7 @@ public class MainActivity extends Activity implements Observer<Model>, Callback 
 
 	private SharedPreferences settings;
 
-	private Model model;
+	private ClientModel model;
 
 	private Controller controller;
 
@@ -259,7 +260,8 @@ public class MainActivity extends Activity implements Observer<Model>, Callback 
 		status.setText(null);
 		Handler handler = controller.getInboxHandler();
 
-		switch (model.getState()) {
+		State state = (State)model.getState();
+		switch (state) {
 		case IDLE:
 			handler.sendEmptyMessage(Protocol.START_DETECTION.code);
 			break;
@@ -355,7 +357,7 @@ public class MainActivity extends Activity implements Observer<Model>, Callback 
 	}
 
 	@Override
-	public void update(Model subject) {
+	public void update(Model<State> subject) {
 
 		runOnUiThread(new Runnable() {
 			@Override

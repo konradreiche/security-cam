@@ -7,11 +7,11 @@ public abstract class Observable<T extends Observable<T>> {
 
 	private final List<Observer<T>> observers;
 
+	
 	public Observable() {
 		observers = new ArrayList<Observer<T>>();
 	}
 	
-
 	public synchronized void addObserver(Observer<T> observer) {
 		observers.add(observer);
 	}
