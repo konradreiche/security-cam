@@ -32,6 +32,8 @@ public class IdleState extends ControllerState {
 		case STOP_DETECTION:
 			requestDetectionStop();
 			model.setState(State.WAIT);
+		default:
+			throw new IllegalStateException();
 		}
 	}
 
