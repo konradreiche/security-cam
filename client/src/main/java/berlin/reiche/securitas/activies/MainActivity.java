@@ -41,7 +41,8 @@ import berlin.reiche.securitas.util.Settings;
 
 import com.google.android.gcm.GCMRegistrar;
 
-public class MainActivity extends Activity implements Observer<Model<State>>, Callback {
+public class MainActivity extends Activity implements Observer<Model<State>>,
+		Callback {
 
 	private static String TAG = MainActivity.class.getSimpleName();
 
@@ -66,6 +67,8 @@ public class MainActivity extends Activity implements Observer<Model<State>>, Ca
 	private ClientModel model;
 
 	private Controller controller;
+
+	private Handler handler;
 
 	/**
 	 * Whether all components are initialized and can be referenced.
@@ -157,7 +160,7 @@ public class MainActivity extends Activity implements Observer<Model<State>>, Ca
 			if (filename != null) {
 				GCMIntentService.resetMotionsDetected(this);
 				lockInterface();
-				Client.downloadSnapshot(snapshot, filename);
+				handler.sendEmptyMessage(Protocol.DOWNLOAD_SNAPSHOT.code);
 			}
 		}
 	}
@@ -190,6 +193,7 @@ public class MainActivity extends Activity implements Observer<Model<State>>, Ca
 
 			model.addObserver(this);
 			controller.addOutboxHandler(new Handler(this));
+			handler = controller.getInboxHandler();
 
 			snapshot = (ImageView) findViewById(R.id.snapshot);
 			detectionToggle = (Button) findViewById(R.id.detection_toggle);
@@ -253,6 +257,7 @@ public class MainActivity extends Activity implements Observer<Model<State>>, Ca
 
 		boolean configured = !host.equals("") && !port.equals("")
 				&& !username.equals("") && !password.equals("");
+
 		return configured;
 	}
 
@@ -260,7 +265,7 @@ public class MainActivity extends Activity implements Observer<Model<State>>, Ca
 		status.setText(null);
 		Handler handler = controller.getInboxHandler();
 
-		State state = (State)model.getState();
+		State state = (State) model.getState();
 		switch (state) {
 		case IDLE:
 			handler.sendEmptyMessage(Protocol.START_DETECTION.code);
@@ -325,7 +330,7 @@ public class MainActivity extends Activity implements Observer<Model<State>>, Ca
 	}
 
 	public void refreshSnapshot(View view) {
-		Client.downloadLatestSnapshot(snapshot);
+		handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
 	}
 
 	/**
@@ -337,6 +342,7 @@ public class MainActivity extends Activity implements Observer<Model<State>>, Ca
 		if (Client.motionDetectionActive) {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			detectionToggle.setText(R.string.button_stop_detection);
+			snapshot.setImageBitmap(model.getSnapshot());
 		} else {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 			detectionToggle.setText(R.string.button_start_detection);
@@ -344,11 +350,10 @@ public class MainActivity extends Activity implements Observer<Model<State>>, Ca
 		}
 
 		if (model.getState() == State.DETECTING) {
-			Client.downloadLatestSnapshot(snapshot);
+			handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
 		}
 
 		if (!model.isRegisteredOnServer()) {
-			Handler handler = controller.getInboxHandler();
 			GCMRegistrar.setRegisteredOnServer(this, false);
 			manageDeviceRegistration();
 			handler.sendEmptyMessage(Protocol.START_DETECTION.code);

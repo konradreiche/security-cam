@@ -1,8 +1,9 @@
 package berlin.reiche.securitas;
 
+import android.graphics.Bitmap;
 import berlin.reiche.securitas.ClientModel.State;
 
-public class ClientModel extends Model<State>  {
+public class ClientModel extends Model<State> {
 
 	public enum State {
 		IDLE, WAIT, DETECTING;
@@ -12,7 +13,8 @@ public class ClientModel extends Model<State>  {
 
 	private boolean registeredOnServer;
 
-	
+	private Bitmap snapshot;
+
 	public ClientModel() {
 		super();
 		state = State.IDLE;
@@ -25,11 +27,10 @@ public class ClientModel extends Model<State>  {
 	public boolean isRegisteredOnServer() {
 		return registeredOnServer;
 	}
-	
+
 	public void onRequestFail() {
 		setState(previous);
 	}
-
 
 	public void setRegisteredOnServer(boolean flag) {
 		registeredOnServer = flag;
@@ -39,6 +40,15 @@ public class ClientModel extends Model<State>  {
 	public synchronized void setStatus(String status) {
 		this.status = status;
 		notifyObservers(this);
+	}
+
+	public void setSnapshot(Bitmap snapshot) {
+		this.snapshot = snapshot;
+		notifyObservers(this);
+	}
+
+	public Bitmap getSnapshot() {
+		return snapshot;
 	}
 
 }

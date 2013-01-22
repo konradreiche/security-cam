@@ -8,13 +8,11 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.widget.ImageView;
 import berlin.reiche.securitas.Client;
-import berlin.reiche.securitas.activies.MainActivity;
+import berlin.reiche.securitas.ClientModel;
 import berlin.reiche.securitas.util.FlushedInputStream;
 import berlin.reiche.securitas.util.HttpUtilities;
 
@@ -22,14 +20,11 @@ public class BitmapDownloadTask extends AsyncTask<String, Void, Bitmap> {
 
 	IOException exception;
 
-	ImageView imageView;
+	ClientModel model;
 
-	Activity activity;
-
-	public BitmapDownloadTask(Activity activity, ImageView imageView) {
+	public BitmapDownloadTask(ClientModel model) {
 		super();
-		this.activity = activity;
-		this.imageView = imageView;
+		this.model = model;
 	}
 
 	@Override
@@ -55,9 +50,7 @@ public class BitmapDownloadTask extends AsyncTask<String, Void, Bitmap> {
 
 	@Override
 	protected void onPostExecute(Bitmap result) {
-		MainActivity activity = (MainActivity) this.activity;
-		imageView.setImageBitmap(result);
-		activity.unlockInterface();
+		model.setSnapshot(result);
 	}
 
 }

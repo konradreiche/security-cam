@@ -1,14 +1,17 @@
 package berlin.reiche.securitas.controller;
 
 import android.os.Message;
+import berlin.reiche.securitas.Client;
+import berlin.reiche.securitas.ClientModel;
 import berlin.reiche.securitas.Protocol;
+import berlin.reiche.securitas.tasks.BitmapDownloadTask;
 
 public class WaitState extends ControllerState {
 
 	public WaitState(ClientController controller) {
 		super(controller);
 	}
-	
+
 	@Override
 	public void handleMessage(Message msg) {
 		Protocol request = Protocol.valueOf(msg.what);
@@ -22,7 +25,10 @@ public class WaitState extends ControllerState {
 	}
 
 	private void downloadLatestSnapshot() {
-		
+		String uri = Client.endpoint;
+		uri += Protocol.DOWNLOAD_LATEST_SNAPSHOT.operation;
+		ClientModel model = controller.getModel();
+		new BitmapDownloadTask(model).execute(uri);
 	}
 
 }

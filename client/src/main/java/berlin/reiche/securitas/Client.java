@@ -1,11 +1,9 @@
 package berlin.reiche.securitas;
 
 import android.content.Context;
-import android.widget.ImageView;
 import berlin.reiche.securitas.activies.MainActivity;
 import berlin.reiche.securitas.controller.ClientController;
 import berlin.reiche.securitas.controller.Controller;
-import berlin.reiche.securitas.tasks.BitmapDownloadTask;
 import berlin.reiche.securitas.tasks.DeviceRegistration;
 import berlin.reiche.securitas.tasks.DeviceRegistration.DeviceCommand;
 import berlin.reiche.securitas.tasks.StatusTask;
@@ -48,17 +46,6 @@ public class Client {
 		String uri = endpoint + operation;
 		new DeviceRegistration(id, DeviceCommand.UNREGISTER, context)
 				.execute(uri);
-	}
-
-	public static void downloadLatestSnapshot(ImageView imageView) {
-		activity.lockInterface();
-		String url = endpoint + "/server/action/snapshot";
-		new BitmapDownloadTask(activity, imageView).execute(url);
-	}
-
-	public static void downloadSnapshot(ImageView imageView, String filename) {
-		String url = endpoint + "/static/captures/" + filename;
-		new BitmapDownloadTask(activity, imageView).execute(url);
 	}
 
 	public static void synchronizeServerStatus() {
