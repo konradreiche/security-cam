@@ -261,10 +261,17 @@ public class MainActivity extends Activity implements Observer<Model<State>>,
 		return configured;
 	}
 
+	/**
+	 * Toggles the motion detection based on the current state. This method must
+	 * only be invoked when the state is {@link State#IDLE} or
+	 * {@link State#DETECTING}.
+	 * 
+	 * @param view
+	 *            the view that was clicked.
+	 */
 	public void toggleMotionDetection(View view) {
 		status.setText(null);
 		Handler handler = controller.getInboxHandler();
-
 		State state = (State) model.getState();
 		switch (state) {
 		case IDLE:

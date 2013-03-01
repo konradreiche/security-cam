@@ -5,14 +5,21 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 
+/**
+ * The controller state specifies, how the controller is reacting on certain
+ * messages.
+ * 
+ * @author Konrad Reiche
+ * 
+ */
 public abstract class ControllerState {
 
 	private final Handler handler;
 
 	private final HandlerThread workerThread;
-	
+
 	protected final ClientModel model;
-	
+
 	protected final ClientController controller;
 
 	public ControllerState(ClientController controller) {

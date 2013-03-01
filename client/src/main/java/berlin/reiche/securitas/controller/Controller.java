@@ -5,22 +5,38 @@ import java.util.List;
 
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Message;
 
 public abstract class Controller {
 
-	final HandlerThread inboxHandlerThread;
+	/**
+	 * Inbox handler receives messages from the activity and its {@link Looper}
+	 * processes the messages.
+	 */
 	final Handler inboxHandler;
+
+	/**
+	 * Thread for the inbox handler that contains already a {@link Looper}.
+	 */
+	final HandlerThread inboxHandlerThread;
 	final List<Handler> outboxHandlers;
 
 	public Controller() {
 		inboxHandlerThread = new HandlerThread("Controller Inbox");
 		inboxHandlerThread.start();
-		
+
 		inboxHandler = new InboxHandler(inboxHandlerThread.getLooper(), this);
 		outboxHandlers = new ArrayList<Handler>();
 	}
 
+	/**
+	 * Needs to be overridden by the specific controller in order to react to
+	 * different messages.
+	 * 
+	 * @param msg
+	 *            the message received.
+	 */
 	abstract void handleMessage(Message msg);
 
 	/**
@@ -50,7 +66,5 @@ public abstract class Controller {
 	public Handler getInboxHandler() {
 		return inboxHandler;
 	}
-	
-	
 
 }
