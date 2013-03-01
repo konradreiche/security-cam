@@ -10,32 +10,11 @@ import berlin.reiche.securitas.ClientModel;
  * @author Konrad Reiche
  * 
  */
-public class ClientController extends Controller {
-
-	/**
-	 * The specific model associated with this controller.
-	 */
-	private final ClientModel model;
-
-	/**
-	 * The current state of the controller.
-	 */
-	private ControllerState state;
+public class ClientController extends Controller<ClientModel.State> {
 
 	public ClientController(ClientModel model) {
 		this.model = model;
-		this.state = new IdleState(this);
-	}
-
-	protected void setState(ControllerState state) {
-		if (this.state != null) {
-			this.state.dispose();
-		}
-		this.state = state;
-	}
-
-	public ClientModel getModel() {
-		return model;
+		this.setState(new IdleState(this));
 	}
 
 	@Override

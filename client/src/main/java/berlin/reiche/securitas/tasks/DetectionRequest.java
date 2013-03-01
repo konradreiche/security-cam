@@ -17,6 +17,7 @@ import android.util.Log;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.ClientModel;
 import berlin.reiche.securitas.ClientModel.State;
+import berlin.reiche.securitas.Model;
 import berlin.reiche.securitas.util.HttpUtilities;
 
 public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
@@ -33,9 +34,9 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 
 	private static String TAG = DetectionRequest.class.getSimpleName();
 
-	public DetectionRequest(DetectionCommand command, ClientModel model) {
+	public DetectionRequest(DetectionCommand command, Model<ClientModel.State> model) {
 		this.command = command;
-		this.model = model;
+		this.model = (ClientModel) model;
 	}
 
 	@Override

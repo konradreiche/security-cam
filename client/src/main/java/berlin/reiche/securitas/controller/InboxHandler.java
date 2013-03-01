@@ -6,9 +6,9 @@ import android.os.Message;
 
 final class InboxHandler extends Handler {
 	
-	Controller controller;
+	Controller<?> controller;
 	
-	InboxHandler(Looper looper, Controller controller) {
+	InboxHandler(Looper looper, Controller<?> controller) {
 		super(looper);
 		this.controller = controller;
 	}

@@ -14,7 +14,13 @@ public enum Protocol {
 
 	DOWNLOAD_SNAPSHOT(4, "/static/captures/"),
 
-	DOWNLOAD_LATEST_SNAPSHOT(5, "/server/action/snapshot");
+	DOWNLOAD_LATEST_SNAPSHOT(5, "/server/action/snapshot"),
+
+	RESTORE_CLIENT_STATE(6, "/server/status"),
+	
+	SET_STATE_DETECTING(7, null),
+	
+	SET_STATE_IDLE(8, null);
 
 	public final int code;
 
@@ -25,6 +31,11 @@ public enum Protocol {
 		this.operation = operation;
 	}
 
+	/**
+	 * Stores the different code integer values and maps them to their respect
+	 * {@link Protocol} enumeration constant. A sparse array is used, which maps
+	 * integers to objects and is more efficient in the implementation.
+	 */
 	private static final SparseArray<Protocol> codes;
 
 	static {

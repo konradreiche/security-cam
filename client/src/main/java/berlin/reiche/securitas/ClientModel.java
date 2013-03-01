@@ -27,11 +27,12 @@ public class ClientModel extends Model<State> {
 	public boolean isRegisteredOnServer() {
 		return registeredOnServer;
 	}
-
+	
 	public void onRequestFail() {
 		setState(previous);
 	}
 
+	
 	public void setRegisteredOnServer(boolean flag) {
 		registeredOnServer = flag;
 		notifyObservers(this);

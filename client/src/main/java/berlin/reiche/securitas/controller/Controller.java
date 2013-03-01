@@ -7,9 +7,12 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import berlin.reiche.securitas.Model;
 
-public abstract class Controller {
+public abstract class Controller<T extends Enum<T>> {
 
+	Model<T> model;
+	
 	/**
 	 * Inbox handler receives messages from the activity and its {@link Looper}
 	 * processes the messages.
@@ -22,6 +25,11 @@ public abstract class Controller {
 	final HandlerThread inboxHandlerThread;
 	final List<Handler> outboxHandlers;
 
+	/**
+	 * The current state of the controller.
+	 */
+	protected ControllerState<T> state;
+	
 	public Controller() {
 		inboxHandlerThread = new HandlerThread("Controller Inbox");
 		inboxHandlerThread.start();
@@ -39,6 +47,13 @@ public abstract class Controller {
 	 */
 	abstract void handleMessage(Message msg);
 
+	protected void setState(ControllerState<T> state) {
+		if (this.state != null) {
+			this.state.dispose();
+		}
+		this.state = state;
+	}
+	
 	/**
 	 * Asks the inbox handler thread to shutdown gracefully.
 	 */
@@ -66,5 +81,10 @@ public abstract class Controller {
 	public Handler getInboxHandler() {
 		return inboxHandler;
 	}
+
+	public Model<T> getModel() {
+		return model;
+	}
+	
 
 }

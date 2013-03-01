@@ -8,13 +8,11 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 
-import com.google.android.gcm.GCMRegistrar;
-
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
 import berlin.reiche.securitas.Client;
-import berlin.reiche.securitas.activies.MainActivity;
+import berlin.reiche.securitas.ClientModel;
+import berlin.reiche.securitas.Model;
 import berlin.reiche.securitas.util.HttpUtilities;
 
 public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
@@ -25,11 +23,11 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 
 	private static final String TAG = StatusTask.class.getSimpleName();
 
-	Activity activity;
+	ClientModel model;
 
-	public StatusTask(Activity activity) {
+	public StatusTask(Model<ClientModel.State> model) {
 		super();
-		this.activity = activity;
+		this.model = (ClientModel)model;
 	}
 
 	@Override
@@ -52,9 +50,9 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 	@Override
 	protected void onPostExecute(HttpResponse response) {
 
-		MainActivity activity = (MainActivity) this.activity;
 		if (response == null) {
-			activity.unlockInterface();
+			// TODO: introduce model state for locked/unlocked interface and set
+			// the model state to unlock here.
 			return;
 		}
 
@@ -64,14 +62,13 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 			ServerStatus status = ServerStatus.valueOf(content);
 			switch (status) {
 			case IDLE:
-				if (GCMRegistrar.isRegisteredOnServer(activity)) {
-					GCMRegistrar.setRegisteredOnServer(activity, false);
-					activity.manageDeviceRegistration();
+				if (model.isRegisteredOnServer()) {
+					model.setRegisteredOnServer(false);
 				}
-				activity.unlockInterface();
+				// unlockInterface()
 				break;
 			case READY:
-				activity.unlockInterface();
+				// unlockInterface()
 				break;
 			case RUNNING:
 				Client.enableMotionDetection();
@@ -79,7 +76,7 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 			}
 		} catch (IOException e) {
 			Log.e(TAG, "The stream of the response could not be created.");
-			activity.unlockInterface();
+			// unlockInterface()
 		}
 	}
 

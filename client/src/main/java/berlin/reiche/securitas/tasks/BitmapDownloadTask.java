@@ -13,6 +13,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.ClientModel;
+import berlin.reiche.securitas.Model;
 import berlin.reiche.securitas.util.FlushedInputStream;
 import berlin.reiche.securitas.util.HttpUtilities;
 
@@ -22,9 +23,9 @@ public class BitmapDownloadTask extends AsyncTask<String, Void, Bitmap> {
 
 	ClientModel model;
 
-	public BitmapDownloadTask(ClientModel model) {
+	public BitmapDownloadTask(Model<ClientModel.State> model) {
 		super();
-		this.model = model;
+		this.model = (ClientModel)model;
 	}
 
 	@Override

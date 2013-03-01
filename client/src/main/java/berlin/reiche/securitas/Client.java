@@ -6,7 +6,6 @@ import berlin.reiche.securitas.controller.ClientController;
 import berlin.reiche.securitas.controller.Controller;
 import berlin.reiche.securitas.tasks.DeviceRegistration;
 import berlin.reiche.securitas.tasks.DeviceRegistration.DeviceCommand;
-import berlin.reiche.securitas.tasks.StatusTask;
 import berlin.reiche.securitas.util.Settings;
 
 /**
@@ -27,7 +26,7 @@ public class Client {
 
 	private static ClientModel model;
 
-	private static Controller controller;
+	private static Controller<ClientModel.State> controller;
 
 	static {
 		model = new ClientModel();
@@ -46,12 +45,6 @@ public class Client {
 		String uri = endpoint + operation;
 		new DeviceRegistration(id, DeviceCommand.UNREGISTER, context)
 				.execute(uri);
-	}
-
-	public static void synchronizeServerStatus() {
-		activity.lockInterface();
-		String url = endpoint + "/server/status";
-		new StatusTask(activity).execute(url);
 	}
 
 	public static Settings getSettings() {
@@ -83,7 +76,7 @@ public class Client {
 		return model;
 	}
 
-	public static Controller getController() {
+	public static Controller<ClientModel.State> getController() {
 		return controller;
 	}
 

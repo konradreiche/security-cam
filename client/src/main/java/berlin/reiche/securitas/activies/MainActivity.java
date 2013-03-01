@@ -66,7 +66,7 @@ public class MainActivity extends Activity implements Observer<Model<State>>,
 
 	private ClientModel model;
 
-	private Controller controller;
+	private Controller<State> controller;
 
 	private Handler handler;
 
@@ -96,6 +96,7 @@ public class MainActivity extends Activity implements Observer<Model<State>>,
 		initialize();
 		updateSettings();
 
+		Handler handler = controller.getInboxHandler();
 		if (getLastNonConfigurationInstance() != null) {
 			Bitmap bitmap = (Bitmap) getLastNonConfigurationInstance();
 			snapshot.setImageBitmap(bitmap);
@@ -106,15 +107,20 @@ public class MainActivity extends Activity implements Observer<Model<State>>,
 			String stateKey = getString(R.string.is_detection_active_key);
 			String snapshotKey = getString(R.string.snapshot_key);
 
-			boolean state = savedInstanceState.getBoolean(stateKey);
+			boolean isDetecting = savedInstanceState.getBoolean(stateKey);
 			Bitmap bitmap = savedInstanceState.getParcelable(snapshotKey);
 
+			if (isDetecting) {
+				handler.sendEmptyMessage(Protocol.SET_STATE_DETECTING.code);
+			} else {
+				handler.sendEmptyMessage(Protocol.SET_STATE_IDLE.code);
+			}
+
 			snapshot.setImageBitmap(bitmap);
-			Client.restoreClientState(state);
 		} else {
 			// maybe the user hit the *Back* button with the motion detection
 			// still activate on the server, hence restore the state
-			Client.synchronizeServerStatus();
+			handler.sendEmptyMessage(Protocol.RESTORE_CLIENT_STATE.code);
 		}
 
 	}
