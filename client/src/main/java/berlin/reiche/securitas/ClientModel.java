@@ -35,17 +35,14 @@ public class ClientModel extends Model<State> {
 	
 	public void setRegisteredOnServer(boolean flag) {
 		registeredOnServer = flag;
-		notifyObservers(this);
 	}
 
 	public synchronized void setStatus(String status) {
 		this.status = status;
-		notifyObservers(this);
 	}
 
 	public void setSnapshot(Bitmap snapshot) {
 		this.snapshot = snapshot;
-		notifyObservers(this);
 	}
 
 	public Bitmap getSnapshot() {

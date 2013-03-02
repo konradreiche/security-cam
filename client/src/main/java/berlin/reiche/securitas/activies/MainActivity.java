@@ -31,18 +31,15 @@ import android.widget.TextView;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.ClientModel;
 import berlin.reiche.securitas.ClientModel.State;
-import berlin.reiche.securitas.Model;
 import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.R;
 import berlin.reiche.securitas.controller.Controller;
 import berlin.reiche.securitas.controller.GCMIntentService;
-import berlin.reiche.securitas.util.Observer;
 import berlin.reiche.securitas.util.Settings;
 
 import com.google.android.gcm.GCMRegistrar;
 
-public class MainActivity extends Activity implements Observer<Model<State>>,
-		Callback {
+public class MainActivity extends Activity implements Callback {
 
 	private static String TAG = MainActivity.class.getSimpleName();
 
@@ -197,7 +194,6 @@ public class MainActivity extends Activity implements Observer<Model<State>>,
 			model = Client.getModel();
 			controller = Client.getController();
 
-			model.addObserver(this);
 			controller.addOutboxHandler(new Handler(this));
 			handler = controller.getInboxHandler();
 
@@ -374,17 +370,6 @@ public class MainActivity extends Activity implements Observer<Model<State>>,
 			handler.sendEmptyMessage(Protocol.START_DETECTION.code);
 		}
 
-	}
-
-	@Override
-	public void update(Model<State> subject) {
-
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				updateInterface();
-			}
-		});
 	}
 
 	@Override
