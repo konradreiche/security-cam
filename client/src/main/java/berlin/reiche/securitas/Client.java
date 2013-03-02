@@ -2,7 +2,6 @@ package berlin.reiche.securitas;
 
 import berlin.reiche.securitas.activies.MainActivity;
 import berlin.reiche.securitas.controller.ClientController;
-import berlin.reiche.securitas.controller.Controller;
 import berlin.reiche.securitas.util.Settings;
 
 /**
@@ -23,7 +22,7 @@ public class Client {
 
 	private static ClientModel model;
 
-	private static Controller<ClientModel.State> controller;
+	private static ClientController controller;
 
 	static {
 		model = new ClientModel();
@@ -59,7 +58,7 @@ public class Client {
 		return model;
 	}
 
-	public static Controller<ClientModel.State> getController() {
+	public static ClientController getController() {
 		return controller;
 	}
 

@@ -33,48 +33,93 @@ import berlin.reiche.securitas.ClientModel;
 import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.R;
-import berlin.reiche.securitas.controller.Controller;
+import berlin.reiche.securitas.controller.ClientController;
 import berlin.reiche.securitas.controller.GCMIntentService;
 import berlin.reiche.securitas.util.Settings;
 
 import com.google.android.gcm.GCMRegistrar;
 
+/**
+ * This is the main activity on which the whole application is controlled.
+ * 
+ * @author Konrad Reiche
+ * 
+ */
 public class MainActivity extends Activity implements Callback {
 
+	/**
+	 * Tag for logging.
+	 */
 	private static String TAG = MainActivity.class.getSimpleName();
 
+	/**
+	 * The sender ID is used in the registration process to identify this
+	 * application as being permitted to send messages to the device.
+	 */
 	public static final String GCM_SENDER_ID = "958926895848";
 
+	/**
+	 * This {@link ImageView} will display the latest snapshot or the snapshot
+	 * that triggered an motion detection.
+	 */
 	public ImageView snapshot;
 
+	/**
+	 * The same button is used for starting and stopping the motion detection on
+	 * the backend.
+	 */
 	public Button detectionToggle;
 
+	/**
+	 * A {@link TextView} to display some problems on the network layer.
+	 */
 	public TextView status;
 
+	/**
+	 * Separate layout for the layout.
+	 */
 	public RelativeLayout snapshotArea;
 
+	/**
+	 * Progress bar for displaying progress.
+	 */
 	public ProgressBar progress;
 
+	/**
+	 * Simply a headline.
+	 */
 	public TextView headline;
 
+	/**
+	 * Simply a subtitle to the headline.
+	 */
 	public TextView subtitle;
 
+	/**
+	 * Stores the settings used for building the connection.
+	 */
 	private SharedPreferences settings;
 
+	/**
+	 * The model which implements the logic of this application.
+	 */
 	private ClientModel model;
 
-	private Controller<State> controller;
+	/**
+	 * The controller for handling user requests.
+	 */
+	private ClientController controller;
 
+	/**
+	 * The inbox handler takes requests and delegates them to the current
+	 * controller state object.
+	 */
 	private Handler handler;
 
 	/**
 	 * Whether all components are initialized and can be referenced.
 	 */
 	private boolean initialized;
-
-	/**
-	 * Whether the motion detection on the endpoint is running.
-	 */
 
 	/**
 	 * Called when the activity is first created.
@@ -93,7 +138,6 @@ public class MainActivity extends Activity implements Callback {
 		initialize();
 		updateSettings();
 
-		Handler handler = controller.getInboxHandler();
 		if (getLastNonConfigurationInstance() != null) {
 			Bitmap bitmap = (Bitmap) getLastNonConfigurationInstance();
 			snapshot.setImageBitmap(bitmap);
@@ -189,11 +233,9 @@ public class MainActivity extends Activity implements Callback {
 	}
 
 	public void initialize() {
-
 		if (!initialized) {
 			model = Client.getModel();
 			controller = Client.getController();
-
 			controller.addOutboxHandler(new Handler(this));
 			handler = controller.getInboxHandler();
 
@@ -273,7 +315,6 @@ public class MainActivity extends Activity implements Callback {
 	 */
 	public void toggleMotionDetection(View view) {
 		status.setText(null);
-		Handler handler = controller.getInboxHandler();
 		State state = (State) model.getState();
 		switch (state) {
 		case IDLE:
@@ -324,7 +365,6 @@ public class MainActivity extends Activity implements Callback {
 			Log.i(TAG, "No device id yet, issue registration indent.");
 			GCMRegistrar.register(this, GCM_SENDER_ID);
 		} else if (!GCMRegistrar.isRegisteredOnServer(this)) {
-			Handler handler = controller.getInboxHandler();
 			handler.sendMessage(Message.obtain(handler,
 					Protocol.REGISTER_DEVICE.code, id));
 		}
@@ -374,7 +414,7 @@ public class MainActivity extends Activity implements Callback {
 
 	@Override
 	public boolean handleMessage(Message msg) {
-		// TODO Auto-generated method stub
-		return false;
+		updateInterface();
+		return true;
 	}
 }
