@@ -69,13 +69,24 @@ public abstract class Controller<T extends Enum<T>> {
 		outboxHandlers.remove(handler);
 	}
 
-	final void notifyOutboxHandlers(int what, int arg1, int arg2, Object obj) {
-
+	public final void notifyOutboxHandlers(int what) {
+		notifyOutboxHandlers(what, 0, 0, null);
+	}
+	
+	public final void notifyOutboxHandlers(int what, Object obj) {
+		notifyOutboxHandlers(what, 0, 0, obj);
+	}
+	
+	public final void notifyOutboxHandlers(int what, int arg1, int arg2, Object obj) {
 		if (!outboxHandlers.isEmpty()) {
 			for (Handler handler : outboxHandlers) {
 				Message.obtain(handler, what, arg1, arg2, obj).sendToTarget();
 			}
 		}
+	}
+	
+	final void changeState(ControllerState<T> state) {
+		this.state = state;
 	}
 
 	public Handler getInboxHandler() {
@@ -85,6 +96,5 @@ public abstract class Controller<T extends Enum<T>> {
 	public Model<T> getModel() {
 		return model;
 	}
-	
 
 }

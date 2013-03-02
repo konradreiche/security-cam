@@ -28,6 +28,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
+import berlin.reiche.securitas.Action;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.ClientModel;
 import berlin.reiche.securitas.ClientModel.State;
@@ -413,8 +414,15 @@ public class MainActivity extends Activity implements Callback {
 	}
 
 	@Override
-	public boolean handleMessage(Message msg) {
-		updateInterface();
+	public boolean handleMessage(Message message) {
+		Action action = Action.valueOf(message.what);
+		switch (action) {
+		case SET_REGISTERED_ON_SERVER:
+			GCMRegistrar.setRegisteredOnServer(this, (Boolean) message.obj);
+			break;
+		default:
+			throw new IllegalStateException();
+		}
 		return true;
 	}
 }

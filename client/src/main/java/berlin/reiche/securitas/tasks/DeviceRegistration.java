@@ -1,6 +1,6 @@
 package berlin.reiche.securitas.tasks;
 
-import static berlin.reiche.securitas.tasks.DeviceRegistration.DeviceCommand.REGISTER;
+import static berlin.reiche.securitas.tasks.DeviceRegistration.Command.REGISTER;
 import static org.apache.http.HttpStatus.SC_OK;
 
 import java.io.IOException;
@@ -11,11 +11,13 @@ import org.apache.http.client.methods.HttpPost;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import berlin.reiche.securitas.Action;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.ClientModel;
 import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Model;
 import berlin.reiche.securitas.activies.MainActivity;
+import berlin.reiche.securitas.controller.Controller;
 import berlin.reiche.securitas.util.HttpUtilities;
 
 /**
@@ -27,23 +29,27 @@ import berlin.reiche.securitas.util.HttpUtilities;
  */
 public class DeviceRegistration extends AsyncTask<String, Void, HttpResponse> {
 
-	public enum DeviceCommand {
+	public enum Command {
 		REGISTER, UNREGISTER
 	};
 
 	String id;
 
-	DeviceCommand command;
-	
-	Model<State> model;
+	Command command;
+
+	ClientModel model;
+
+	Controller<State> controller;
 
 	private static String TAG = MainActivity.class.getSimpleName();
 
-	public DeviceRegistration(String id, DeviceCommand command, Model<State> model) {
+	public DeviceRegistration(Model<State> model, Controller<State> controller,
+			String id, Command command) {
 		super();
+		this.model = (ClientModel) model;
+		this.controller = controller;
 		this.id = id;
 		this.command = command;
-		this.model = model;
 	}
 
 	@Override
@@ -60,8 +66,9 @@ public class DeviceRegistration extends AsyncTask<String, Void, HttpResponse> {
 			return client.execute(post);
 		} catch (IOException e) {
 			Log.i(TAG, command + " failed, due to " + e.getMessage());
-			((ClientModel)model).setRegisteredOnServer(false);
-			//GCMRegistrar.setRegisteredOnServer(context, false);
+			int what = Action.SET_REGISTERED_ON_SERVER.code;
+			model.setRegisteredOnServer(false);
+			controller.notifyOutboxHandlers(what, false);
 		} finally {
 			HttpUtilities.closeClient(client);
 		}
@@ -78,9 +85,12 @@ public class DeviceRegistration extends AsyncTask<String, Void, HttpResponse> {
 		} else {
 			switch (response.getStatusLine().getStatusCode()) {
 			case SC_OK:
-				boolean registered = command == REGISTER;
-				((ClientModel)model).setRegisteredOnServer(registered);
-				//GCMRegistrar.setRegisteredOnServer(context, registered);
+				boolean isRegistered = command == REGISTER;
+				model.setRegisteredOnServer(isRegistered);
+				if (isRegistered) {
+					int what = Action.REGISTER_ON_SERVER.code;
+					controller.notifyOutboxHandlers(what, isRegistered);
+				}
 				break;
 			default:
 				Log.i(TAG, response.getStatusLine().getReasonPhrase());

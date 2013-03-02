@@ -31,7 +31,6 @@ public class ClientModel extends Model<State> {
 	public void onRequestFail() {
 		setState(previous);
 	}
-
 	
 	public void setRegisteredOnServer(boolean flag) {
 		registeredOnServer = flag;
