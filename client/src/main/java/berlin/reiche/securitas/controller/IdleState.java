@@ -50,7 +50,7 @@ public class IdleState extends ControllerState<ClientModel.State> {
 
 	private void restoreClientState() {
 		String uri = Client.endpoint + Protocol.RESTORE_CLIENT_STATE.operation;
-		new StatusTask(model).execute(uri);
+		new StatusTask(model, controller).execute(uri);
 	}
 
 	private void requestDetectionStart() {

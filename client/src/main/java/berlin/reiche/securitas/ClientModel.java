@@ -48,4 +48,8 @@ public class ClientModel extends Model<State> {
 		return snapshot;
 	}
 
+	public boolean isDetecting() {
+		return state == State.DETECTING;
+	}
+
 }

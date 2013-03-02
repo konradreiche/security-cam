@@ -10,16 +10,16 @@ import android.util.SparseArray;
  */
 public enum Action {
 
-	SET_DETECTION_ACTIVE(1),
+	LOCK_INTERFACE(1),
 
-	SET_DETECTION_INACTICE(2),
+	UNLOCK_INTERFACE(2),
 
-	REGISTER_ON_SERVER(3),
+	SET_DETECTION_ACTIVE(3),
 
-	LOCK_INTERFACE(4),
+	SET_DETECTION_INACTICE(4),
 
-	UNLOCK_INTERFACE(5), 
-	
+	REGISTER_ON_SERVER(5),
+
 	SET_REGISTERED_ON_SERVER(6);
 
 	public final int code;
@@ -27,7 +27,7 @@ public enum Action {
 	Action(int code) {
 		this.code = code;
 	}
-	
+
 	/**
 	 * Stores the different code integer values and maps them to their respect
 	 * {@link Action} enumeration constant. A sparse array is used, which maps

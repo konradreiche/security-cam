@@ -10,9 +10,12 @@ import org.apache.http.client.methods.HttpGet;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import berlin.reiche.securitas.Action;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.ClientModel;
+import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Model;
+import berlin.reiche.securitas.controller.Controller;
 import berlin.reiche.securitas.util.HttpUtilities;
 
 public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
@@ -25,9 +28,12 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 
 	ClientModel model;
 
-	public StatusTask(Model<ClientModel.State> model) {
+	Controller<State> controller;
+
+	public StatusTask(Model<State> model, Controller<State> controller) {
 		super();
-		this.model = (ClientModel)model;
+		this.model = (ClientModel) model;
+		this.controller = controller;
 	}
 
 	@Override
@@ -56,6 +62,7 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 			return;
 		}
 
+		int what;
 		try {
 			String content = getString(response.getEntity().getContent());
 			content = content.toUpperCase(Locale.US);
@@ -65,18 +72,22 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 				if (model.isRegisteredOnServer()) {
 					model.setRegisteredOnServer(false);
 				}
-				// unlockInterface()
+				what = Action.UNLOCK_INTERFACE.code;
+				controller.notifyOutboxHandlers(what, false);
 				break;
 			case READY:
-				// unlockInterface()
+				what = Action.UNLOCK_INTERFACE.code;
+				controller.notifyOutboxHandlers(what, false);
 				break;
 			case RUNNING:
-				Client.enableMotionDetection();
+				what = Action.SET_DETECTION_ACTIVE.code;
+				controller.notifyOutboxHandlers(what);
 				break;
 			}
 		} catch (IOException e) {
 			Log.e(TAG, "The stream of the response could not be created.");
-			// unlockInterface()
+			what = Action.UNLOCK_INTERFACE.code;
+			controller.notifyOutboxHandlers(what, false);
 		}
 	}
 

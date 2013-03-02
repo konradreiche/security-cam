@@ -190,12 +190,11 @@ public class MainActivity extends Activity implements Callback {
 		String stateKey = getString(R.string.is_detection_active_key);
 		String snapshotKey = getString(R.string.snapshot_key);
 
-		boolean state = Client.isMotionDetectionActive();
+		boolean state = Client.getModel().isDetecting();
 		savedInstanceState.putBoolean(stateKey, state);
 		if (snapshot.getDrawable() != null) {
-			Bitmap bitmap = ((BitmapDrawable) snapshot.getDrawable())
-					.getBitmap();
-			savedInstanceState.putParcelable(snapshotKey, bitmap);
+			savedInstanceState.putParcelable(snapshotKey,
+					((BitmapDrawable) snapshot.getDrawable()).getBitmap());
 		}
 	}
 
@@ -229,7 +228,7 @@ public class MainActivity extends Activity implements Callback {
 			headline.setVisibility(View.GONE);
 			subtitle.setVisibility(View.GONE);
 		} else {
-			updateInterface();
+			updateInterface(Client.getModel().isDetecting());
 		}
 	}
 
@@ -247,7 +246,6 @@ public class MainActivity extends Activity implements Callback {
 			snapshotArea = (RelativeLayout) findViewById(R.id.snapshot_area);
 			headline = (TextView) findViewById(R.id.headline);
 			subtitle = (TextView) findViewById(R.id.subtitle);
-			Client.activity = this;
 			initialized = true;
 		}
 	}
@@ -344,12 +342,12 @@ public class MainActivity extends Activity implements Callback {
 	 * Only make {@link ImageView} for snapshot visible again, if the motion
 	 * detection is currently active.
 	 */
-	public void unlockInterface() {
+	public void unlockInterface(boolean detecting) {
 		detectionToggle.setEnabled(true);
 		snapshot.setEnabled(true);
 		progress.setVisibility(View.INVISIBLE);
 
-		if (Client.isMotionDetectionActive()) {
+		if (detecting) {
 			snapshot.setVisibility(View.VISIBLE);
 		}
 	}
@@ -389,9 +387,9 @@ public class MainActivity extends Activity implements Callback {
 	 * After the application is restarted due to application pause, termination,
 	 * etc.
 	 */
-	public void updateInterface() {
+	public void updateInterface(boolean detecting) {
 
-		if (Client.motionDetectionActive) {
+		if (detecting) {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			detectionToggle.setText(R.string.button_stop_detection);
 			snapshot.setImageBitmap(model.getSnapshot());
