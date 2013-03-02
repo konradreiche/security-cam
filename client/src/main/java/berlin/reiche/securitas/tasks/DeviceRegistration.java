@@ -9,14 +9,14 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import berlin.reiche.securitas.Client;
+import berlin.reiche.securitas.ClientModel;
+import berlin.reiche.securitas.ClientModel.State;
+import berlin.reiche.securitas.Model;
 import berlin.reiche.securitas.activies.MainActivity;
 import berlin.reiche.securitas.util.HttpUtilities;
-
-import com.google.android.gcm.GCMRegistrar;
 
 /**
  * This asynchronous task manages the registration ID which is required to
@@ -31,19 +31,19 @@ public class DeviceRegistration extends AsyncTask<String, Void, HttpResponse> {
 		REGISTER, UNREGISTER
 	};
 
-	Context context;
-
 	String id;
 
 	DeviceCommand command;
+	
+	Model<State> model;
 
 	private static String TAG = MainActivity.class.getSimpleName();
 
-	public DeviceRegistration(String id, DeviceCommand command, Context context) {
+	public DeviceRegistration(String id, DeviceCommand command, Model<State> model) {
 		super();
 		this.id = id;
 		this.command = command;
-		this.context = context;
+		this.model = model;
 	}
 
 	@Override
@@ -60,7 +60,8 @@ public class DeviceRegistration extends AsyncTask<String, Void, HttpResponse> {
 			return client.execute(post);
 		} catch (IOException e) {
 			Log.i(TAG, command + " failed, due to " + e.getMessage());
-			GCMRegistrar.setRegisteredOnServer(context, false);
+			((ClientModel)model).setRegisteredOnServer(false);
+			//GCMRegistrar.setRegisteredOnServer(context, false);
 		} finally {
 			HttpUtilities.closeClient(client);
 		}
@@ -78,7 +79,8 @@ public class DeviceRegistration extends AsyncTask<String, Void, HttpResponse> {
 			switch (response.getStatusLine().getStatusCode()) {
 			case SC_OK:
 				boolean registered = command == REGISTER;
-				GCMRegistrar.setRegisteredOnServer(context, registered);
+				((ClientModel)model).setRegisteredOnServer(registered);
+				//GCMRegistrar.setRegisteredOnServer(context, registered);
 				break;
 			default:
 				Log.i(TAG, response.getStatusLine().getReasonPhrase());

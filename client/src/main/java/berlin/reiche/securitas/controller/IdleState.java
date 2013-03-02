@@ -7,8 +7,10 @@ import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Model;
 import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.tasks.DetectionRequest;
-import berlin.reiche.securitas.tasks.StatusTask;
 import berlin.reiche.securitas.tasks.DetectionRequest.DetectionCommand;
+import berlin.reiche.securitas.tasks.DeviceRegistration;
+import berlin.reiche.securitas.tasks.DeviceRegistration.DeviceCommand;
+import berlin.reiche.securitas.tasks.StatusTask;
 
 /**
  * IdleState is one of different controller states.
@@ -38,6 +40,11 @@ public class IdleState extends ControllerState<ClientModel.State> {
 		case RESTORE_CLIENT_STATE:
 			restoreClientState();
 			break;
+		case REGISTER_DEVICE:
+			registerDevice(msg.obj.toString());
+			break;
+		case UNREGISTER_DEVICE:
+			unregisterDevice(msg.obj.toString());
 		default:
 			throw new IllegalStateException();
 		}
@@ -59,6 +66,19 @@ public class IdleState extends ControllerState<ClientModel.State> {
 		String uri = Client.endpoint + Protocol.STOP_DETECTION.operation;
 		Model<State> model = controller.getModel();
 		new DetectionRequest(DetectionCommand.STOP, model).execute(uri);
+	}
+
+	private void registerDevice(String id) {
+		String uri = Client.endpoint + Protocol.REGISTER_DEVICE.operation;
+		Model<State> model = controller.getModel();
+		new DeviceRegistration(id, DeviceCommand.REGISTER, model).execute(uri);
+	}
+
+	private void unregisterDevice(String id) {
+		String uri = Client.endpoint + Protocol.UNREGISTER_DEVICE.operation;
+		Model<State> model = controller.getModel();
+		new DeviceRegistration(id, DeviceCommand.UNREGISTER, model)
+				.execute(uri);
 	}
 
 }

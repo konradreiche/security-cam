@@ -111,9 +111,9 @@ public class MainActivity extends Activity implements Observer<Model<State>>,
 			Bitmap bitmap = savedInstanceState.getParcelable(snapshotKey);
 
 			if (isDetecting) {
-				handler.sendEmptyMessage(Protocol.SET_STATE_DETECTING.code);
+				Client.getModel().setState(State.DETECTING);
 			} else {
-				handler.sendEmptyMessage(Protocol.SET_STATE_IDLE.code);
+				Client.getModel().setState(State.IDLE);
 			}
 
 			snapshot.setImageBitmap(bitmap);
@@ -328,7 +328,9 @@ public class MainActivity extends Activity implements Observer<Model<State>>,
 			Log.i(TAG, "No device id yet, issue registration indent.");
 			GCMRegistrar.register(this, GCM_SENDER_ID);
 		} else if (!GCMRegistrar.isRegisteredOnServer(this)) {
-			Client.registerDevice(id, this);
+			Handler handler = controller.getInboxHandler();
+			handler.sendMessage(Message.obtain(handler,
+					Protocol.REGISTER_DEVICE.code, id));
 		}
 	}
 

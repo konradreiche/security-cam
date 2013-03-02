@@ -1,11 +1,8 @@
 package berlin.reiche.securitas;
 
-import android.content.Context;
 import berlin.reiche.securitas.activies.MainActivity;
 import berlin.reiche.securitas.controller.ClientController;
 import berlin.reiche.securitas.controller.Controller;
-import berlin.reiche.securitas.tasks.DeviceRegistration;
-import berlin.reiche.securitas.tasks.DeviceRegistration.DeviceCommand;
 import berlin.reiche.securitas.util.Settings;
 
 /**
@@ -31,20 +28,6 @@ public class Client {
 	static {
 		model = new ClientModel();
 		controller = new ClientController(model);
-	}
-
-	public static void registerDevice(String id, Context context) {
-		String operation = "/device/register";
-		String uri = endpoint + operation;
-		new DeviceRegistration(id, DeviceCommand.REGISTER, context)
-				.execute(uri);
-	}
-
-	public static void unregisterDevice(String id, Context context) {
-		String operation = "/device/unregister";
-		String uri = endpoint + operation;
-		new DeviceRegistration(id, DeviceCommand.UNREGISTER, context)
-				.execute(uri);
 	}
 
 	public static Settings getSettings() {

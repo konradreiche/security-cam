@@ -5,8 +5,11 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import berlin.reiche.securitas.Client;
+import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.R;
 import berlin.reiche.securitas.activies.MainActivity;
 
@@ -87,7 +90,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 		Intent notificationIntent = new Intent(this, MainActivity.class);
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP
 				| Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		
+
 		notificationIntent.putExtra("filename", filename);
 
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
@@ -108,7 +111,9 @@ public class GCMIntentService extends GCMBaseIntentService {
 	@Override
 	protected void onRegistered(Context context, String registrationId) {
 		Log.i(TAG, "onRegistered, registrationId = " + registrationId);
-		Client.registerDevice(registrationId, context);
+		Handler handler = Client.getController().inboxHandler;
+		handler.sendMessage(Message.obtain(handler,
+				Protocol.REGISTER_DEVICE.code, registrationId));
 	}
 
 	/**
@@ -120,7 +125,9 @@ public class GCMIntentService extends GCMBaseIntentService {
 	@Override
 	protected void onUnregistered(Context context, String registrationId) {
 		Log.i(TAG, "onUnregistered, registrationId = " + registrationId);
-		Client.unregisterDevice(registrationId, context);
+		Handler handler = Client.getController().inboxHandler;
+		handler.sendMessage(Message.obtain(handler,
+				Protocol.UNREGISTER_DEVICE.code, registrationId));
 	}
 
 	public static void resetMotionsDetected(Context context) {

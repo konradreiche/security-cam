@@ -4,23 +4,20 @@ import android.util.SparseArray;
 
 public enum Protocol {
 
-	REGISTER_DEVICE(0, "/device/register"),
+	REGISTER_DEVICE(100, "/device/register"),
 
-	UNREGISTER_DEVICE(1, "/device/unregister"),
+	UNREGISTER_DEVICE(101, "/device/unregister"),
 
-	START_DETECTION(2, "/motion/detection/start"),
+	START_DETECTION(102, "/motion/detection/start"),
 
-	STOP_DETECTION(3, "/motion/detection/stop"),
+	STOP_DETECTION(103, "/motion/detection/stop"),
 
-	DOWNLOAD_SNAPSHOT(4, "/static/captures/"),
+	DOWNLOAD_SNAPSHOT(104, "/static/captures/"),
 
-	DOWNLOAD_LATEST_SNAPSHOT(5, "/server/action/snapshot"),
+	DOWNLOAD_LATEST_SNAPSHOT(105, "/server/action/snapshot"),
 
-	RESTORE_CLIENT_STATE(6, "/server/status"),
+	RESTORE_CLIENT_STATE(106, "/server/status");
 	
-	SET_STATE_DETECTING(7, null),
-	
-	SET_STATE_IDLE(8, null);
 
 	public final int code;
 

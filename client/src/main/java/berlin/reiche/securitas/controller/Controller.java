@@ -47,7 +47,7 @@ public abstract class Controller<T extends Enum<T>> {
 	 */
 	abstract void handleMessage(Message msg);
 
-	protected void setState(ControllerState<T> state) {
+	public void setState(ControllerState<T> state) {
 		if (this.state != null) {
 			this.state.dispose();
 		}
