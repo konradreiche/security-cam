@@ -1,6 +1,7 @@
 package berlin.reiche.securitas.controller;
 
 import android.os.Message;
+import android.util.Log;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.ClientModel.State;
@@ -8,6 +9,11 @@ import berlin.reiche.securitas.controller.tasks.DetectionRequest;
 import berlin.reiche.securitas.controller.tasks.DetectionRequest.DetectionCommand;
 
 public class DetectionState extends ControllerState<State> {
+
+	/**
+	 * Tag name for logging.
+	 */
+	private static final String TAG = DetectionState.class.getSimpleName();
 
 	public DetectionState(Controller<State> controller) {
 		super(controller);
@@ -21,6 +27,7 @@ public class DetectionState extends ControllerState<State> {
 			requestDetectionStop();
 			break;
 		default:
+			Log.e(TAG, "Illegal action request: " + request);
 			throw new IllegalStateException();
 		}
 	}

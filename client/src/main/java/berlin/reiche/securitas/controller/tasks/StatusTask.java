@@ -81,6 +81,7 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 				controller.notifyOutboxHandlers(what, false);
 				break;
 			case RUNNING:
+				model.setState(State.DETECTING);
 				controller.setState(new WaitState(controller));
 				what = Action.SET_DETECTION_ACTIVE.code;
 				controller.notifyOutboxHandlers(what);

@@ -30,7 +30,6 @@ import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import berlin.reiche.securitas.Action;
 import berlin.reiche.securitas.Client;
-import berlin.reiche.securitas.ClientModel;
 import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.R;
@@ -101,11 +100,6 @@ public class MainActivity extends Activity implements Callback {
 	 * Stores the settings used for building the connection.
 	 */
 	private SharedPreferences settings;
-
-	/**
-	 * The model which implements the logic of this application.
-	 */
-	private ClientModel model;
 
 	/**
 	 * The controller for handling user requests.
@@ -190,8 +184,7 @@ public class MainActivity extends Activity implements Callback {
 		String stateKey = getString(R.string.is_detection_active_key);
 		String snapshotKey = getString(R.string.snapshot_key);
 
-		boolean state = Client.getModel().isDetecting();
-		savedInstanceState.putBoolean(stateKey, state);
+		savedInstanceState.putBoolean(stateKey, detecting);
 		if (snapshot.getDrawable() != null) {
 			savedInstanceState.putParcelable(snapshotKey,
 					((BitmapDrawable) snapshot.getDrawable()).getBitmap());
@@ -239,7 +232,6 @@ public class MainActivity extends Activity implements Callback {
 
 	public void initialize() {
 		if (!initialized) {
-			model = Client.getModel();
 			controller = Client.getController();
 			controller.addOutboxHandler(new Handler(this));
 			handler = controller.getInboxHandler();
@@ -319,16 +311,10 @@ public class MainActivity extends Activity implements Callback {
 	 */
 	public void toggleMotionDetection(View view) {
 		status.setText(null);
-		State state = (State) model.getState();
-		switch (state) {
-		case IDLE:
-			handler.sendEmptyMessage(Protocol.START_DETECTION.code);
-			break;
-		case DETECTING:
+		if (detecting) {
 			handler.sendEmptyMessage(Protocol.STOP_DETECTION.code);
-			break;
-		default:
-			throw new IllegalStateException();
+		} else {
+			handler.sendEmptyMessage(Protocol.START_DETECTION.code);
 		}
 	}
 
@@ -410,6 +396,7 @@ public class MainActivity extends Activity implements Callback {
 			detectionToggle.setText(R.string.button_start_detection);
 			detecting = false;
 			snapshot.setVisibility(ImageView.INVISIBLE);
+			break;
 		case SET_REGISTERED_ON_SERVER:
 			GCMRegistrar.setRegisteredOnServer(this, (Boolean) message.obj);
 			break;

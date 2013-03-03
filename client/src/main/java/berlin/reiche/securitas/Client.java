@@ -30,10 +30,6 @@ public class Client {
 		return settings;
 	}
 
-	public static ClientModel getModel() {
-		return model;
-	}
-
 	public static ClientController getController() {
 		return controller;
 	}
