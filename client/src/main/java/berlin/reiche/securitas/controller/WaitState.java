@@ -4,7 +4,7 @@ import android.os.Message;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Protocol;
-import berlin.reiche.securitas.tasks.BitmapDownloadTask;
+import berlin.reiche.securitas.controller.tasks.BitmapDownloadTask;
 
 public class WaitState extends ControllerState<State> {
 

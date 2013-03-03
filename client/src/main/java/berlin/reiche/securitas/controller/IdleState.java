@@ -5,10 +5,10 @@ import android.util.Log;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Protocol;
-import berlin.reiche.securitas.tasks.DetectionRequest;
-import berlin.reiche.securitas.tasks.DetectionRequest.DetectionCommand;
-import berlin.reiche.securitas.tasks.DeviceRegistration;
-import berlin.reiche.securitas.tasks.StatusTask;
+import berlin.reiche.securitas.controller.tasks.DetectionRequest;
+import berlin.reiche.securitas.controller.tasks.DetectionRequest.DetectionCommand;
+import berlin.reiche.securitas.controller.tasks.DeviceRegistration;
+import berlin.reiche.securitas.controller.tasks.StatusTask;
 
 /**
  * IdleState is one of different controller states.

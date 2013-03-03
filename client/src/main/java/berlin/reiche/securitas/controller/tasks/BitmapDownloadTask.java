@@ -1,4 +1,4 @@
-package berlin.reiche.securitas.tasks;
+package berlin.reiche.securitas.controller.tasks;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,6 +1,6 @@
-package berlin.reiche.securitas.tasks;
+package berlin.reiche.securitas.controller.tasks;
 
-import static berlin.reiche.securitas.tasks.DetectionRequest.DetectionCommand.START;
+import static berlin.reiche.securitas.controller.tasks.DetectionRequest.DetectionCommand.START;
 import static org.apache.http.HttpStatus.SC_CONFLICT;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;

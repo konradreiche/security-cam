@@ -1,6 +1,6 @@
-package berlin.reiche.securitas.tasks;
+package berlin.reiche.securitas.controller.tasks;
 
-import static berlin.reiche.securitas.tasks.DeviceRegistration.Command.REGISTER;
+import static berlin.reiche.securitas.controller.tasks.DeviceRegistration.Command.REGISTER;
 import static org.apache.http.HttpStatus.SC_OK;
 
 import java.io.IOException;
