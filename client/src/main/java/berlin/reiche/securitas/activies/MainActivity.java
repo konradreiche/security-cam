@@ -311,6 +311,7 @@ public class MainActivity extends Activity implements Callback {
 	 */
 	public void toggleMotionDetection(View view) {
 		status.setText(null);
+		lockInterface();
 		if (detecting) {
 			handler.sendEmptyMessage(Protocol.STOP_DETECTION.code);
 		} else {

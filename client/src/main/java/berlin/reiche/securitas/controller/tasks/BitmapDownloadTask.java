@@ -59,6 +59,7 @@ public class BitmapDownloadTask extends AsyncTask<String, Void, Bitmap> {
 	protected void onPostExecute(Bitmap result) {
 		model.setSnapshot(result);
 		controller.notifyOutboxHandlers(Action.SET_SNAPSHOT.code, result);
+		controller.notifyOutboxHandlers(Action.UNLOCK_INTERFACE.code, true);
 	}
 
 }

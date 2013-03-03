@@ -80,12 +80,15 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 			case SC_OK:
 				state = (command == START) ? State.DETECTING : State.IDLE;
 				model.setState(state);
-				if (state == State.DETECTING) {
+				boolean detecting = state == State.DETECTING;
+				if (detecting) {
 					what = Action.SET_DETECTION_ACTIVE.code;
 				} else {
 					what = Action.SET_DETECTION_INACTICE.code;
 				}
 				controller.notifyOutboxHandlers(what);
+				controller.notifyOutboxHandlers(Action.UNLOCK_INTERFACE.code,
+						detecting);
 				break;
 			case SC_UNAUTHORIZED:
 				model.setStatus("Unauthorized request, check authentication data");
