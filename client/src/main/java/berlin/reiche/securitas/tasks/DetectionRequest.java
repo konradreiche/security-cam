@@ -20,6 +20,7 @@ import berlin.reiche.securitas.ClientModel;
 import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Model;
 import berlin.reiche.securitas.controller.Controller;
+import berlin.reiche.securitas.controller.IdleState;
 import berlin.reiche.securitas.util.HttpUtilities;
 
 public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
@@ -67,6 +68,7 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 		if (exception != null && response == null) {
 			model.setStatus(exception.getMessage());
 			model.onRequestFail();
+			controller.setState(new IdleState(controller));
 		} else if (response == null) {
 			Log.e(TAG, "Response is null without an exception. "
 					+ "The endpoint probably ran into a problem.");
@@ -88,6 +90,7 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 			case SC_UNAUTHORIZED:
 				model.setStatus("Unauthorized request, check authentication data");
 				state = model.onRequestFail();
+				controller.setState(new IdleState(controller));
 				if (state == State.DETECTING) {
 					what = Action.SET_DETECTION_ACTIVE.code;
 				} else {
@@ -109,6 +112,7 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 				controller.notifyOutboxHandlers(what, status);
 
 				state = model.onRequestFail();
+				controller.setState(new IdleState(controller));
 				if (state == State.DETECTING) {
 					what = Action.SET_DETECTION_ACTIVE.code;
 				} else {

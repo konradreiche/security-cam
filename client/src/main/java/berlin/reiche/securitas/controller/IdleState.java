@@ -1,14 +1,14 @@
 package berlin.reiche.securitas.controller;
 
 import android.os.Message;
+import android.util.Log;
 import berlin.reiche.securitas.Client;
-import berlin.reiche.securitas.ClientModel;
 import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.tasks.DetectionRequest;
+import berlin.reiche.securitas.tasks.DetectionRequest.DetectionCommand;
 import berlin.reiche.securitas.tasks.DeviceRegistration;
 import berlin.reiche.securitas.tasks.StatusTask;
-import berlin.reiche.securitas.tasks.DetectionRequest.DetectionCommand;
 
 /**
  * IdleState is one of different controller states.
@@ -16,9 +16,11 @@ import berlin.reiche.securitas.tasks.DetectionRequest.DetectionCommand;
  * @author Konrad Reiche
  * 
  */
-public class IdleState extends ControllerState<ClientModel.State> {
+public class IdleState extends ControllerState<State> {
 
-	public IdleState(ClientController controller) {
+	private static final String TAG = IdleState.class.getSimpleName();
+
+	public IdleState(Controller<State> controller) {
 		super(controller);
 	}
 
@@ -31,10 +33,6 @@ public class IdleState extends ControllerState<ClientModel.State> {
 			requestDetectionStart();
 			model.setState(State.IDLE);
 			break;
-		case STOP_DETECTION:
-			requestDetectionStop();
-			model.setState(State.WAIT);
-			break;
 		case RESTORE_CLIENT_STATE:
 			restoreClientState();
 			break;
@@ -44,6 +42,7 @@ public class IdleState extends ControllerState<ClientModel.State> {
 		case UNREGISTER_DEVICE:
 			unregisterDevice(msg.obj.toString());
 		default:
+			Log.e(TAG, "Illegal protocol request: " + request);
 			throw new IllegalStateException();
 		}
 	}
@@ -55,13 +54,8 @@ public class IdleState extends ControllerState<ClientModel.State> {
 
 	private void requestDetectionStart() {
 		String uri = Client.endpoint + Protocol.START_DETECTION.operation;
+		controller.setState(new WaitState(controller));
 		new DetectionRequest(model, controller, DetectionCommand.START)
-				.execute(uri);
-	}
-
-	private void requestDetectionStop() {
-		String uri = Client.endpoint + Protocol.STOP_DETECTION.operation;
-		new DetectionRequest(model, controller, DetectionCommand.STOP)
 				.execute(uri);
 	}
 
