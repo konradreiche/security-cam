@@ -79,6 +79,7 @@ public class DeviceRegistration extends AsyncTask<String, Void, HttpResponse> {
 	@Override
 	protected void onPostExecute(HttpResponse response) {
 
+		int what;
 		if (response == null) {
 			Log.e(TAG, "Response is null without an exception. "
 					+ "The endpoint probably ran into a problem.");
@@ -88,7 +89,7 @@ public class DeviceRegistration extends AsyncTask<String, Void, HttpResponse> {
 				boolean isRegistered = command == REGISTER;
 				model.setRegisteredOnServer(isRegistered);
 				if (isRegistered) {
-					int what = Action.SET_REGISTERED_ON_SERVER.code;
+					what = Action.SET_REGISTERED_ON_SERVER.code;
 					controller.notifyOutboxHandlers(what, isRegistered);
 				}
 				break;

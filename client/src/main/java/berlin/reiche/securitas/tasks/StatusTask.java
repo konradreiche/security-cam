@@ -59,7 +59,7 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 		int what;
 		if (response == null) {
 			what = Action.UNLOCK_INTERFACE.code;
-			controller.notifyOutboxHandlers(what);
+			controller.notifyOutboxHandlers(what, false);
 			return;
 		}
 

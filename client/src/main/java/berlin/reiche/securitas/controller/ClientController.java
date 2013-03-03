@@ -18,14 +18,7 @@ public class ClientController extends Controller<ClientModel.State> {
 	}
 
 	@Override
-	public void dispose() {
-		super.dispose();
-		state.dispose();
-	}
-
-	@Override
 	void handleMessage(Message msg) {
-		// TODO: check return value
 		state.handleMessage(msg);
 	}
 

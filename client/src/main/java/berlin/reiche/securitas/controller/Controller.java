@@ -12,7 +12,7 @@ import berlin.reiche.securitas.Model;
 public abstract class Controller<T extends Enum<T>> {
 
 	Model<T> model;
-	
+
 	/**
 	 * Inbox handler receives messages from the activity and its {@link Looper}
 	 * processes the messages.
@@ -29,7 +29,7 @@ public abstract class Controller<T extends Enum<T>> {
 	 * The current state of the controller.
 	 */
 	protected ControllerState<T> state;
-	
+
 	public Controller() {
 		inboxHandlerThread = new HandlerThread("Controller Inbox");
 		inboxHandlerThread.start();
@@ -48,16 +48,13 @@ public abstract class Controller<T extends Enum<T>> {
 	abstract void handleMessage(Message msg);
 
 	public void setState(ControllerState<T> state) {
-		if (this.state != null) {
-			this.state.dispose();
-		}
 		this.state = state;
 	}
-	
+
 	/**
 	 * Asks the inbox handler thread to shutdown gracefully.
 	 */
-	public void dispose() {
+	public final void dispose() {
 		inboxHandlerThread.getLooper().quit();
 	}
 
@@ -72,19 +69,20 @@ public abstract class Controller<T extends Enum<T>> {
 	public final void notifyOutboxHandlers(int what) {
 		notifyOutboxHandlers(what, 0, 0, null);
 	}
-	
+
 	public final void notifyOutboxHandlers(int what, Object obj) {
 		notifyOutboxHandlers(what, 0, 0, obj);
 	}
-	
-	public final void notifyOutboxHandlers(int what, int arg1, int arg2, Object obj) {
+
+	public final void notifyOutboxHandlers(int what, int arg1, int arg2,
+			Object obj) {
 		if (!outboxHandlers.isEmpty()) {
 			for (Handler handler : outboxHandlers) {
 				Message.obtain(handler, what, arg1, arg2, obj).sendToTarget();
 			}
 		}
 	}
-	
+
 	final void changeState(ControllerState<T> state) {
 		this.state = state;
 	}

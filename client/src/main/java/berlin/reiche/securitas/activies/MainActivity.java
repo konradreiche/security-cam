@@ -412,6 +412,7 @@ public class MainActivity extends Activity implements Callback {
 			GCMRegistrar.setRegisteredOnServer(this, (Boolean) message.obj);
 			break;
 		default:
+			Log.e(TAG, "Retrieved illegal action: " + action);
 			throw new IllegalStateException();
 		}
 		return true;
