@@ -56,13 +56,13 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 	@Override
 	protected void onPostExecute(HttpResponse response) {
 
+		int what;
 		if (response == null) {
-			// TODO: introduce model state for locked/unlocked interface and set
-			// the model state to unlock here.
+			what = Action.UNLOCK_INTERFACE.code;
+			controller.notifyOutboxHandlers(what);
 			return;
 		}
 
-		int what;
 		try {
 			String content = getString(response.getEntity().getContent());
 			content = content.toUpperCase(Locale.US);

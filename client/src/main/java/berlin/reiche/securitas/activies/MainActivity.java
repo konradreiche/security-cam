@@ -123,6 +123,12 @@ public class MainActivity extends Activity implements Callback {
 	private boolean initialized;
 
 	/**
+	 * This is an activity state variable used for saving and restoring the
+	 * state without accessing the model.
+	 */
+	private boolean detecting;
+
+	/**
 	 * Called when the activity is first created.
 	 * 
 	 * @param savedInstanceState
@@ -149,15 +155,8 @@ public class MainActivity extends Activity implements Callback {
 			String stateKey = getString(R.string.is_detection_active_key);
 			String snapshotKey = getString(R.string.snapshot_key);
 
-			boolean isDetecting = savedInstanceState.getBoolean(stateKey);
+			detecting = savedInstanceState.getBoolean(stateKey);
 			Bitmap bitmap = savedInstanceState.getParcelable(snapshotKey);
-
-			if (isDetecting) {
-				Client.getModel().setState(State.DETECTING);
-			} else {
-				Client.getModel().setState(State.IDLE);
-			}
-
 			snapshot.setImageBitmap(bitmap);
 		} else {
 			// maybe the user hit the *Back* button with the motion detection
@@ -220,15 +219,19 @@ public class MainActivity extends Activity implements Callback {
 
 		int orientation = getResources().getConfiguration().orientation;
 		if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-
 			getWindow().setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN);
 			LayoutParams params = new LayoutParams(MATCH_PARENT, MATCH_PARENT);
 
 			snapshotArea.setLayoutParams(params);
 			headline.setVisibility(View.GONE);
 			subtitle.setVisibility(View.GONE);
-		} else {
-			updateInterface(Client.getModel().isDetecting());
+		}
+
+		if (detecting) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+			detectionToggle.setText(R.string.button_stop_detection);
+			detecting = true;
+			handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
 		}
 	}
 
@@ -380,41 +383,31 @@ public class MainActivity extends Activity implements Callback {
 	}
 
 	public void refreshSnapshot(View view) {
+		lockInterface();
 		handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
-	}
-
-	/**
-	 * After the application is restarted due to application pause, termination,
-	 * etc.
-	 */
-	public void updateInterface(boolean detecting) {
-
-		if (detecting) {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-			detectionToggle.setText(R.string.button_stop_detection);
-			snapshot.setImageBitmap(model.getSnapshot());
-		} else {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
-			detectionToggle.setText(R.string.button_start_detection);
-			snapshot.setVisibility(ImageView.INVISIBLE);
-		}
-
-		if (model.getState() == State.DETECTING) {
-			handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
-		}
-
-		if (!model.isRegisteredOnServer()) {
-			GCMRegistrar.setRegisteredOnServer(this, false);
-			manageDeviceRegistration();
-			handler.sendEmptyMessage(Protocol.START_DETECTION.code);
-		}
-
 	}
 
 	@Override
 	public boolean handleMessage(Message message) {
 		Action action = Action.valueOf(message.what);
 		switch (action) {
+		case LOCK_INTERFACE:
+			lockInterface();
+			break;
+		case UNLOCK_INTERFACE:
+			unlockInterface((Boolean) message.obj);
+			break;
+		case SET_DETECTION_ACTIVE:
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+			detectionToggle.setText(R.string.button_stop_detection);
+			detecting = true;
+			handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
+			break;
+		case SET_DETECTION_INACTICE:
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+			detectionToggle.setText(R.string.button_start_detection);
+			detecting = false;
+			snapshot.setVisibility(ImageView.INVISIBLE);
 		case SET_REGISTERED_ON_SERVER:
 			GCMRegistrar.setRegisteredOnServer(this, (Boolean) message.obj);
 			break;
