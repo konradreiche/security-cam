@@ -5,6 +5,7 @@ import android.util.Log;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.ClientModel.State;
+import berlin.reiche.securitas.controller.tasks.BitmapDownloadTask;
 import berlin.reiche.securitas.controller.tasks.DetectionRequest;
 import berlin.reiche.securitas.controller.tasks.DetectionRequest.DetectionCommand;
 
@@ -26,10 +27,22 @@ public class DetectionState extends ControllerState<State> {
 		case STOP_DETECTION:
 			requestDetectionStop();
 			break;
+		case DOWNLOAD_SNAPSHOT:
+			downloadSnapshot();
+			break;
+		case DOWNLOAD_LATEST_SNAPSHOT:
+			downloadLatestSnapshot();
+			break;
 		default:
 			Log.e(TAG, "Illegal action request: " + request);
 			throw new IllegalStateException();
 		}
+	}
+
+	private void downloadSnapshot() {
+		String uri = Client.endpoint;
+		uri += Protocol.DOWNLOAD_LATEST_SNAPSHOT.operation;
+		new BitmapDownloadTask(model, controller).execute(uri);
 	}
 
 	private void requestDetectionStop() {
@@ -37,6 +50,12 @@ public class DetectionState extends ControllerState<State> {
 		controller.setState(new IdleState(controller));
 		new DetectionRequest(model, controller, DetectionCommand.STOP)
 				.execute(uri);
+	}
+	
+	private void downloadLatestSnapshot() {
+		String uri = Client.endpoint;
+		uri += Protocol.DOWNLOAD_LATEST_SNAPSHOT.operation;
+		new BitmapDownloadTask(model, controller).execute(uri);
 	}
 
 }

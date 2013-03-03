@@ -87,8 +87,6 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 					what = Action.SET_DETECTION_INACTICE.code;
 				}
 				controller.notifyOutboxHandlers(what);
-				controller.notifyOutboxHandlers(Action.UNLOCK_INTERFACE.code,
-						detecting);
 				break;
 			case SC_UNAUTHORIZED:
 				model.setStatus("Unauthorized request, check authentication data");

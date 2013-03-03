@@ -41,6 +41,9 @@ public class IdleState extends ControllerState<State> {
 			break;
 		case UNREGISTER_DEVICE:
 			unregisterDevice(msg.obj.toString());
+		case DOWNLOAD_SNAPSHOT:
+			// swallow
+			break;
 		default:
 			Log.e(TAG, "Illegal protocol request: " + request);
 			throw new IllegalStateException();

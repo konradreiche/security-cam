@@ -111,7 +111,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 	@Override
 	protected void onRegistered(Context context, String registrationId) {
 		Log.i(TAG, "onRegistered, registrationId = " + registrationId);
-		Handler handler = Client.getController().inboxHandler;
+		Handler handler = Client.getController().getInboxHandler();
 		handler.sendMessage(Message.obtain(handler,
 				Protocol.REGISTER_DEVICE.code, registrationId));
 	}
@@ -125,7 +125,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 	@Override
 	protected void onUnregistered(Context context, String registrationId) {
 		Log.i(TAG, "onUnregistered, registrationId = " + registrationId);
-		Handler handler = Client.getController().inboxHandler;
+		Handler handler = Client.getController().getInboxHandler();
 		handler.sendMessage(Message.obtain(handler,
 				Protocol.UNREGISTER_DEVICE.code, registrationId));
 	}
