@@ -36,6 +36,7 @@ import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.R;
 import berlin.reiche.securitas.controller.ClientController;
 import berlin.reiche.securitas.controller.GCMIntentService;
+import berlin.reiche.securitas.controller.WaitState;
 import berlin.reiche.securitas.util.Settings;
 
 import com.google.android.gcm.GCMRegistrar;
@@ -231,6 +232,7 @@ public class MainActivity extends Activity implements Callback {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			detectionToggle.setText(R.string.button_stop_detection);
 			detecting = true;
+			controller.setState(new WaitState(controller));
 			handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
 		}
 	}
@@ -410,6 +412,9 @@ public class MainActivity extends Activity implements Callback {
 			snapshot.setVisibility(ImageView.INVISIBLE);
 		case SET_REGISTERED_ON_SERVER:
 			GCMRegistrar.setRegisteredOnServer(this, (Boolean) message.obj);
+			break;
+		case SET_SNAPSHOT:
+			snapshot.setImageBitmap((Bitmap) message.obj);
 			break;
 		default:
 			Log.e(TAG, "Retrieved illegal action: " + action);

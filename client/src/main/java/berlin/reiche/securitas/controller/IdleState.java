@@ -31,7 +31,7 @@ public class IdleState extends ControllerState<State> {
 		switch (request) {
 		case START_DETECTION:
 			requestDetectionStart();
-			model.setState(State.IDLE);
+			model.setState(State.WAIT);
 			break;
 		case RESTORE_CLIENT_STATE:
 			restoreClientState();

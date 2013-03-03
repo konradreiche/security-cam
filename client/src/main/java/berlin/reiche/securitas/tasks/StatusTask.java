@@ -16,6 +16,7 @@ import berlin.reiche.securitas.ClientModel;
 import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Model;
 import berlin.reiche.securitas.controller.Controller;
+import berlin.reiche.securitas.controller.WaitState;
 import berlin.reiche.securitas.util.HttpUtilities;
 
 public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
@@ -80,6 +81,7 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 				controller.notifyOutboxHandlers(what, false);
 				break;
 			case RUNNING:
+				controller.setState(new WaitState(controller));
 				what = Action.SET_DETECTION_ACTIVE.code;
 				controller.notifyOutboxHandlers(what);
 				break;
