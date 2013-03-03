@@ -11,9 +11,12 @@ import org.apache.http.client.methods.HttpGet;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import berlin.reiche.securitas.Action;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.ClientModel;
+import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Model;
+import berlin.reiche.securitas.controller.Controller;
 import berlin.reiche.securitas.util.FlushedInputStream;
 import berlin.reiche.securitas.util.HttpUtilities;
 
@@ -23,9 +26,12 @@ public class BitmapDownloadTask extends AsyncTask<String, Void, Bitmap> {
 
 	ClientModel model;
 
-	public BitmapDownloadTask(Model<ClientModel.State> model) {
+	Controller<State> controller;
+
+	public BitmapDownloadTask(Model<State> model, Controller<State> controller) {
 		super();
-		this.model = (ClientModel)model;
+		this.model = (ClientModel) model;
+		this.controller = controller;
 	}
 
 	@Override
@@ -52,6 +58,7 @@ public class BitmapDownloadTask extends AsyncTask<String, Void, Bitmap> {
 	@Override
 	protected void onPostExecute(Bitmap result) {
 		model.setSnapshot(result);
+		controller.notifyOutboxHandlers(Action.SET_SNAPSHOT.code, result);
 	}
 
 }

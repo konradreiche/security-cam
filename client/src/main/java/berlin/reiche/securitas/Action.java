@@ -18,9 +18,11 @@ public enum Action {
 
 	SET_DETECTION_INACTICE(4),
 
-	REGISTER_ON_SERVER(5),
-
-	SET_REGISTERED_ON_SERVER(6);
+	SET_REGISTERED_ON_SERVER(5),
+	
+	SET_STATUS_TEXT(6),
+	
+	SET_SNAPSHOT(7);
 
 	public final int code;
 

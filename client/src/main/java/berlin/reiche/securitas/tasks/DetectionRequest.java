@@ -14,10 +14,12 @@ import org.apache.http.client.methods.HttpGet;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import berlin.reiche.securitas.Action;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.ClientModel;
 import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Model;
+import berlin.reiche.securitas.controller.Controller;
 import berlin.reiche.securitas.util.HttpUtilities;
 
 public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
@@ -32,11 +34,15 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 
 	ClientModel model;
 
+	Controller<State> controller;
+
 	private static String TAG = DetectionRequest.class.getSimpleName();
 
-	public DetectionRequest(DetectionCommand command, Model<ClientModel.State> model) {
-		this.command = command;
+	public DetectionRequest(Model<State> model, Controller<State> controller,
+			DetectionCommand command) {
 		this.model = (ClientModel) model;
+		this.controller = controller;
+		this.command = command;
 	}
 
 	@Override
@@ -65,27 +71,51 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 			Log.e(TAG, "Response is null without an exception. "
 					+ "The endpoint probably ran into a problem.");
 		} else {
+			int what;
+			State state;
 			int code = response.getStatusLine().getStatusCode();
 			switch (code) {
 			case SC_OK:
-				State state = (command == START) ? State.DETECTING : State.IDLE;
+				state = (command == START) ? State.DETECTING : State.IDLE;
 				model.setState(state);
+				if (state == State.DETECTING) {
+					what = Action.SET_DETECTION_ACTIVE.code;
+				} else {
+					what = Action.SET_DETECTION_INACTICE.code;
+				}
+				controller.notifyOutboxHandlers(what);
 				break;
 			case SC_UNAUTHORIZED:
 				model.setStatus("Unauthorized request, check authentication data");
-				model.onRequestFail();
+				state = model.onRequestFail();
+				if (state == State.DETECTING) {
+					what = Action.SET_DETECTION_ACTIVE.code;
+				} else {
+					what = Action.SET_DETECTION_INACTICE.code;
+				}
+				controller.notifyOutboxHandlers(what);
 				break;
 			case SC_CONFLICT:
 				model.setRegisteredOnServer(false);
+				what = Action.SET_REGISTERED_ON_SERVER.code;
+				controller.notifyOutboxHandlers(what, false);
 				break;
 			default:
 				StatusLine statusLine = response.getStatusLine();
 				String status = statusLine.getStatusCode() + " ";
 				status += statusLine.getReasonPhrase();
 				model.setStatus(status);
-				model.onRequestFail();
+				what = Action.SET_STATUS_TEXT.code;
+				controller.notifyOutboxHandlers(what, status);
+
+				state = model.onRequestFail();
+				if (state == State.DETECTING) {
+					what = Action.SET_DETECTION_ACTIVE.code;
+				} else {
+					what = Action.SET_DETECTION_INACTICE.code;
+				}
+				controller.notifyOutboxHandlers(what);
 			}
 		}
 	}
-
 }

@@ -9,6 +9,8 @@ public class ClientModel extends Model<State> {
 		IDLE, WAIT, DETECTING;
 	}
 
+	protected State previous;
+
 	private String status;
 
 	private boolean registeredOnServer;
@@ -27,11 +29,21 @@ public class ClientModel extends Model<State> {
 	public boolean isRegisteredOnServer() {
 		return registeredOnServer;
 	}
-	
-	public void onRequestFail() {
-		setState(previous);
+
+	@Override
+	public synchronized void setState(Enum<State> state) {
+		this.previous = (State) this.state;
+		super.setState(state);
 	}
-	
+
+	/**
+	 * @return the previous state to which the model is set again.
+	 */
+	public State onRequestFail() {
+		setState(previous);
+		return previous;
+	}
+
 	public void setRegisteredOnServer(boolean flag) {
 		registeredOnServer = flag;
 	}

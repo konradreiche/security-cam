@@ -55,12 +55,14 @@ public class IdleState extends ControllerState<ClientModel.State> {
 
 	private void requestDetectionStart() {
 		String uri = Client.endpoint + Protocol.START_DETECTION.operation;
-		new DetectionRequest(DetectionCommand.START, model).execute(uri);
+		new DetectionRequest(model, controller, DetectionCommand.START)
+				.execute(uri);
 	}
 
 	private void requestDetectionStop() {
 		String uri = Client.endpoint + Protocol.STOP_DETECTION.operation;
-		new DetectionRequest(DetectionCommand.STOP, model).execute(uri);
+		new DetectionRequest(model, controller, DetectionCommand.STOP)
+				.execute(uri);
 	}
 
 	private void registerDevice(String id) {

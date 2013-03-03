@@ -88,7 +88,7 @@ public class DeviceRegistration extends AsyncTask<String, Void, HttpResponse> {
 				boolean isRegistered = command == REGISTER;
 				model.setRegisteredOnServer(isRegistered);
 				if (isRegistered) {
-					int what = Action.REGISTER_ON_SERVER.code;
+					int what = Action.SET_REGISTERED_ON_SERVER.code;
 					controller.notifyOutboxHandlers(what, isRegistered);
 				}
 				break;
