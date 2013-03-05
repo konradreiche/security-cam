@@ -57,7 +57,7 @@
         </activity>
 
         <receiver
-            android:name="com.google.android.gcm.GCMBroadcastReceiver"
+            android:name="berlin.reiche.securitas.controller.GCMReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
@@ -68,7 +68,7 @@
         </receiver>
 
         <!-- Intent service will be called by the GCMBroadcastReceiver. -->
-        <service android:name=".GCMIntentService" />
+        <service android:name="berlin.reiche.securitas.controller.GCMIntentService" />
     </application>
 
 </manifest>
