@@ -30,6 +30,7 @@ import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import berlin.reiche.securitas.Action;
 import berlin.reiche.securitas.Client;
+import berlin.reiche.securitas.ClientModel;
 import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.R;
@@ -137,6 +138,14 @@ public class MainActivity extends Activity implements Callback {
 		super.onCreate(savedInstanceState);
 		Log.i(TAG, "onCreate");
 		setContentView(R.layout.main);
+		
+		Client.setModel(new ClientModel());
+		Client.setController(new ClientController(Client.getModel()));
+		
+		controller = Client.getController();
+		controller.addOutboxHandler(new Handler(this));
+		handler = controller.getInboxHandler();
+		
 		initialize();
 		updateSettings();
 
@@ -232,10 +241,6 @@ public class MainActivity extends Activity implements Callback {
 
 	public void initialize() {
 		if (!initialized) {
-			controller = Client.getController();
-			controller.addOutboxHandler(new Handler(this));
-			handler = controller.getInboxHandler();
-
 			snapshot = (ImageView) findViewById(R.id.snapshot);
 			detectionToggle = (Button) findViewById(R.id.detection_toggle);
 			status = (TextView) findViewById(R.id.errors);
