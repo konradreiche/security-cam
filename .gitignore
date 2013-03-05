@@ -38,3 +38,6 @@ motion.conf
 
 # Motion captures
 server/securitas/captures
+
+# Log file
+server.log
