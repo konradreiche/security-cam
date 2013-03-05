@@ -397,6 +397,7 @@ public class MainActivity extends Activity implements Callback {
 			detectionToggle.setText(R.string.button_start_detection);
 			detecting = false;
 			snapshot.setVisibility(ImageView.INVISIBLE);
+			unlockInterface(false);
 			break;
 		case SET_REGISTERED_ON_SERVER:
 			GCMRegistrar.setRegisteredOnServer(this, (Boolean) message.obj);

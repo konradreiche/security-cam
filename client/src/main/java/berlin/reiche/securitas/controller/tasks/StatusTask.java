@@ -13,6 +13,7 @@ import android.util.Log;
 import berlin.reiche.securitas.Action;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.ClientModel;
+import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Model;
 import berlin.reiche.securitas.controller.Controller;
@@ -66,6 +67,14 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 
 		try {
 			String content = getString(response.getEntity().getContent());
+			if (content == null) {
+				Log.i(TAG, "Status response is null, retry.");
+				String uri = Client.endpoint;
+				uri += Protocol.RESTORE_CLIENT_STATE.operation;
+				new StatusTask(model, controller).execute(uri);
+				return;
+			}
+
 			content = content.toUpperCase(Locale.US);
 			ServerStatus status = ServerStatus.valueOf(content);
 			switch (status) {
