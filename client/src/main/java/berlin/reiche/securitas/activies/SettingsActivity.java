@@ -1,9 +1,10 @@
-package berlin.reiche.securitas;
+package berlin.reiche.securitas.activies;
 
-import berlin.reiche.securitas.util.NotificationDialog;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.util.Log;
+import berlin.reiche.securitas.R;
+import berlin.reiche.securitas.util.NotificationDialog;
 
 public class SettingsActivity extends PreferenceActivity {
 

@@ -36,7 +36,7 @@
         android:icon="@drawable/icon"
         android:label="@string/app_name" >
         <activity
-            android:name=".MainActivity"
+            android:name=".activies.MainActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Black.NoTitleBar" >
@@ -49,11 +49,11 @@
 
         <!-- Activity for setting the preferences -->
         <activity
-            android:name=".SettingsActivity"
+            android:name=".activies.SettingsActivity"
             android:label="@string/menu_settings" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="berlin.reiche.securitas.MainActivity" />
+                android:value="berlin.reiche.securitas.activies.MainActivity" />
         </activity>
 
         <receiver

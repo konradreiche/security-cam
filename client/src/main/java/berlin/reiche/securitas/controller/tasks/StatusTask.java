@@ -1,4 +1,4 @@
-package berlin.reiche.securitas.tasks;
+package berlin.reiche.securitas.controller.tasks;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,13 +8,15 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 
-import com.google.android.gcm.GCMRegistrar;
-
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
+import berlin.reiche.securitas.Action;
 import berlin.reiche.securitas.Client;
-import berlin.reiche.securitas.MainActivity;
+import berlin.reiche.securitas.ClientModel;
+import berlin.reiche.securitas.ClientModel.State;
+import berlin.reiche.securitas.Model;
+import berlin.reiche.securitas.controller.Controller;
+import berlin.reiche.securitas.controller.WaitState;
 import berlin.reiche.securitas.util.HttpUtilities;
 
 public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
@@ -25,11 +27,14 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 
 	private static final String TAG = StatusTask.class.getSimpleName();
 
-	Activity activity;
+	ClientModel model;
 
-	public StatusTask(Activity activity) {
+	Controller<State> controller;
+
+	public StatusTask(Model<State> model, Controller<State> controller) {
 		super();
-		this.activity = activity;
+		this.model = (ClientModel) model;
+		this.controller = controller;
 	}
 
 	@Override
@@ -52,9 +57,10 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 	@Override
 	protected void onPostExecute(HttpResponse response) {
 
-		MainActivity activity = (MainActivity) this.activity;
+		int what;
 		if (response == null) {
-			activity.unlockInterface();
+			what = Action.UNLOCK_INTERFACE.code;
+			controller.notifyOutboxHandlers(what, false);
 			return;
 		}
 
@@ -64,22 +70,27 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 			ServerStatus status = ServerStatus.valueOf(content);
 			switch (status) {
 			case IDLE:
-				if (GCMRegistrar.isRegisteredOnServer(activity)) {
-					GCMRegistrar.setRegisteredOnServer(activity, false);
-					activity.manageDeviceRegistration();
+				if (model.isRegisteredOnServer()) {
+					model.setRegisteredOnServer(false);
 				}
-				activity.unlockInterface();
+				what = Action.UNLOCK_INTERFACE.code;
+				controller.notifyOutboxHandlers(what, false);
 				break;
 			case READY:
-				activity.unlockInterface();
+				what = Action.UNLOCK_INTERFACE.code;
+				controller.notifyOutboxHandlers(what, false);
 				break;
 			case RUNNING:
-				Client.enableMotionDetection();
+				model.setState(State.DETECTING);
+				controller.setState(new WaitState(controller));
+				what = Action.SET_DETECTION_ACTIVE.code;
+				controller.notifyOutboxHandlers(what);
 				break;
 			}
 		} catch (IOException e) {
 			Log.e(TAG, "The stream of the response could not be created.");
-			activity.unlockInterface();
+			what = Action.UNLOCK_INTERFACE.code;
+			controller.notifyOutboxHandlers(what, false);
 		}
 	}
 

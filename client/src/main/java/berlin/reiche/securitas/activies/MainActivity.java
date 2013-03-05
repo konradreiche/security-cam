@@ -1,4 +1,4 @@
-package berlin.reiche.securitas;
+package berlin.reiche.securitas.activies;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
@@ -13,43 +13,104 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Handler.Callback;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.RelativeLayout.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
+import berlin.reiche.securitas.Action;
+import berlin.reiche.securitas.Client;
+import berlin.reiche.securitas.ClientModel.State;
+import berlin.reiche.securitas.Protocol;
+import berlin.reiche.securitas.R;
+import berlin.reiche.securitas.controller.ClientController;
+import berlin.reiche.securitas.controller.GCMIntentService;
+import berlin.reiche.securitas.controller.WaitState;
 import berlin.reiche.securitas.util.Settings;
 
 import com.google.android.gcm.GCMRegistrar;
 
-public class MainActivity extends Activity {
+/**
+ * This is the main activity on which the whole application is controlled.
+ * 
+ * @author Konrad Reiche
+ * 
+ */
+public class MainActivity extends Activity implements Callback {
 
+	/**
+	 * Tag for logging.
+	 */
 	private static String TAG = MainActivity.class.getSimpleName();
 
-	static final String GCM_SENDER_ID = "958926895848";
+	/**
+	 * The sender ID is used in the registration process to identify this
+	 * application as being permitted to send messages to the device.
+	 */
+	public static final String GCM_SENDER_ID = "958926895848";
 
+	/**
+	 * This {@link ImageView} will display the latest snapshot or the snapshot
+	 * that triggered an motion detection.
+	 */
 	public ImageView snapshot;
 
+	/**
+	 * The same button is used for starting and stopping the motion detection on
+	 * the backend.
+	 */
 	public Button detectionToggle;
 
+	/**
+	 * A {@link TextView} to display some problems on the network layer.
+	 */
 	public TextView status;
 
+	/**
+	 * Separate layout for the layout.
+	 */
 	public RelativeLayout snapshotArea;
 
+	/**
+	 * Progress bar for displaying progress.
+	 */
 	public ProgressBar progress;
 
+	/**
+	 * Simply a headline.
+	 */
 	public TextView headline;
 
+	/**
+	 * Simply a subtitle to the headline.
+	 */
 	public TextView subtitle;
 
+	/**
+	 * Stores the settings used for building the connection.
+	 */
 	private SharedPreferences settings;
+
+	/**
+	 * The controller for handling user requests.
+	 */
+	private ClientController controller;
+
+	/**
+	 * The inbox handler takes requests and delegates them to the current
+	 * controller state object.
+	 */
+	private Handler handler;
 
 	/**
 	 * Whether all components are initialized and can be referenced.
@@ -57,8 +118,10 @@ public class MainActivity extends Activity {
 	private boolean initialized;
 
 	/**
-	 * Whether the motion detection on the endpoint is running.
+	 * This is an activity state variable used for saving and restoring the
+	 * state without accessing the model.
 	 */
+	private boolean detecting;
 
 	/**
 	 * Called when the activity is first created.
@@ -87,15 +150,13 @@ public class MainActivity extends Activity {
 			String stateKey = getString(R.string.is_detection_active_key);
 			String snapshotKey = getString(R.string.snapshot_key);
 
-			boolean state = savedInstanceState.getBoolean(stateKey);
+			detecting = savedInstanceState.getBoolean(stateKey);
 			Bitmap bitmap = savedInstanceState.getParcelable(snapshotKey);
-			
 			snapshot.setImageBitmap(bitmap);
-			Client.restoreClientState(state);
 		} else {
 			// maybe the user hit the *Back* button with the motion detection
 			// still activate on the server, hence restore the state
-			Client.synchronizeServerStatus();
+			handler.sendEmptyMessage(Protocol.RESTORE_CLIENT_STATE.code);
 		}
 
 	}
@@ -107,16 +168,26 @@ public class MainActivity extends Activity {
 	}
 
 	@Override
+	protected void onDestroy() {
+		try {
+			Client.getController().dispose();
+		} catch (Throwable t) {
+			Log.e(TAG, "Failed to destroy the controller", t);
+		} finally {
+			super.onDestroy();
+		}
+	}
+
+	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {
 		super.onSaveInstanceState(savedInstanceState);
 		String stateKey = getString(R.string.is_detection_active_key);
 		String snapshotKey = getString(R.string.snapshot_key);
 
-		boolean state = Client.isMotionDetectionActive();
-		savedInstanceState.putBoolean(stateKey, state);
+		savedInstanceState.putBoolean(stateKey, detecting);
 		if (snapshot.getDrawable() != null) {
-			Bitmap bitmap = ((BitmapDrawable) snapshot.getDrawable()).getBitmap();			
-			savedInstanceState.putParcelable(snapshotKey, bitmap);
+			savedInstanceState.putParcelable(snapshotKey,
+					((BitmapDrawable) snapshot.getDrawable()).getBitmap());
 		}
 	}
 
@@ -129,7 +200,7 @@ public class MainActivity extends Activity {
 			if (filename != null) {
 				GCMIntentService.resetMotionsDetected(this);
 				lockInterface();
-				Client.downloadSnapshot(snapshot, filename);
+				handler.sendEmptyMessage(Protocol.DOWNLOAD_SNAPSHOT.code);
 			}
 		}
 	}
@@ -142,20 +213,29 @@ public class MainActivity extends Activity {
 
 		int orientation = getResources().getConfiguration().orientation;
 		if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-
 			getWindow().setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN);
 			LayoutParams params = new LayoutParams(MATCH_PARENT, MATCH_PARENT);
 
 			snapshotArea.setLayoutParams(params);
 			headline.setVisibility(View.GONE);
 			subtitle.setVisibility(View.GONE);
-		} else {
-			reflectClientState();
+		}
+
+		if (detecting) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+			detectionToggle.setText(R.string.button_stop_detection);
+			detecting = true;
+			controller.setState(new WaitState(controller));
+			handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
 		}
 	}
 
 	public void initialize() {
 		if (!initialized) {
+			controller = Client.getController();
+			controller.addOutboxHandler(new Handler(this));
+			handler = controller.getInboxHandler();
+
 			snapshot = (ImageView) findViewById(R.id.snapshot);
 			detectionToggle = (Button) findViewById(R.id.detection_toggle);
 			status = (TextView) findViewById(R.id.errors);
@@ -163,7 +243,6 @@ public class MainActivity extends Activity {
 			snapshotArea = (RelativeLayout) findViewById(R.id.snapshot_area);
 			headline = (TextView) findViewById(R.id.headline);
 			subtitle = (TextView) findViewById(R.id.subtitle);
-			Client.activity = this;
 			initialized = true;
 		}
 	}
@@ -218,15 +297,25 @@ public class MainActivity extends Activity {
 
 		boolean configured = !host.equals("") && !port.equals("")
 				&& !username.equals("") && !password.equals("");
+
 		return configured;
 	}
 
+	/**
+	 * Toggles the motion detection based on the current state. This method must
+	 * only be invoked when the state is {@link State#IDLE} or
+	 * {@link State#DETECTING}.
+	 * 
+	 * @param view
+	 *            the view that was clicked.
+	 */
 	public void toggleMotionDetection(View view) {
 		status.setText(null);
-		if (Client.motionDetectionActive) {
-			Client.invokeDetectionStop();
+		lockInterface();
+		if (detecting) {
+			handler.sendEmptyMessage(Protocol.STOP_DETECTION.code);
 		} else {
-			Client.invokeDetectionStart();
+			handler.sendEmptyMessage(Protocol.START_DETECTION.code);
 		}
 	}
 
@@ -245,12 +334,12 @@ public class MainActivity extends Activity {
 	 * Only make {@link ImageView} for snapshot visible again, if the motion
 	 * detection is currently active.
 	 */
-	public void unlockInterface() {
+	public void unlockInterface(boolean detecting) {
 		detectionToggle.setEnabled(true);
 		snapshot.setEnabled(true);
 		progress.setVisibility(View.INVISIBLE);
 
-		if (Client.isMotionDetectionActive()) {
+		if (detecting) {
 			snapshot.setVisibility(View.VISIBLE);
 		}
 	}
@@ -267,7 +356,8 @@ public class MainActivity extends Activity {
 			Log.i(TAG, "No device id yet, issue registration indent.");
 			GCMRegistrar.register(this, GCM_SENDER_ID);
 		} else if (!GCMRegistrar.isRegisteredOnServer(this)) {
-			Client.registerDevice(id, this);
+			handler.sendMessage(Message.obtain(handler,
+					Protocol.REGISTER_DEVICE.code, id));
 		}
 	}
 
@@ -282,37 +372,42 @@ public class MainActivity extends Activity {
 	}
 
 	public void refreshSnapshot(View view) {
-		Client.downloadLatestSnapshot(snapshot);
+		lockInterface();
+		handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
 	}
 
-	/**
-	 * After the application is restarted due to application pause, termination,
-	 * etc.
-	 */
-	public void reflectClientState() {
-		if (Client.motionDetectionActive) {
+	@Override
+	public boolean handleMessage(Message message) {
+		Action action = Action.valueOf(message.what);
+		switch (action) {
+		case LOCK_INTERFACE:
+			lockInterface();
+			break;
+		case UNLOCK_INTERFACE:
+			unlockInterface((Boolean) message.obj);
+			break;
+		case SET_DETECTION_ACTIVE:
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			detectionToggle.setText(R.string.button_stop_detection);
-		} else {
+			detecting = true;
+			handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
+			break;
+		case SET_DETECTION_INACTICE:
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 			detectionToggle.setText(R.string.button_start_detection);
+			detecting = false;
 			snapshot.setVisibility(ImageView.INVISIBLE);
+			break;
+		case SET_REGISTERED_ON_SERVER:
+			GCMRegistrar.setRegisteredOnServer(this, (Boolean) message.obj);
+			break;
+		case SET_SNAPSHOT:
+			snapshot.setImageBitmap((Bitmap) message.obj);
+			break;
+		default:
+			Log.e(TAG, "Retrieved illegal action: " + action);
+			throw new IllegalStateException();
 		}
-
-	}
-
-	/**
-	 * After the user has made an action this method is used to reflect the
-	 * changes.
-	 * 
-	 * Depending on the state if might trigger further changes, for instance
-	 * when the motion detection is activated, then the latest snapshot will be
-	 * requested.
-	 */
-	public void triggerInterfaceUpdate() {
-		reflectClientState();
-		if (Client.motionDetectionActive) {
-			Client.downloadLatestSnapshot(snapshot);
-		}
+		return true;
 	}
 }

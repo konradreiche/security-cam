@@ -1,4 +1,4 @@
-package berlin.reiche.securitas.tasks;
+package berlin.reiche.securitas.controller.tasks;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,13 +8,15 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.widget.ImageView;
+import berlin.reiche.securitas.Action;
 import berlin.reiche.securitas.Client;
-import berlin.reiche.securitas.MainActivity;
+import berlin.reiche.securitas.ClientModel;
+import berlin.reiche.securitas.ClientModel.State;
+import berlin.reiche.securitas.Model;
+import berlin.reiche.securitas.controller.Controller;
 import berlin.reiche.securitas.util.FlushedInputStream;
 import berlin.reiche.securitas.util.HttpUtilities;
 
@@ -22,14 +24,14 @@ public class BitmapDownloadTask extends AsyncTask<String, Void, Bitmap> {
 
 	IOException exception;
 
-	ImageView imageView;
+	ClientModel model;
 
-	Activity activity;
+	Controller<State> controller;
 
-	public BitmapDownloadTask(Activity activity, ImageView imageView) {
+	public BitmapDownloadTask(Model<State> model, Controller<State> controller) {
 		super();
-		this.activity = activity;
-		this.imageView = imageView;
+		this.model = (ClientModel) model;
+		this.controller = controller;
 	}
 
 	@Override
@@ -55,9 +57,9 @@ public class BitmapDownloadTask extends AsyncTask<String, Void, Bitmap> {
 
 	@Override
 	protected void onPostExecute(Bitmap result) {
-		MainActivity activity = (MainActivity) this.activity;
-		imageView.setImageBitmap(result);
-		activity.unlockInterface();
+		model.setSnapshot(result);
+		controller.notifyOutboxHandlers(Action.SET_SNAPSHOT.code, result);
+		controller.notifyOutboxHandlers(Action.UNLOCK_INTERFACE.code, true);
 	}
 
 }
