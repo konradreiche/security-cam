@@ -8,7 +8,7 @@ public class GCMReceiver extends GCMBroadcastReceiver {
 
 	@Override
 	protected String getGCMIntentServiceClassName(Context context) {
-		return "berlin.reiche.securitas.controller.GCMIntentService";
+		return GCMIntentService.class.getName();
 	}
 
 }
