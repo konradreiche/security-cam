@@ -27,9 +27,6 @@ public class DetectionState extends ControllerState<State> {
 		case STOP_DETECTION:
 			requestDetectionStop();
 			break;
-		case DOWNLOAD_SNAPSHOT:
-			downloadSnapshot();
-			break;
 		case DOWNLOAD_LATEST_SNAPSHOT:
 			downloadLatestSnapshot();
 			break;
@@ -37,12 +34,6 @@ public class DetectionState extends ControllerState<State> {
 			Log.e(TAG, "Illegal action request: " + request);
 			throw new IllegalStateException();
 		}
-	}
-
-	private void downloadSnapshot() {
-		String uri = Client.endpoint;
-		uri += Protocol.DOWNLOAD_LATEST_SNAPSHOT.operation;
-		new BitmapDownloadTask(model, controller).execute(uri);
 	}
 
 	private void requestDetectionStop() {

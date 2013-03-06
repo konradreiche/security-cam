@@ -7,6 +7,7 @@ import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.controller.tasks.DetectionRequest;
 import berlin.reiche.securitas.controller.tasks.DetectionRequest.DetectionCommand;
+import berlin.reiche.securitas.controller.tasks.BitmapDownloadTask;
 import berlin.reiche.securitas.controller.tasks.DeviceRegistration;
 import berlin.reiche.securitas.controller.tasks.StatusTask;
 
@@ -42,12 +43,19 @@ public class IdleState extends ControllerState<State> {
 		case UNREGISTER_DEVICE:
 			unregisterDevice(msg.obj.toString());
 		case DOWNLOAD_SNAPSHOT:
-			// swallow
+			downloadSnapshot();
+			controller.setState(new DetectionState(controller));
 			break;
 		default:
 			Log.e(TAG, "Illegal protocol request: " + request);
 			throw new IllegalStateException();
 		}
+	}
+	
+	private void downloadSnapshot() {
+		String uri = Client.endpoint;
+		uri += Protocol.DOWNLOAD_LATEST_SNAPSHOT.operation;
+		new BitmapDownloadTask(model, controller).execute(uri);
 	}
 
 	private void restoreClientState() {

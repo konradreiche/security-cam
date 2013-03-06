@@ -138,14 +138,14 @@ public class MainActivity extends Activity implements Callback {
 		super.onCreate(savedInstanceState);
 		Log.i(TAG, "onCreate");
 		setContentView(R.layout.main);
-		
+
 		Client.setModel(new ClientModel());
 		Client.setController(new ClientController(Client.getModel()));
-		
+
 		controller = Client.getController();
 		controller.addOutboxHandler(new Handler(this));
 		handler = controller.getInboxHandler();
-		
+
 		initialize();
 		updateSettings();
 
@@ -162,10 +162,21 @@ public class MainActivity extends Activity implements Callback {
 			detecting = savedInstanceState.getBoolean(stateKey);
 			Bitmap bitmap = savedInstanceState.getParcelable(snapshotKey);
 			snapshot.setImageBitmap(bitmap);
-		} else {
+		} else if (getIntent().getExtras() == null) {
 			// maybe the user hit the *Back* button with the motion detection
 			// still activate on the server, hence restore the state
+			lockInterface();
 			handler.sendEmptyMessage(Protocol.RESTORE_CLIENT_STATE.code);
+		} else {
+			lockInterface();
+			detecting = true;
+			detectionToggle.setText(R.string.button_stop_detection);
+			String filename = getIntent().getExtras().getString("filename");
+			Log.d(TAG, "filename " + filename);
+			if (filename != null) {
+				GCMIntentService.resetMotionsDetected(this);
+				handler.sendEmptyMessage(Protocol.DOWNLOAD_SNAPSHOT.code);
+			}
 		}
 
 	}
@@ -197,20 +208,6 @@ public class MainActivity extends Activity implements Callback {
 		if (snapshot.getDrawable() != null) {
 			savedInstanceState.putParcelable(snapshotKey,
 					((BitmapDrawable) snapshot.getDrawable()).getBitmap());
-		}
-	}
-
-	@Override
-	public void onNewIntent(Intent intent) {
-
-		if (intent.getExtras() != null) {
-			String filename = intent.getExtras().getString("filename");
-			Log.d(TAG, "filename " + filename);
-			if (filename != null) {
-				GCMIntentService.resetMotionsDetected(this);
-				lockInterface();
-				handler.sendEmptyMessage(Protocol.DOWNLOAD_SNAPSHOT.code);
-			}
 		}
 	}
 

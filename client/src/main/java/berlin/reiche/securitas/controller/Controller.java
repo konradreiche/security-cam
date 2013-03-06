@@ -83,10 +83,6 @@ public abstract class Controller<T extends Enum<T>> {
 		}
 	}
 
-	final void changeState(ControllerState<T> state) {
-		this.state = state;
-	}
-
 	public Handler getInboxHandler() {
 		return inboxHandler;
 	}
