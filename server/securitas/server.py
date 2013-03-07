@@ -2,6 +2,7 @@ from bottle import abort, get, post, request, run, static_file, parse_auth
 from events import SnapshotEventHandler
 from notifier import AlertNotifier
 from watchdog.observers import Observer
+
 import logging
 import requests
 import subprocess
@@ -61,11 +62,10 @@ class MotionProcess(object):
         self.notifier.notify(filename)
 
     def request_snapshot(self):
-        if self.process is not None:
-            url = 'http://localhost:%d/0/action/snapshot' % self.control_port
-            requests.get(url)
-            self.snapshot_event.wait()
-            return self.latest_snapshot
+        url = 'http://localhost:%d/0/action/snapshot' % self.control_port
+        requests.get(url)
+        self.snapshot_event.wait()
+        return self.latest_snapshot
 
     def notify_about_snapshot(self, filename):
         self.latest_snapshot = filename
