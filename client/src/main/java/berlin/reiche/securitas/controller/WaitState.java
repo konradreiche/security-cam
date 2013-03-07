@@ -19,15 +19,23 @@ public class WaitState extends ControllerState<State> {
 		case DOWNLOAD_LATEST_SNAPSHOT:
 			downloadLatestSnapshot();
 			break;
+		case DOWNLOAD_MOTION_SNAPSHOT:
+			downloadMotionSnapshot(msg.obj.toString());
+			break;
 		default:
 			throw new IllegalStateException();
 		}
 	}
 
+	private void downloadMotionSnapshot(String filename) {
+		String uri = Client.endpoint;
+		uri += Protocol.DOWNLOAD_MOTION_SNAPSHOT.operation + filename;
+		new BitmapDownloadTask(model, controller).execute(uri);
+	}
+
 	private void downloadLatestSnapshot() {
 		String uri = Client.endpoint;
 		uri += Protocol.DOWNLOAD_LATEST_SNAPSHOT.operation;
-		controller.setState(new DetectionState(controller));
 		new BitmapDownloadTask(model, controller).execute(uri);
 	}
 

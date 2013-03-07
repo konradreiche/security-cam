@@ -12,7 +12,7 @@ public enum Protocol {
 
 	STOP_DETECTION(103, "/motion/detection/stop"),
 
-	DOWNLOAD_SNAPSHOT(104, "/static/captures/"),
+	DOWNLOAD_MOTION_SNAPSHOT(104, "/static/captures/"),
 
 	DOWNLOAD_LATEST_SNAPSHOT(105, "/server/action/snapshot"),
 

@@ -124,6 +124,8 @@ public class MainActivity extends Activity implements Callback {
 	 */
 	private boolean detecting;
 
+	private String filename;
+
 	/**
 	 * Called when the activity is first created.
 	 * 
@@ -169,14 +171,8 @@ public class MainActivity extends Activity implements Callback {
 			handler.sendEmptyMessage(Protocol.RESTORE_CLIENT_STATE.code);
 		} else {
 			lockInterface();
-			detecting = true;
-			detectionToggle.setText(R.string.button_stop_detection);
-			String filename = getIntent().getExtras().getString("filename");
-			Log.d(TAG, "filename " + filename);
-			if (filename != null) {
-				GCMIntentService.resetMotionsDetected(this);
-				handler.sendEmptyMessage(Protocol.DOWNLOAD_SNAPSHOT.code);
-			}
+			handler.sendEmptyMessage(Protocol.RESTORE_CLIENT_STATE.code);
+			filename = getIntent().getExtras().getString("filename");
 		}
 
 	}
@@ -380,6 +376,14 @@ public class MainActivity extends Activity implements Callback {
 
 	@Override
 	public boolean handleMessage(Message message) {
+
+		if (filename != null) {
+			GCMIntentService.resetMotionsDetected(this);
+			int what = Protocol.DOWNLOAD_MOTION_SNAPSHOT.code;
+			Message msg = Message.obtain(handler, what, filename);
+			handler.sendMessage(msg);
+		}
+
 		Action action = Action.valueOf(message.what);
 		switch (action) {
 		case LOCK_INTERFACE:
@@ -392,7 +396,9 @@ public class MainActivity extends Activity implements Callback {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			detectionToggle.setText(R.string.button_stop_detection);
 			detecting = true;
-			handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
+			if (filename == null) {
+				handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
+			}
 			break;
 		case SET_DETECTION_INACTICE:
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
@@ -411,6 +417,8 @@ public class MainActivity extends Activity implements Callback {
 			Log.e(TAG, "Retrieved illegal action: " + action);
 			throw new IllegalStateException();
 		}
+
+		filename = null;
 		return true;
 	}
 }

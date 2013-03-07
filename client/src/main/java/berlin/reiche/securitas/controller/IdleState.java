@@ -42,19 +42,19 @@ public class IdleState extends ControllerState<State> {
 			break;
 		case UNREGISTER_DEVICE:
 			unregisterDevice(msg.obj.toString());
-		case DOWNLOAD_SNAPSHOT:
-			downloadSnapshot();
-			controller.setState(new DetectionState(controller));
+			break;
+		case DOWNLOAD_MOTION_SNAPSHOT:
+			downloadMotionSnapshot(msg.obj.toString());
 			break;
 		default:
 			Log.e(TAG, "Illegal protocol request: " + request);
 			throw new IllegalStateException();
 		}
 	}
-	
-	private void downloadSnapshot() {
+
+	private void downloadMotionSnapshot(String filename) {
 		String uri = Client.endpoint;
-		uri += Protocol.DOWNLOAD_LATEST_SNAPSHOT.operation;
+		uri += Protocol.DOWNLOAD_MOTION_SNAPSHOT.operation + filename;
 		new BitmapDownloadTask(model, controller).execute(uri);
 	}
 
