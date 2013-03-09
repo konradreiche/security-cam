@@ -37,7 +37,16 @@ public class GCMIntentService extends GCMBaseIntentService {
 	static volatile int motionsDetected = 0;
 
 	public GCMIntentService() {
-		super(MainActivity.GCM_SENDER_ID);
+		super();
+	}
+
+	/**
+	 * The sender ID is used in the registration process to identify this
+	 * application as being permitted to send messages to the device.
+	 */
+	@Override
+	protected String[] getSenderIds(Context context) {
+		return new String[] { Client.getSettings().getGcmSenderId() };
 	}
 
 	/**

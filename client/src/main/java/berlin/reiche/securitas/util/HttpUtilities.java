@@ -29,8 +29,8 @@ public class HttpUtilities {
 	public static void setAuthorization(HttpRequestBase request,
 			Settings settings) {
 
-		String user = settings.username;
-		String password = settings.password;
+		String user = settings.getUsername();
+		String password = settings.getPassword();
 		byte[] rawCredentials = (user + ":" + password).getBytes();
 		String credentials = Base64.encodeToString(rawCredentials,
 				Base64.URL_SAFE | Base64.NO_WRAP);

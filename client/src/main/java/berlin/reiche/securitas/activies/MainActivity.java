@@ -40,7 +40,9 @@ import berlin.reiche.securitas.util.Settings;
 import com.google.android.gcm.GCMRegistrar;
 
 /**
- * This is the main activity on which the whole application is controlled.
+ * Activity which is used to remote control the server and display snapshots.
+ * This class implements the {@link Callback} interface in order to handle
+ * requests sent from the controller.
  * 
  * @author Konrad Reiche
  * 
@@ -51,12 +53,6 @@ public class MainActivity extends Activity implements Callback {
 	 * Tag for logging.
 	 */
 	private static String TAG = MainActivity.class.getSimpleName();
-
-	/**
-	 * The sender ID is used in the registration process to identify this
-	 * application as being permitted to send messages to the device.
-	 */
-	public static final String GCM_SENDER_ID = "958926895848";
 
 	/**
 	 * This {@link ImageView} will display the latest snapshot or the snapshot
@@ -260,12 +256,15 @@ public class MainActivity extends Activity implements Callback {
 		String port = settings.getString(SettingsActivity.PORT, null);
 		String username = settings.getString(SettingsActivity.USER, null);
 		String password = settings.getString(SettingsActivity.PASSWORD, null);
+		String gcmSenderId = settings.getString(SettingsActivity.GCM_SENDER_ID,
+				null);
 
 		if (!isConfigured()) {
 			startSettingsActivity(true);
 		} else {
 			Client.endpoint = "http://" + host + ":" + port;
-			Client.settings = new Settings(host, port, username, password);
+			Client.settings = new Settings(host, port, username, password,
+					gcmSenderId);
 			Log.i(TAG, "Updated endpoint to " + Client.endpoint);
 			manageDeviceRegistration();
 		}
@@ -301,9 +300,12 @@ public class MainActivity extends Activity implements Callback {
 		String port = settings.getString(SettingsActivity.PORT, "");
 		String username = settings.getString(SettingsActivity.USER, "");
 		String password = settings.getString(SettingsActivity.PASSWORD, "");
+		String gcmSenderId = settings.getString(SettingsActivity.GCM_SENDER_ID,
+				"");
 
 		boolean configured = !host.equals("") && !port.equals("")
-				&& !username.equals("") && !password.equals("");
+				&& !username.equals("") && !password.equals("")
+				&& !gcmSenderId.equals("");
 
 		return configured;
 	}
@@ -361,7 +363,8 @@ public class MainActivity extends Activity implements Callback {
 		final String id = GCMRegistrar.getRegistrationId(this);
 		if (id.equals("")) {
 			Log.i(TAG, "No device id yet, issue registration indent.");
-			GCMRegistrar.register(this, GCM_SENDER_ID);
+			String senderId = Client.getSettings().getGcmSenderId();
+			GCMRegistrar.register(this, senderId);
 		} else if (!GCMRegistrar.isRegisteredOnServer(this)) {
 			handler.sendMessage(Message.obtain(handler,
 					Protocol.REGISTER_DEVICE.code, id));

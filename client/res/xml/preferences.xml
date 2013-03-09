@@ -22,4 +22,10 @@
         android:defaultValue=""
         android:title="@string/pref_password"/>
     
+    <EditTextPreference 
+        android:key="pref_gcm_sender_id"
+        android:numeric="integer"
+        android:defaultValue=""
+        android:title="@string/pref_gcm_sender_id"/>
+    
 </PreferenceScreen>

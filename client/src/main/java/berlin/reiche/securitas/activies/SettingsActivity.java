@@ -12,11 +12,10 @@ public class SettingsActivity extends PreferenceActivity {
 	public static final String PORT = "pref_port";
 	public static final String USER = "pref_user";
 	public static final String PASSWORD = "pref_password";
+	public static final String GCM_SENDER_ID = "pref_gcm_sender_id";
 
 	public static final String DISPLAY_INSTRUCTION = "displayInstruction";
 	private static final String TAG = SettingsActivity.class.getSimpleName();
-
-	// private static final String TAG = SettingsActivity.class.getSimpleName();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
