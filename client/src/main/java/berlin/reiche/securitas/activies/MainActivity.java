@@ -92,16 +92,6 @@ public class MainActivity extends Activity implements Callback {
 	public TextView subtitle;
 
 	/**
-	 * Stores the settings used for building the connection.
-	 */
-	private SharedPreferences settings;
-
-	/**
-	 * The controller for handling user requests.
-	 */
-	private ClientController controller;
-
-	/**
 	 * The inbox handler takes requests and delegates them to the current
 	 * controller state object.
 	 */
@@ -136,33 +126,33 @@ public class MainActivity extends Activity implements Callback {
 		Client.setModel(new ClientModel());
 		Client.setController(new ClientController(Client.getModel()));
 
-		controller = Client.getController();
-		controller.addOutboxHandler(new Handler(this));
-		handler = controller.getInboxHandler();
+		Client.getController().addOutboxHandler(new Handler(this));
+		handler = Client.getController().getInboxHandler();
 
-		initialize();
+		initializeReferences();
 		updateSettings();
 
+		// restore image due to orientation change
 		if (getLastNonConfigurationInstance() != null) {
 			Bitmap bitmap = (Bitmap) getLastNonConfigurationInstance();
 			snapshot.setImageBitmap(bitmap);
 		}
 
 		if (savedInstanceState != null) {
+			// activity was put to the background, restore
 			Log.i(TAG, "Restore saved instance state");
-			String stateKey = getString(R.string.is_detection_active_key);
+			String detectingKey = getString(R.string.is_detection_active_key);
 			String snapshotKey = getString(R.string.snapshot_key);
-
-			detecting = savedInstanceState.getBoolean(stateKey);
+			detecting = savedInstanceState.getBoolean(detectingKey);
 			Bitmap bitmap = savedInstanceState.getParcelable(snapshotKey);
 			snapshot.setImageBitmap(bitmap);
 		} else if (getIntent().getExtras() == null) {
-			// maybe the user hit the *Back* button with the motion detection
-			// still activate on the server, hence restore the state
+			// activity was destroyed, restore based on server state
 			lockInterface();
 			handler.sendEmptyMessage(Protocol.RESTORE_CLIENT_STATE.code);
 			handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
 		} else {
+			// activity was destroyed, activity started through notification
 			lockInterface();
 			handler.sendEmptyMessage(Protocol.RESTORE_CLIENT_STATE.code);
 			int what = Protocol.DOWNLOAD_MOTION_SNAPSHOT.code;
@@ -170,39 +160,8 @@ public class MainActivity extends Activity implements Callback {
 			Message message = Message.obtain(handler, what, filename);
 			handler.sendMessage(message);
 		}
-
 	}
-
-	@Override
-	public Object onRetainNonConfigurationInstance() {
-		super.onRetainNonConfigurationInstance();
-		return ((BitmapDrawable) snapshot.getDrawable()).getBitmap();
-	}
-
-	@Override
-	protected void onDestroy() {
-		try {
-			Client.getController().dispose();
-		} catch (Throwable t) {
-			Log.e(TAG, "Failed to destroy the controller", t);
-		} finally {
-			super.onDestroy();
-		}
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle savedInstanceState) {
-		super.onSaveInstanceState(savedInstanceState);
-		String stateKey = getString(R.string.is_detection_active_key);
-		String snapshotKey = getString(R.string.snapshot_key);
-
-		savedInstanceState.putBoolean(stateKey, detecting);
-		if (snapshot.getDrawable() != null) {
-			savedInstanceState.putParcelable(snapshotKey,
-					((BitmapDrawable) snapshot.getDrawable()).getBitmap());
-		}
-	}
-
+	
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -236,37 +195,21 @@ public class MainActivity extends Activity implements Callback {
 			handler.sendMessage(message);
 		}
 	}
-
-	public void initialize() {
-		if (!initialized) {
-			snapshot = (ImageView) findViewById(R.id.snapshot);
-			detectionToggle = (Button) findViewById(R.id.detection_toggle);
-			status = (TextView) findViewById(R.id.errors);
-			progress = (ProgressBar) findViewById(R.id.progress_bar);
-			snapshotArea = (RelativeLayout) findViewById(R.id.snapshot_area);
-			headline = (TextView) findViewById(R.id.headline);
-			subtitle = (TextView) findViewById(R.id.subtitle);
-			initialized = true;
-		}
-	}
-
-	private void updateSettings() {
-		settings = PreferenceManager.getDefaultSharedPreferences(this);
-		String host = settings.getString(SettingsActivity.HOST, null);
-		String port = settings.getString(SettingsActivity.PORT, null);
-		String username = settings.getString(SettingsActivity.USER, null);
-		String password = settings.getString(SettingsActivity.PASSWORD, null);
-		String gcmSenderId = settings.getString(SettingsActivity.GCM_SENDER_ID,
-				null);
-
-		if (!isConfigured()) {
-			startSettingsActivity(true);
-		} else {
-			Client.endpoint = "http://" + host + ":" + port;
-			Client.settings = new Settings(host, port, username, password,
-					gcmSenderId);
-			Log.i(TAG, "Updated endpoint to " + Client.endpoint);
-			manageDeviceRegistration();
+	
+	/**
+	 * Disposes the controller so the handler looper is shut down. Makes sure
+	 * that that this method does not fail and delegates to the super method.
+	 * 
+	 * @see android.app.Activity#onDestroy()
+	 */
+	@Override
+	public void onDestroy() {
+		try {
+			Client.getController().dispose();
+		} catch (Throwable t) {
+			Log.e(TAG, "Failed to destroy the controller", t);
+		} finally {
+			super.onDestroy();
 		}
 	}
 
@@ -286,6 +229,75 @@ public class MainActivity extends Activity implements Callback {
 		}
 		return true;
 	}
+	
+	/**
+	 * Saves all necessary information to restore the activity state.
+	 * 
+	 * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
+	 */
+	@Override
+	public void onSaveInstanceState(Bundle savedInstanceState) {
+		super.onSaveInstanceState(savedInstanceState);
+		String detectingKey = getString(R.string.is_detection_active_key);
+		String snapshotKey = getString(R.string.snapshot_key);
+		savedInstanceState.putBoolean(detectingKey, detecting);
+
+		if (snapshot.getDrawable() != null) {
+			savedInstanceState.putParcelable(snapshotKey,
+					((BitmapDrawable) snapshot.getDrawable()).getBitmap());
+		}
+	}
+	
+	/**
+	 * Called when the screen orientation changes and stores the image so it
+	 * does not need to be retrieved once more.
+	 * 
+	 * @see android.app.Activity#onRetainNonConfigurationInstance()
+	 */
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		super.onRetainNonConfigurationInstance();
+		return ((BitmapDrawable) snapshot.getDrawable()).getBitmap();
+	}
+
+
+	/**
+	 * For a fast access of the components this method initializes all the
+	 * references by finding their view elements through their IDs.
+	 */
+	public void initializeReferences() {
+		if (!initialized) {
+			snapshot = (ImageView) findViewById(R.id.snapshot);
+			detectionToggle = (Button) findViewById(R.id.detection_toggle);
+			status = (TextView) findViewById(R.id.errors);
+			progress = (ProgressBar) findViewById(R.id.progress_bar);
+			snapshotArea = (RelativeLayout) findViewById(R.id.snapshot_area);
+			headline = (TextView) findViewById(R.id.headline);
+			subtitle = (TextView) findViewById(R.id.subtitle);
+			initialized = true;
+		}
+	}
+
+	private void updateSettings() {
+		SharedPreferences settings = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		String host = settings.getString(SettingsActivity.HOST, null);
+		String port = settings.getString(SettingsActivity.PORT, null);
+		String username = settings.getString(SettingsActivity.USER, null);
+		String password = settings.getString(SettingsActivity.PASSWORD, null);
+		String gcmSenderId = settings.getString(SettingsActivity.GCM_SENDER_ID,
+				null);
+
+		if (!isConfigured()) {
+			startSettingsActivity(true);
+		} else {
+			Client.endpoint = "http://" + host + ":" + port;
+			Client.settings = new Settings(host, port, username, password,
+					gcmSenderId);
+			Log.i(TAG, "Updated endpoint to " + Client.endpoint);
+			manageDeviceRegistration();
+		}
+	}
 
 	private void startSettingsActivity(boolean forceConfiguration) {
 		Intent intent = new Intent(this, SettingsActivity.class);
@@ -295,7 +307,8 @@ public class MainActivity extends Activity implements Callback {
 	}
 
 	private boolean isConfigured() {
-		settings = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences settings = PreferenceManager
+				.getDefaultSharedPreferences(this);
 		String host = settings.getString(SettingsActivity.HOST, "");
 		String port = settings.getString(SettingsActivity.PORT, "");
 		String username = settings.getString(SettingsActivity.USER, "");
