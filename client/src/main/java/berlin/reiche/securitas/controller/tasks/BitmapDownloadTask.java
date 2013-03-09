@@ -17,7 +17,6 @@ import berlin.reiche.securitas.ClientModel;
 import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Model;
 import berlin.reiche.securitas.controller.Controller;
-import berlin.reiche.securitas.controller.DetectionState;
 import berlin.reiche.securitas.util.FlushedInputStream;
 import berlin.reiche.securitas.util.HttpUtilities;
 
@@ -58,7 +57,6 @@ public class BitmapDownloadTask extends AsyncTask<String, Void, Bitmap> {
 
 	@Override
 	protected void onPostExecute(Bitmap result) {
-		controller.setState(new DetectionState(controller));
 		model.setSnapshot(result);
 		controller.notifyOutboxHandlers(Action.SET_SNAPSHOT.code, result);
 		controller.notifyOutboxHandlers(Action.UNLOCK_INTERFACE.code, true);

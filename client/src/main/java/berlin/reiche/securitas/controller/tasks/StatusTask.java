@@ -13,11 +13,11 @@ import android.util.Log;
 import berlin.reiche.securitas.Action;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.ClientModel;
-import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Model;
+import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.controller.Controller;
-import berlin.reiche.securitas.controller.WaitState;
+import berlin.reiche.securitas.controller.DetectionState;
 import berlin.reiche.securitas.util.HttpUtilities;
 
 public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
@@ -91,7 +91,7 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 				break;
 			case RUNNING:
 				model.setState(State.DETECTING);
-				controller.setState(new WaitState(controller));
+				controller.setState(new DetectionState(controller));
 				what = Action.SET_DETECTION_ACTIVE.code;
 				controller.notifyOutboxHandlers(what);
 				break;

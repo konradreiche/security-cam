@@ -6,7 +6,7 @@ import berlin.reiche.securitas.ClientModel.State;
 public class ClientModel extends Model<State> {
 
 	public enum State {
-		IDLE, WAIT, DETECTING;
+		IDLE, DETECTING;
 	}
 
 	protected State previous;

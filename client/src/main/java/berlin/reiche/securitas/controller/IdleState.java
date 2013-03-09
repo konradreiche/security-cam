@@ -32,7 +32,6 @@ public class IdleState extends ControllerState<State> {
 		switch (request) {
 		case START_DETECTION:
 			requestDetectionStart();
-			model.setState(State.WAIT);
 			break;
 		case RESTORE_CLIENT_STATE:
 			restoreClientState();
@@ -43,6 +42,9 @@ public class IdleState extends ControllerState<State> {
 		case UNREGISTER_DEVICE:
 			unregisterDevice(msg.obj.toString());
 			break;
+		case DOWNLOAD_LATEST_SNAPSHOT:
+			downloadLatestSnapshot();
+			break;
 		case DOWNLOAD_MOTION_SNAPSHOT:
 			downloadMotionSnapshot(msg.obj.toString());
 			break;
@@ -52,6 +54,13 @@ public class IdleState extends ControllerState<State> {
 		}
 	}
 
+	
+	private void downloadLatestSnapshot() {
+		String uri = Client.endpoint;
+		uri += Protocol.DOWNLOAD_LATEST_SNAPSHOT.operation;
+		new BitmapDownloadTask(model, controller).execute(uri);
+	}
+	
 	private void downloadMotionSnapshot(String filename) {
 		String uri = Client.endpoint;
 		uri += Protocol.DOWNLOAD_MOTION_SNAPSHOT.operation + filename;
@@ -65,7 +74,6 @@ public class IdleState extends ControllerState<State> {
 
 	private void requestDetectionStart() {
 		String uri = Client.endpoint + Protocol.START_DETECTION.operation;
-		controller.setState(new WaitState(controller));
 		new DetectionRequest(model, controller, DetectionCommand.START)
 				.execute(uri);
 	}

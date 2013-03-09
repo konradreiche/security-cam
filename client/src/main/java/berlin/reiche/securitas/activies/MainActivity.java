@@ -35,8 +35,6 @@ import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.R;
 import berlin.reiche.securitas.controller.ClientController;
-import berlin.reiche.securitas.controller.GCMIntentService;
-import berlin.reiche.securitas.controller.WaitState;
 import berlin.reiche.securitas.util.Settings;
 
 import com.google.android.gcm.GCMRegistrar;
@@ -124,8 +122,6 @@ public class MainActivity extends Activity implements Callback {
 	 */
 	private boolean detecting;
 
-	private String filename;
-
 	/**
 	 * Called when the activity is first created.
 	 * 
@@ -169,10 +165,14 @@ public class MainActivity extends Activity implements Callback {
 			// still activate on the server, hence restore the state
 			lockInterface();
 			handler.sendEmptyMessage(Protocol.RESTORE_CLIENT_STATE.code);
+			handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
 		} else {
 			lockInterface();
 			handler.sendEmptyMessage(Protocol.RESTORE_CLIENT_STATE.code);
-			filename = getIntent().getExtras().getString("filename");
+			int what = Protocol.DOWNLOAD_MOTION_SNAPSHOT.code;
+			String filename = getIntent().getExtras().getString("filename");
+			Message message = Message.obtain(handler, what, filename);
+			handler.sendMessage(message);
 		}
 
 	}
@@ -223,12 +223,21 @@ public class MainActivity extends Activity implements Callback {
 			subtitle.setVisibility(View.GONE);
 		}
 
+		boolean notification = getIntent().getExtras() != null;
 		if (detecting) {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			detectionToggle.setText(R.string.button_stop_detection);
 			detecting = true;
-			controller.setState(new WaitState(controller));
-			handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
+			if (!notification) {
+				handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
+			}
+		}
+
+		if (notification) {
+			String filename = getIntent().getExtras().getString("filename");
+			int what = Protocol.DOWNLOAD_MOTION_SNAPSHOT.code;
+			Message message = Message.obtain(handler, what, filename);
+			handler.sendMessage(message);
 		}
 	}
 
@@ -377,13 +386,6 @@ public class MainActivity extends Activity implements Callback {
 	@Override
 	public boolean handleMessage(Message message) {
 
-		if (filename != null) {
-			GCMIntentService.resetMotionsDetected(this);
-			int what = Protocol.DOWNLOAD_MOTION_SNAPSHOT.code;
-			Message msg = Message.obtain(handler, what, filename);
-			handler.sendMessage(msg);
-		}
-
 		Action action = Action.valueOf(message.what);
 		switch (action) {
 		case LOCK_INTERFACE:
@@ -396,9 +398,6 @@ public class MainActivity extends Activity implements Callback {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			detectionToggle.setText(R.string.button_stop_detection);
 			detecting = true;
-			if (filename == null) {
-				handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
-			}
 			break;
 		case SET_DETECTION_INACTICE:
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
@@ -418,7 +417,6 @@ public class MainActivity extends Activity implements Callback {
 			throw new IllegalStateException();
 		}
 
-		filename = null;
 		return true;
 	}
 }

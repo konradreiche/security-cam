@@ -13,13 +13,16 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.util.Log;
 import berlin.reiche.securitas.Action;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.ClientModel;
+import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.ClientModel.State;
 import berlin.reiche.securitas.Model;
 import berlin.reiche.securitas.controller.Controller;
+import berlin.reiche.securitas.controller.DetectionState;
 import berlin.reiche.securitas.controller.IdleState;
 import berlin.reiche.securitas.util.HttpUtilities;
 
@@ -82,7 +85,10 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 				model.setState(state);
 				boolean detecting = state == State.DETECTING;
 				if (detecting) {
+					controller.setState(new DetectionState(controller));
 					what = Action.SET_DETECTION_ACTIVE.code;
+					Handler handler = controller.getInboxHandler();
+					handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
 				} else {
 					what = Action.SET_DETECTION_INACTICE.code;
 				}
