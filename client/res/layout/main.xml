@@ -2,12 +2,14 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="@drawable/background"
     android:orientation="vertical" >
 
     <TextView
         android:id="@+id/headline"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:gravity="center"
         android:text="@string/headline"
         android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -19,6 +21,7 @@
         android:layout_below="@+id/headline"
         android:gravity="center"
         android:text="@string/sub_headline"
+        android:textColor="#FFFFFF"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <RelativeLayout
@@ -41,8 +44,8 @@
             android:id="@+id/progress_bar"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
             android:visibility="invisible" />
     </RelativeLayout>
 
@@ -51,7 +54,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/snapshot_area"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="40dp"
         android:gravity="center"
         android:textSize="12sp" />
 
