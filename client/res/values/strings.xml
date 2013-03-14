@@ -4,9 +4,10 @@
     <string name="app_name">Security Cam</string>
     <string name="headline">SECURITY CAM</string>
     <string name="sub_headline">A Rasperry Pi Use Case</string>
+    <string name="button_description">Detection Toggle</string>
     <string name="menu_settings">Settings</string>
-    <string name="button_start_detection">Start</string>
-    <string name="button_stop_detection">Stop</string>
+    <string name="button_start_detection">START</string>
+    <string name="button_stop_detection">STOP</string>
     <string name="configuration_hint">Full configuration is required. Press back to return afterwards.</string>
     <string name="snapshot_description">Latest Snapshot</string>
     <string name="pref_host">Host</string>
