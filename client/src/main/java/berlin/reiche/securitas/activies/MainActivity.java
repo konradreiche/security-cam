@@ -72,6 +72,11 @@ public class MainActivity extends Activity implements Callback {
 	public TextView status;
 
 	/**
+	 * The layout for this activity.
+	 */
+	private RelativeLayout layout;
+
+	/**
 	 * Separate layout for the layout.
 	 */
 	public RelativeLayout snapshotArea;
@@ -161,7 +166,7 @@ public class MainActivity extends Activity implements Callback {
 			handler.sendMessage(message);
 		}
 	}
-	
+
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -173,6 +178,7 @@ public class MainActivity extends Activity implements Callback {
 			getWindow().setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN);
 			LayoutParams params = new LayoutParams(MATCH_PARENT, MATCH_PARENT);
 
+			layout.setBackgroundDrawable(null);
 			snapshotArea.setLayoutParams(params);
 			headline.setVisibility(View.GONE);
 			subtitle.setVisibility(View.GONE);
@@ -195,7 +201,7 @@ public class MainActivity extends Activity implements Callback {
 			handler.sendMessage(message);
 		}
 	}
-	
+
 	/**
 	 * Disposes the controller so the handler looper is shut down. Makes sure
 	 * that that this method does not fail and delegates to the super method.
@@ -229,7 +235,7 @@ public class MainActivity extends Activity implements Callback {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Saves all necessary information to restore the activity state.
 	 * 
@@ -247,7 +253,7 @@ public class MainActivity extends Activity implements Callback {
 					((BitmapDrawable) snapshot.getDrawable()).getBitmap());
 		}
 	}
-	
+
 	/**
 	 * Called when the screen orientation changes and stores the image so it
 	 * does not need to be retrieved once more.
@@ -260,13 +266,13 @@ public class MainActivity extends Activity implements Callback {
 		return ((BitmapDrawable) snapshot.getDrawable()).getBitmap();
 	}
 
-
 	/**
 	 * For a fast access of the components this method initializes all the
 	 * references by finding their view elements through their IDs.
 	 */
 	public void initializeReferences() {
 		if (!initialized) {
+			layout = (RelativeLayout) findViewById(R.id.layout);
 			snapshot = (ImageView) findViewById(R.id.snapshot);
 			detectionToggle = (Button) findViewById(R.id.detection_toggle);
 			status = (TextView) findViewById(R.id.errors);
