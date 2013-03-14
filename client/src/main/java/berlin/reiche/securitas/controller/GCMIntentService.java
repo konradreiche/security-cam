@@ -86,7 +86,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 			text += " (" + motionsDetected + ")";
 		}
 
-		int icon = R.drawable.icon;
+		int icon = R.drawable.ic_launcher;
 		CharSequence tickerText = text;
 		long when = System.currentTimeMillis();
 		Notification notification = new Notification(icon, tickerText, when);
