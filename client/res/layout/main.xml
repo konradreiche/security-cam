@@ -9,10 +9,15 @@
         android:id="@+id/headline"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
         android:gravity="center"
+        android:shadowColor="#000000"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="6"
         android:text="@string/headline"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:textColor="#FFFFFF"
+        android:textSize="40sp" />
 
     <TextView
         android:id="@+id/subtitle"
@@ -20,9 +25,13 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/headline"
         android:gravity="center"
+        android:shadowColor="#000000"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="6"
         android:text="@string/sub_headline"
-        android:textColor="#FFFFFF"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#FFFFFF" />
 
     <RelativeLayout
         android:id="@+id/snapshot_area"

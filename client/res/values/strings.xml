@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">Security Cam</string>
-    <string name="headline">Security Cam</string>
+    <string name="headline">SECURITY CAM</string>
     <string name="sub_headline">A Rasperry Pi Use Case</string>
     <string name="menu_settings">Settings</string>
     <string name="button_start_detection">Start</string>
