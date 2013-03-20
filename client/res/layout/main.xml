@@ -36,10 +36,10 @@
 
     <RelativeLayout
         android:id="@+id/snapshot_area"
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="200dp"
         android:layout_below="@+id/subtitle"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="40dp"
         android:orientation="vertical" >
 
         <ImageView
@@ -64,15 +64,14 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/snapshot_area"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
         android:gravity="center"
         android:textSize="12sp" />
-
     <Button
         android:id="@+id/detection_toggle"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
         android:layout_below="@+id/errors"
+        android:layout_width="fill_parent"
+        android:layout_height="70sp"
         android:background="@drawable/button"
         android:contentDescription="@string/button_description"
         android:onClick="toggleMotionDetection"
@@ -81,5 +80,5 @@
         android:paddingLeft="20dp"
         android:gravity="left|center_vertical"
         android:textColor="#FFFFFF" />
-
+    
 </RelativeLayout>
