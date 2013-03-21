@@ -9,9 +9,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import berlin.reiche.securitas.Client;
-import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.R;
 import berlin.reiche.securitas.activies.MainActivity;
+import berlin.reiche.securitas.model.Protocol;
 
 import com.google.android.gcm.GCMBaseIntentService;
 

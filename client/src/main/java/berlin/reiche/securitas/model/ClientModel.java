@@ -1,7 +1,7 @@
-package berlin.reiche.securitas;
+package berlin.reiche.securitas.model;
 
 import android.graphics.Bitmap;
-import berlin.reiche.securitas.ClientModel.State;
+import berlin.reiche.securitas.model.ClientModel.State;
 
 public class ClientModel extends Model<State> {
 

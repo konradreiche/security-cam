@@ -7,7 +7,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import berlin.reiche.securitas.Model;
+import berlin.reiche.securitas.model.Model;
 
 public abstract class Controller<T extends Enum<T>> {
 

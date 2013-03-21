@@ -1,6 +1,7 @@
 package berlin.reiche.securitas;
 
 import berlin.reiche.securitas.controller.ClientController;
+import berlin.reiche.securitas.model.ClientModel;
 import berlin.reiche.securitas.util.Settings;
 
 /**

@@ -1,4 +1,4 @@
-package berlin.reiche.securitas;
+package berlin.reiche.securitas.activies;
 
 import android.util.SparseArray;
 

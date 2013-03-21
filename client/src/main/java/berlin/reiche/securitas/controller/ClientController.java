@@ -1,7 +1,7 @@
 package berlin.reiche.securitas.controller;
 
 import android.os.Message;
-import berlin.reiche.securitas.ClientModel;
+import berlin.reiche.securitas.model.ClientModel;
 
 /**
  * Specific controller which is responsible for the client, respectively this

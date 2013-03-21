@@ -15,15 +15,15 @@ import org.apache.http.client.methods.HttpGet;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
-import berlin.reiche.securitas.Action;
 import berlin.reiche.securitas.Client;
-import berlin.reiche.securitas.ClientModel;
-import berlin.reiche.securitas.Protocol;
-import berlin.reiche.securitas.ClientModel.State;
-import berlin.reiche.securitas.Model;
+import berlin.reiche.securitas.activies.Action;
 import berlin.reiche.securitas.controller.Controller;
 import berlin.reiche.securitas.controller.DetectionState;
 import berlin.reiche.securitas.controller.IdleState;
+import berlin.reiche.securitas.model.ClientModel;
+import berlin.reiche.securitas.model.Model;
+import berlin.reiche.securitas.model.Protocol;
+import berlin.reiche.securitas.model.ClientModel.State;
 import berlin.reiche.securitas.util.HttpUtilities;
 
 public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {

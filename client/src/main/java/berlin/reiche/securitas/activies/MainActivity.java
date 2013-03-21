@@ -28,13 +28,12 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
-import berlin.reiche.securitas.Action;
 import berlin.reiche.securitas.Client;
-import berlin.reiche.securitas.ClientModel;
-import berlin.reiche.securitas.ClientModel.State;
-import berlin.reiche.securitas.Protocol;
 import berlin.reiche.securitas.R;
 import berlin.reiche.securitas.controller.ClientController;
+import berlin.reiche.securitas.model.ClientModel;
+import berlin.reiche.securitas.model.Protocol;
+import berlin.reiche.securitas.model.ClientModel.State;
 import berlin.reiche.securitas.util.Settings;
 
 import com.google.android.gcm.GCMRegistrar;

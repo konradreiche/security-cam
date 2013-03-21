@@ -11,12 +11,12 @@ import org.apache.http.client.methods.HttpGet;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import berlin.reiche.securitas.Action;
 import berlin.reiche.securitas.Client;
-import berlin.reiche.securitas.ClientModel;
-import berlin.reiche.securitas.ClientModel.State;
-import berlin.reiche.securitas.Model;
+import berlin.reiche.securitas.activies.Action;
 import berlin.reiche.securitas.controller.Controller;
+import berlin.reiche.securitas.model.ClientModel;
+import berlin.reiche.securitas.model.Model;
+import berlin.reiche.securitas.model.ClientModel.State;
 import berlin.reiche.securitas.util.FlushedInputStream;
 import berlin.reiche.securitas.util.HttpUtilities;
 

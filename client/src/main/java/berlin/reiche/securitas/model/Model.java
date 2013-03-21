@@ -1,4 +1,4 @@
-package berlin.reiche.securitas;
+package berlin.reiche.securitas.model;
 
 
 public abstract class Model<T extends Enum<T>> {
