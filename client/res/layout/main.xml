@@ -67,18 +67,23 @@
         android:layout_marginTop="15dp"
         android:gravity="center"
         android:textSize="12sp" />
+
     <Button
         android:id="@+id/detection_toggle"
-        android:layout_below="@+id/errors"
         android:layout_width="fill_parent"
         android:layout_height="70sp"
+        android:layout_below="@+id/errors"
         android:background="@drawable/button"
         android:contentDescription="@string/button_description"
-        android:onClick="toggleMotionDetection"
-        android:text="@string/button_start_detection"
-        android:textSize="25sp"
-        android:paddingLeft="20dp"
         android:gravity="left|center_vertical"
-        android:textColor="#FFFFFF" />
-    
+        android:onClick="toggleMotionDetection"
+        android:paddingLeft="20dp"
+        android:shadowColor="#000000"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="6"
+        android:text="@string/button_start_detection"
+        android:textColor="#FFFFFF"
+        android:textSize="25sp" />
+
 </RelativeLayout>
