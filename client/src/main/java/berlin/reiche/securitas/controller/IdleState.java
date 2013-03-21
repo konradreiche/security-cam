@@ -56,36 +56,36 @@ public class IdleState extends ControllerState<State> {
 
 	
 	private void downloadLatestSnapshot() {
-		String uri = Client.endpoint;
+		String uri = Client.getEndpoint();
 		uri += Protocol.DOWNLOAD_LATEST_SNAPSHOT.operation;
 		new BitmapDownloadTask(model, controller).execute(uri);
 	}
 	
 	private void downloadMotionSnapshot(String filename) {
-		String uri = Client.endpoint;
+		String uri = Client.getEndpoint();
 		uri += Protocol.DOWNLOAD_MOTION_SNAPSHOT.operation + filename;
 		new BitmapDownloadTask(model, controller).execute(uri);
 	}
 
 	private void restoreClientState() {
-		String uri = Client.endpoint + Protocol.RESTORE_CLIENT_STATE.operation;
+		String uri = Client.getEndpoint() + Protocol.RESTORE_CLIENT_STATE.operation;
 		new StatusTask(model, controller).execute(uri);
 	}
 
 	private void requestDetectionStart() {
-		String uri = Client.endpoint + Protocol.START_DETECTION.operation;
+		String uri = Client.getEndpoint() + Protocol.START_DETECTION.operation;
 		new DetectionRequest(model, controller, DetectionCommand.START)
 				.execute(uri);
 	}
 
 	private void registerDevice(String id) {
-		String uri = Client.endpoint + Protocol.REGISTER_DEVICE.operation;
+		String uri = Client.getEndpoint() + Protocol.REGISTER_DEVICE.operation;
 		new DeviceRegistration(model, controller, id,
 				DeviceRegistration.Command.REGISTER).execute(uri);
 	}
 
 	private void unregisterDevice(String id) {
-		String uri = Client.endpoint + Protocol.UNREGISTER_DEVICE.operation;
+		String uri = Client.getEndpoint() + Protocol.UNREGISTER_DEVICE.operation;
 		new DeviceRegistration(model, controller, id,
 				DeviceRegistration.Command.UNREGISTER).execute(uri);
 	}

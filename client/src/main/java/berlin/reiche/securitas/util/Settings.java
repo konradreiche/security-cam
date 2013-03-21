@@ -13,13 +13,13 @@ public class Settings {
 	private final String gcmSenderId;
 
 	public Settings(String host, String port, String username, String password,
-			String gcmSenderId) {
+			String id) {
 		super();
 		this.host = host;
 		this.port = Integer.valueOf(port);
 		this.username = username;
 		this.password = password;
-		this.gcmSenderId = gcmSenderId;
+		this.gcmSenderId = id;
 	}
 
 	public String getHost() {

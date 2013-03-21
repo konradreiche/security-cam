@@ -290,17 +290,15 @@ public class MainActivity extends Activity implements Callback {
 		String port = settings.getString(SettingsActivity.PORT, null);
 		String username = settings.getString(SettingsActivity.USER, null);
 		String password = settings.getString(SettingsActivity.PASSWORD, null);
-		String gcmSenderId = settings.getString(SettingsActivity.GCM_SENDER_ID,
-				null);
+		String id = settings.getString(SettingsActivity.GCM_SENDER_ID, null);
 
 		if (!isConfigured()) {
 			startSettingsActivity(true);
 		} else {
-			Client.endpoint = "http://" + host + ":" + port;
-			Client.settings = new Settings(host, port, username, password,
-					gcmSenderId);
-			Log.i(TAG, "Updated endpoint to " + Client.endpoint);
+			Client.setSettings(new Settings(host, port, username, password, id));
+			Log.i(TAG, "Updated endpoint to " + Client.getEndpoint());
 			manageDeviceRegistration();
+
 		}
 	}
 

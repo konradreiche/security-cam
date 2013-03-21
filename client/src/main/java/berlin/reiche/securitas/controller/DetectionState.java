@@ -40,20 +40,20 @@ public class DetectionState extends ControllerState<State> {
 	}
 	
 	private void downloadMotionSnapshot(String filename) {
-		String uri = Client.endpoint;
+		String uri = Client.getEndpoint();
 		uri += Protocol.DOWNLOAD_MOTION_SNAPSHOT.operation + filename;
 		new BitmapDownloadTask(model, controller).execute(uri);
 	}
 
 	private void requestDetectionStop() {
-		String uri = Client.endpoint + Protocol.STOP_DETECTION.operation;
+		String uri = Client.getEndpoint() + Protocol.STOP_DETECTION.operation;
 		controller.setState(new IdleState(controller));
 		new DetectionRequest(model, controller, DetectionCommand.STOP)
 				.execute(uri);
 	}
 	
 	private void downloadLatestSnapshot() {
-		String uri = Client.endpoint;
+		String uri = Client.getEndpoint();
 		uri += Protocol.DOWNLOAD_LATEST_SNAPSHOT.operation;
 		new BitmapDownloadTask(model, controller).execute(uri);
 	}

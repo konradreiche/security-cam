@@ -69,7 +69,7 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 			String content = getString(response.getEntity().getContent());
 			if (content == null) {
 				Log.i(TAG, "Status response is null, retry.");
-				String uri = Client.endpoint;
+				String uri = Client.getEndpoint();
 				uri += Protocol.RESTORE_CLIENT_STATE.operation;
 				new StatusTask(model, controller).execute(uri);
 				return;
