@@ -86,11 +86,11 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 				boolean detecting = state == State.DETECTING;
 				if (detecting) {
 					controller.setState(new DetectionState(controller));
-					what = Action.SET_DETECTION_ACTIVE.code;
+					what = Action.SET_DETECTION_MODE.code;
 					Handler handler = controller.getInboxHandler();
 					handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
 				} else {
-					what = Action.SET_DETECTION_INACTICE.code;
+					what = Action.SET_IDLE_MODE.code;
 				}
 				controller.notifyOutboxHandlers(what);
 				break;
@@ -99,9 +99,9 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 				state = model.onRequestFail();
 				controller.setState(new IdleState(controller));
 				if (state == State.DETECTING) {
-					what = Action.SET_DETECTION_ACTIVE.code;
+					what = Action.SET_DETECTION_MODE.code;
 				} else {
-					what = Action.SET_DETECTION_INACTICE.code;
+					what = Action.SET_IDLE_MODE.code;
 				}
 				controller.notifyOutboxHandlers(what);
 				break;
@@ -115,15 +115,15 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 				String status = statusLine.getStatusCode() + " ";
 				status += statusLine.getReasonPhrase();
 				model.setStatus(status);
-				what = Action.SET_STATUS_TEXT.code;
+				what = Action.ALERT_PROBLEM.code;
 				controller.notifyOutboxHandlers(what, status);
 
 				state = model.onRequestFail();
 				controller.setState(new IdleState(controller));
 				if (state == State.DETECTING) {
-					what = Action.SET_DETECTION_ACTIVE.code;
+					what = Action.SET_DETECTION_MODE.code;
 				} else {
-					what = Action.SET_DETECTION_INACTICE.code;
+					what = Action.SET_IDLE_MODE.code;
 				}
 				controller.notifyOutboxHandlers(what);
 			}

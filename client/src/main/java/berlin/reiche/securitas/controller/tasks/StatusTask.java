@@ -92,7 +92,7 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 			case RUNNING:
 				model.setState(State.DETECTING);
 				controller.setState(new DetectionState(controller));
-				what = Action.SET_DETECTION_ACTIVE.code;
+				what = Action.SET_DETECTION_MODE.code;
 				controller.notifyOutboxHandlers(what);
 				break;
 			}

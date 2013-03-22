@@ -413,12 +413,12 @@ public class MainActivity extends Activity implements Callback {
 		case UNLOCK_INTERFACE:
 			unlockInterface((Boolean) message.obj);
 			break;
-		case SET_DETECTION_ACTIVE:
+		case SET_DETECTION_MODE:
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			detectionToggle.setText(R.string.button_stop_detection);
 			detecting = true;
 			break;
-		case SET_DETECTION_INACTICE:
+		case SET_IDLE_MODE:
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 			detectionToggle.setText(R.string.button_start_detection);
 			detecting = false;
