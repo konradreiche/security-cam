@@ -4,7 +4,6 @@ import berlin.reiche.securitas.activies.MainActivity;
 import berlin.reiche.securitas.activies.SettingsActivity;
 import berlin.reiche.securitas.controller.ClientController;
 import berlin.reiche.securitas.model.ClientModel;
-import berlin.reiche.securitas.util.Settings;
 
 /**
  * Locator class for referencing the main components.

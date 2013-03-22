@@ -11,6 +11,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.message.BasicNameValuePair;
 
+import berlin.reiche.securitas.Settings;
+
 import android.net.http.AndroidHttpClient;
 import android.util.Base64;
 import android.util.Log;
