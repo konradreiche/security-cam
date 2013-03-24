@@ -68,15 +68,16 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 
 	protected void onPostExecute(HttpResponse response) {
 
+		int what;
 		if (exception != null && response == null) {
-			model.setStatus(exception.getMessage());
+			what = Action.ALERT_PROBLEM.code;
 			model.onRequestFail();
 			controller.setState(new IdleState(controller));
+			controller.notifyOutboxHandlers(what, exception.getMessage());
 		} else if (response == null) {
 			Log.e(TAG, "Response is null without an exception. "
 					+ "The endpoint probably ran into a problem.");
 		} else {
-			int what;
 			State state;
 			int code = response.getStatusLine().getStatusCode();
 			switch (code) {
@@ -95,9 +96,11 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 				controller.notifyOutboxHandlers(what);
 				break;
 			case SC_UNAUTHORIZED:
-				model.setStatus("Unauthorized request, check authentication data");
+				what = Action.ALERT_PROBLEM.code;
 				state = model.onRequestFail();
 				controller.setState(new IdleState(controller));
+				controller.notifyOutboxHandlers(what,
+						"Unauthorized request, check authentication data");
 				if (state == State.DETECTING) {
 					what = Action.SET_DETECTION_MODE.code;
 				} else {
@@ -109,12 +112,14 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 				model.setRegisteredOnServer(false);
 				what = Action.SET_REGISTERED_ON_SERVER.code;
 				controller.notifyOutboxHandlers(what, false);
+				what = Action.ALERT_PROBLEM.code;
+				controller.notifyOutboxHandlers(what,
+						"Device is not registered yet");
 				break;
 			default:
 				StatusLine statusLine = response.getStatusLine();
 				String status = statusLine.getStatusCode() + " ";
 				status += statusLine.getReasonPhrase();
-				model.setStatus(status);
 				what = Action.ALERT_PROBLEM.code;
 				controller.notifyOutboxHandlers(what, status);
 

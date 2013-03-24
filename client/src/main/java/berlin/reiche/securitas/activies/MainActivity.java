@@ -35,13 +35,14 @@ import berlin.reiche.securitas.controller.ClientController;
 import berlin.reiche.securitas.model.ClientModel;
 import berlin.reiche.securitas.model.Protocol;
 import berlin.reiche.securitas.model.ClientModel.State;
+import berlin.reiche.securitas.util.NotificationDialog;
 
 import com.google.android.gcm.GCMRegistrar;
 
 /**
- * Activity which is used to remote control the server and display snapshots.
- * This class implements the {@link Callback} interface in order to handle
- * requests sent from the controller.
+ * Activity used to remote control the server and display snapshots. This class
+ * implements the {@link Callback} interface in order to handle requests sent
+ * from the controller for updating the interface.
  * 
  * @author Konrad Reiche
  * 
@@ -64,11 +65,6 @@ public class MainActivity extends Activity implements Callback {
 	 * the backend.
 	 */
 	public Button detectionToggle;
-
-	/**
-	 * A {@link TextView} to display some problems on the network layer.
-	 */
-	public TextView status;
 
 	/**
 	 * The layout for this activity.
@@ -274,7 +270,6 @@ public class MainActivity extends Activity implements Callback {
 			layout = (RelativeLayout) findViewById(R.id.layout);
 			snapshot = (ImageView) findViewById(R.id.snapshot);
 			detectionToggle = (Button) findViewById(R.id.detection_toggle);
-			status = (TextView) findViewById(R.id.errors);
 			progress = (ProgressBar) findViewById(R.id.progress_bar);
 			snapshotArea = (RelativeLayout) findViewById(R.id.snapshot_area);
 			headline = (TextView) findViewById(R.id.headline);
@@ -335,7 +330,6 @@ public class MainActivity extends Activity implements Callback {
 	 *            the view that was clicked.
 	 */
 	public void toggleMotionDetection(View view) {
-		status.setText(null);
 		lockInterface();
 		if (detecting) {
 			handler.sendEmptyMessage(Protocol.STOP_DETECTION.code);
@@ -430,6 +424,9 @@ public class MainActivity extends Activity implements Callback {
 			break;
 		case SET_SNAPSHOT:
 			snapshot.setImageBitmap((Bitmap) message.obj);
+			break;
+		case ALERT_PROBLEM:
+			NotificationDialog.create(this, message.obj.toString()).show();
 			break;
 		default:
 			Log.e(TAG, "Retrieved illegal action: " + action);

@@ -11,8 +11,6 @@ public class ClientModel extends Model<State> {
 
 	protected State previous;
 
-	private String status;
-
 	private boolean registeredOnServer;
 
 	private Bitmap snapshot;
@@ -20,10 +18,6 @@ public class ClientModel extends Model<State> {
 	public ClientModel() {
 		super();
 		state = State.IDLE;
-	}
-
-	public synchronized String getStatus() {
-		return status;
 	}
 
 	public boolean isRegisteredOnServer() {
@@ -46,10 +40,6 @@ public class ClientModel extends Model<State> {
 
 	public void setRegisteredOnServer(boolean flag) {
 		registeredOnServer = flag;
-	}
-
-	public synchronized void setStatus(String status) {
-		this.status = status;
 	}
 
 	public void setSnapshot(Bitmap snapshot) {

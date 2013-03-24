@@ -48,7 +48,10 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 		try {
 			return client.execute(get);
 		} catch (IOException e) {
-			Log.e(TAG, "Get status failed, due to " + e.getMessage());
+			String problem = "Get status failed, due to " + e.getMessage();
+			Log.e(TAG, problem);
+			int what = Action.ALERT_PROBLEM.code;
+			controller.notifyOutboxHandlers(what, problem);
 			return null;
 		} finally {
 			HttpUtilities.closeClient(client);
@@ -97,9 +100,12 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 				break;
 			}
 		} catch (IOException e) {
-			Log.e(TAG, "The stream of the response could not be created.");
+			String problem = "The stream of the response could not be created.";
+			Log.e(TAG, problem);
 			what = Action.UNLOCK_INTERFACE.code;
 			controller.notifyOutboxHandlers(what, false);
+			what = Action.ALERT_PROBLEM.code;
+			controller.notifyOutboxHandlers(what, problem);
 		}
 	}
 
