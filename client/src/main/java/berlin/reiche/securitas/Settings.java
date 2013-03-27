@@ -33,7 +33,7 @@ public class Settings {
 	 * The GCM Sender ID is used in the registration process to identify the
 	 * application that is permitted to send messages to the device.
 	 */
-	private final String gcmSenderId;
+	private final String gcmId;
 
 	/**
 	 * Default constructor.
@@ -46,19 +46,19 @@ public class Settings {
 	 *            the username for authenticating with the backend server.
 	 * @param password
 	 *            the password for authenticating with the backend server.
-	 * @param id
+	 * @param gcmId
 	 *            the GCM Sender ID is used in the registration process to
 	 *            identify the application that is permitted to send messages to
 	 *            the device.
 	 */
 	public Settings(String host, String port, String username, String password,
-			String id) {
+			String gcmId) {
 		super();
 		this.host = host;
 		this.port = Integer.valueOf(port);
 		this.username = username;
 		this.password = password;
-		this.gcmSenderId = id;
+		this.gcmId = gcmId;
 	}
 
 	/**
@@ -94,7 +94,7 @@ public class Settings {
 	 *         the application that is permitted to send messages to the device.
 	 */
 	public String getGcmSenderId() {
-		return gcmSenderId;
+		return gcmId;
 	}
 
 }

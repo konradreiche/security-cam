@@ -1,5 +1,8 @@
 package berlin.reiche.securitas;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import berlin.reiche.securitas.activies.MainActivity;
 import berlin.reiche.securitas.activies.SettingsActivity;
 import berlin.reiche.securitas.controller.ClientController;
@@ -98,15 +101,23 @@ public class Client {
 	}
 
 	/**
-	 * This method should be called when the settings are updated. That is when
-	 * the {@link SettingsActivity} was processed.
+	 * This method should be called when the settings are updated. That should
+	 * be the case after the {@link SettingsActivity} was processed.
 	 * 
-	 * @param settings
-	 *            the application settings.
+	 * @param context
+	 *            The context of the preferences whose values are wanted.
 	 */
-	public static void setSettings(Settings settings) {
-		Client.settings = settings;
+	public static void updateSettings(Context context) {
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(context);
+
+		String host = sp.getString(SettingsActivity.HOST, null);
+		String port = sp.getString(SettingsActivity.PORT, null);
+		String username = sp.getString(SettingsActivity.USER, null);
+		String password = sp.getString(SettingsActivity.PASSWORD, null);
+		String gcmId = sp.getString(SettingsActivity.GCM_SENDER_ID, null);
+
+		Client.settings = new Settings(host, port, username, password, gcmId);
 		setEndpoint("http://" + settings.getHost() + ":" + settings.getPort());
 	}
-
 }

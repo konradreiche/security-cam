@@ -30,11 +30,10 @@ import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.R;
-import berlin.reiche.securitas.Settings;
 import berlin.reiche.securitas.controller.ClientController;
 import berlin.reiche.securitas.model.ClientModel;
-import berlin.reiche.securitas.model.Protocol;
 import berlin.reiche.securitas.model.ClientModel.State;
+import berlin.reiche.securitas.model.Protocol;
 import berlin.reiche.securitas.util.NotificationDialog;
 
 import com.google.android.gcm.GCMRegistrar;
@@ -109,7 +108,7 @@ public class MainActivity extends Activity implements Callback {
 	private boolean detecting;
 
 	/**
-	 * Called when the activity is first created.
+	 * Called when the activity is created.
 	 * 
 	 * @param savedInstanceState
 	 *            If the activity is being re-initialized after previously being
@@ -262,8 +261,9 @@ public class MainActivity extends Activity implements Callback {
 	}
 
 	/**
-	 * For a fast access of the components this method initializes all the
-	 * references by finding their view elements through their IDs.
+	 * For a faster access of the components this method initializes all the
+	 * references by finding their view instance elements through their
+	 * respective identifiers.
 	 */
 	public void initializeReferences() {
 		if (!initialized) {
@@ -278,22 +278,17 @@ public class MainActivity extends Activity implements Callback {
 		}
 	}
 
+	/**
+	 * The entry point for starting the {@link SettingsActivity}.
+	 */
 	private void updateSettings() {
-		SharedPreferences settings = PreferenceManager
-				.getDefaultSharedPreferences(this);
-		String host = settings.getString(SettingsActivity.HOST, null);
-		String port = settings.getString(SettingsActivity.PORT, null);
-		String username = settings.getString(SettingsActivity.USER, null);
-		String password = settings.getString(SettingsActivity.PASSWORD, null);
-		String id = settings.getString(SettingsActivity.GCM_SENDER_ID, null);
 
 		if (!isConfigured()) {
 			startSettingsActivity(true);
 		} else {
-			Client.setSettings(new Settings(host, port, username, password, id));
+			Client.updateSettings(this);
 			Log.i(TAG, "Updated endpoint to " + Client.getEndpoint());
 			manageDeviceRegistration();
-
 		}
 	}
 
@@ -304,21 +299,22 @@ public class MainActivity extends Activity implements Callback {
 		startActivity(intent);
 	}
 
+	/**
+	 * @return whether all setting attributes are set to a non-null,
+	 *         respectively a non-empty String.
+	 */
 	private boolean isConfigured() {
-		SharedPreferences settings = PreferenceManager
+		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(this);
-		String host = settings.getString(SettingsActivity.HOST, "");
-		String port = settings.getString(SettingsActivity.PORT, "");
-		String username = settings.getString(SettingsActivity.USER, "");
-		String password = settings.getString(SettingsActivity.PASSWORD, "");
-		String gcmSenderId = settings.getString(SettingsActivity.GCM_SENDER_ID,
-				"");
 
-		boolean configured = !host.equals("") && !port.equals("")
-				&& !username.equals("") && !password.equals("")
-				&& !gcmSenderId.equals("");
+		String host = sp.getString(SettingsActivity.HOST, "");
+		String port = sp.getString(SettingsActivity.PORT, "");
+		String username = sp.getString(SettingsActivity.USER, "");
+		String password = sp.getString(SettingsActivity.PASSWORD, "");
+		String gcmId = sp.getString(SettingsActivity.GCM_SENDER_ID, "");
 
-		return configured;
+		return !host.equals("") && !port.equals("") && !username.equals("")
+				&& !password.equals("") && !gcmId.equals("");
 	}
 
 	/**
@@ -370,7 +366,7 @@ public class MainActivity extends Activity implements Callback {
 	public void manageDeviceRegistration() {
 		GCMRegistrar.checkDevice(this);
 		GCMRegistrar.checkManifest(this);
-		final String id = GCMRegistrar.getRegistrationId(this);
+		String id = GCMRegistrar.getRegistrationId(this);
 		if (id.equals("")) {
 			Log.i(TAG, "No device id yet, issue registration indent.");
 			String senderId = Client.getSettings().getGcmSenderId();
