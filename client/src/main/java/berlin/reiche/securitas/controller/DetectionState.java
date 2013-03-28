@@ -16,8 +16,14 @@ public class DetectionState extends ControllerState<State> {
 	 */
 	private static final String TAG = DetectionState.class.getSimpleName();
 
-	public DetectionState(Controller<State> controller) {
+	/**
+	 * Hides the super class controller field in order to avoid type casting.
+	 */
+	ClientController controller;
+
+	public DetectionState(ClientController controller) {
 		super(controller);
+		this.controller = controller;
 	}
 
 	@Override
@@ -38,7 +44,7 @@ public class DetectionState extends ControllerState<State> {
 			throw new IllegalStateException();
 		}
 	}
-	
+
 	private void downloadMotionSnapshot(String filename) {
 		String uri = Client.getEndpoint();
 		uri += Protocol.DOWNLOAD_MOTION_SNAPSHOT.operation + filename;
@@ -51,7 +57,7 @@ public class DetectionState extends ControllerState<State> {
 		new DetectionRequest(model, controller, DetectionCommand.STOP)
 				.execute(uri);
 	}
-	
+
 	private void downloadLatestSnapshot() {
 		String uri = Client.getEndpoint();
 		uri += Protocol.DOWNLOAD_LATEST_SNAPSHOT.operation;

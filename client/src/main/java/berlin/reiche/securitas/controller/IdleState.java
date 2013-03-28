@@ -21,8 +21,14 @@ public class IdleState extends ControllerState<State> {
 
 	private static final String TAG = IdleState.class.getSimpleName();
 
-	public IdleState(Controller<State> controller) {
+	/**
+	 * Hides the super class controller field in order to avoid type casting.
+	 */
+	ClientController controller;
+
+	public IdleState(ClientController controller) {
 		super(controller);
+		this.controller = controller;
 	}
 
 	@Override
@@ -34,7 +40,7 @@ public class IdleState extends ControllerState<State> {
 			requestDetectionStart();
 			break;
 		case RESTORE_CLIENT_STATE:
-			restoreClientState();
+			restoreClientState((String) msg.obj);
 			break;
 		case REGISTER_DEVICE:
 			registerDevice(msg.obj.toString());
@@ -54,22 +60,22 @@ public class IdleState extends ControllerState<State> {
 		}
 	}
 
-	
 	private void downloadLatestSnapshot() {
 		String uri = Client.getEndpoint();
 		uri += Protocol.DOWNLOAD_LATEST_SNAPSHOT.operation;
 		new BitmapDownloadTask(model, controller).execute(uri);
 	}
-	
+
 	private void downloadMotionSnapshot(String filename) {
 		String uri = Client.getEndpoint();
 		uri += Protocol.DOWNLOAD_MOTION_SNAPSHOT.operation + filename;
 		new BitmapDownloadTask(model, controller).execute(uri);
 	}
 
-	private void restoreClientState() {
-		String uri = Client.getEndpoint() + Protocol.RESTORE_CLIENT_STATE.operation;
-		new StatusTask(model, controller).execute(uri);
+	private void restoreClientState(String motionFilename) {
+		String uri = Client.getEndpoint()
+				+ Protocol.RESTORE_CLIENT_STATE.operation;
+		new StatusTask(model, controller, motionFilename).execute(uri);
 	}
 
 	private void requestDetectionStart() {
@@ -85,7 +91,8 @@ public class IdleState extends ControllerState<State> {
 	}
 
 	private void unregisterDevice(String id) {
-		String uri = Client.getEndpoint() + Protocol.UNREGISTER_DEVICE.operation;
+		String uri = Client.getEndpoint()
+				+ Protocol.UNREGISTER_DEVICE.operation;
 		new DeviceRegistration(model, controller, id,
 				DeviceRegistration.Command.UNREGISTER).execute(uri);
 	}

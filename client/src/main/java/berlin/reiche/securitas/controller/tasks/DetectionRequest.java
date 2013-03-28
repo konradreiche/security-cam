@@ -17,13 +17,13 @@ import android.os.Handler;
 import android.util.Log;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.activies.Action;
-import berlin.reiche.securitas.controller.Controller;
+import berlin.reiche.securitas.controller.ClientController;
 import berlin.reiche.securitas.controller.DetectionState;
 import berlin.reiche.securitas.controller.IdleState;
 import berlin.reiche.securitas.model.ClientModel;
+import berlin.reiche.securitas.model.ClientModel.State;
 import berlin.reiche.securitas.model.Model;
 import berlin.reiche.securitas.model.Protocol;
-import berlin.reiche.securitas.model.ClientModel.State;
 import berlin.reiche.securitas.util.HttpUtilities;
 
 public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
@@ -38,11 +38,11 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 
 	ClientModel model;
 
-	Controller<State> controller;
+	ClientController controller;
 
 	private static String TAG = DetectionRequest.class.getSimpleName();
 
-	public DetectionRequest(Model<State> model, Controller<State> controller,
+	public DetectionRequest(Model<State> model, ClientController controller,
 			DetectionCommand command) {
 		this.model = (ClientModel) model;
 		this.controller = controller;

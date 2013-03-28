@@ -146,17 +146,17 @@ public class MainActivity extends Activity implements Callback {
 			Bitmap bitmap = savedInstanceState.getParcelable(snapshotKey);
 			snapshot.setImageBitmap(bitmap);
 		} else if (getIntent().getExtras() == null) {
-			// activity was destroyed, restore based on server state
+			// activity was destroyed, restore state based on the server state
 			lockInterface();
-			handler.sendEmptyMessage(Protocol.RESTORE_CLIENT_STATE.code);
-			handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
+			Client.getController().restoreClientState(null);
 		} else {
 			// activity was destroyed, activity started through notification
 			lockInterface();
 			handler.sendEmptyMessage(Protocol.RESTORE_CLIENT_STATE.code);
 			int what = Protocol.DOWNLOAD_MOTION_SNAPSHOT.code;
-			String filename = getIntent().getExtras().getString("filename");
-			Message message = Message.obtain(handler, what, filename);
+			Bundle extras = getIntent().getExtras();
+			String motionFilename = extras.getString("filename");
+			Message message = Message.obtain(handler, what, motionFilename);
 			handler.sendMessage(message);
 		}
 	}

@@ -12,12 +12,12 @@ import android.os.AsyncTask;
 import android.util.Log;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.activies.Action;
-import berlin.reiche.securitas.controller.Controller;
+import berlin.reiche.securitas.controller.ClientController;
 import berlin.reiche.securitas.controller.DetectionState;
 import berlin.reiche.securitas.model.ClientModel;
+import berlin.reiche.securitas.model.ClientModel.State;
 import berlin.reiche.securitas.model.Model;
 import berlin.reiche.securitas.model.Protocol;
-import berlin.reiche.securitas.model.ClientModel.State;
 import berlin.reiche.securitas.util.HttpUtilities;
 
 public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
@@ -30,12 +30,16 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 
 	ClientModel model;
 
-	Controller<State> controller;
+	ClientController controller;
 
-	public StatusTask(Model<State> model, Controller<State> controller) {
+	String motionFilename;
+
+	public StatusTask(Model<State> model, ClientController controller,
+			String motionFilename) {
 		super();
 		this.model = (ClientModel) model;
 		this.controller = controller;
+		this.motionFilename = motionFilename;
 	}
 
 	@Override
@@ -74,7 +78,7 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 				Log.i(TAG, "Status response is null, retry.");
 				String uri = Client.getEndpoint();
 				uri += Protocol.RESTORE_CLIENT_STATE.operation;
-				new StatusTask(model, controller).execute(uri);
+				new StatusTask(model, controller, motionFilename).execute(uri);
 				return;
 			}
 
@@ -97,6 +101,11 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 				controller.setState(new DetectionState(controller));
 				what = Action.SET_DETECTION_MODE.code;
 				controller.notifyOutboxHandlers(what);
+				if (motionFilename == null) {
+					controller.downloadLatestSnapshot();
+				} else {
+					controller.downloadMotionSnapshot(motionFilename);
+				}
 				break;
 			}
 		} catch (IOException e) {
