@@ -146,10 +146,8 @@ public class MainActivity extends Activity implements Callback {
 		if (savedInstanceState != null) {
 			// activity was put to the background, restore
 			Log.i(TAG, "Restore saved instance state");
-			String detectingKey = getString(R.string.is_detection_active_key);
-			String snapshotKey = getString(R.string.snapshot_key);
-			detecting = savedInstanceState.getBoolean(detectingKey);
-			Bitmap bitmap = savedInstanceState.getParcelable(snapshotKey);
+			Bitmap bitmap = savedInstanceState.getParcelable("snapshot");
+			detecting = savedInstanceState.getBoolean("detectionActive");
 			snapshot.setImageBitmap(bitmap);
 		} else if (getIntent().getExtras() == null) {
 			// activity was destroyed, restore state based on the server state
@@ -240,13 +238,12 @@ public class MainActivity extends Activity implements Callback {
 	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {
 		super.onSaveInstanceState(savedInstanceState);
-		String detectingKey = getString(R.string.is_detection_active_key);
-		String snapshotKey = getString(R.string.snapshot_key);
-		savedInstanceState.putBoolean(detectingKey, detecting);
-
+		savedInstanceState.putBoolean("detectionActive", detecting);
+		
 		if (snapshot.getDrawable() != null) {
-			savedInstanceState.putParcelable(snapshotKey,
-					((BitmapDrawable) snapshot.getDrawable()).getBitmap());
+			BitmapDrawable drawable = ((BitmapDrawable) snapshot.getDrawable());
+			Bitmap bitmap = drawable.getBitmap();
+			savedInstanceState.putParcelable("snapshot", bitmap);
 		}
 	}
 
