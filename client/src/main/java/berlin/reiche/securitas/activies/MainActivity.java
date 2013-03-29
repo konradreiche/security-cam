@@ -108,10 +108,11 @@ public class MainActivity extends Activity implements Callback {
 	private boolean detecting;
 
 	/**
-	 * Called when the activity is created.
+	 * Called when the activity is created. Manages the initialization of the
+	 * application state, as well as restoring a previous state.
 	 * 
 	 * @param savedInstanceState
-	 *            If the activity is being re-initialized after previously being
+	 *            if the activity is being re-initialized after previously being
 	 *            shut down then this Bundle contains the data it most recently
 	 *            supplied in onSaveInstanceState(Bundle). <b>Note: Otherwise it
 	 *            is null.</b>
@@ -152,15 +153,14 @@ public class MainActivity extends Activity implements Callback {
 		} else {
 			// activity was destroyed, activity started through notification
 			lockInterface();
-			handler.sendEmptyMessage(Protocol.RESTORE_CLIENT_STATE.code);
-			int what = Protocol.DOWNLOAD_MOTION_SNAPSHOT.code;
-			Bundle extras = getIntent().getExtras();
-			String motionFilename = extras.getString("filename");
-			Message message = Message.obtain(handler, what, motionFilename);
-			handler.sendMessage(message);
+			String filename = getIntent().getExtras().getString("filename");
+			Client.getController().restoreClientState(filename);
 		}
 	}
 
+	/**
+	 * 
+	 */
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -171,28 +171,18 @@ public class MainActivity extends Activity implements Callback {
 		if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
 			getWindow().setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN);
 			LayoutParams params = new LayoutParams(MATCH_PARENT, MATCH_PARENT);
-
 			layout.setBackgroundDrawable(null);
 			snapshotArea.setLayoutParams(params);
-			headline.setVisibility(View.GONE);
-			subtitle.setVisibility(View.GONE);
 		}
-
-		boolean notification = getIntent().getExtras() != null;
 		if (detecting) {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			detectionToggle.setText(R.string.button_stop_detection);
-			detecting = true;
-			if (!notification) {
-				handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
-			}
 		}
-
+		boolean notification = getIntent().getExtras() != null;
 		if (notification) {
+			lockInterface();
 			String filename = getIntent().getExtras().getString("filename");
-			int what = Protocol.DOWNLOAD_MOTION_SNAPSHOT.code;
-			Message message = Message.obtain(handler, what, filename);
-			handler.sendMessage(message);
+			Client.getController().downloadMotionSnapshot(filename);
 		}
 	}
 
