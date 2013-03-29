@@ -166,7 +166,14 @@ public class MainActivity extends Activity implements Callback {
 	}
 
 	/**
+	 * If the screen orientation changes this method has to make sure, that the
+	 * appropriate controller state is set and that this state is displayed in
+	 * the interface.
 	 * 
+	 * Also this method performs the interface changes when the orientation is
+	 * changed, for instance removing the background image. If the application
+	 * was not closed and a motion notification is selected this method also
+	 * makes sure, that the motion snapshot is requested.
 	 */
 	@Override
 	public void onResume() {
@@ -175,7 +182,6 @@ public class MainActivity extends Activity implements Callback {
 		updateSettings();
 
 		if (detecting) {
-
 			controller.setState(new DetectionState(controller));
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			detectionToggle.setText(R.string.button_stop_detection);
