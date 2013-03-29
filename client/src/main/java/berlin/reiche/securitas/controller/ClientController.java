@@ -51,4 +51,12 @@ public class ClientController extends Controller<ClientModel.State> {
 		inboxHandler.sendMessage(message);
 	}
 
+	public void stopDetection() {
+		inboxHandler.sendEmptyMessage(Protocol.STOP_DETECTION.code);
+	}
+
+	public void startDetection() {
+		inboxHandler.sendEmptyMessage(Protocol.START_DETECTION.code);
+	}
+
 }

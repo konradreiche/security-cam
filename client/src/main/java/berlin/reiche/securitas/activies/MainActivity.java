@@ -32,7 +32,6 @@ import berlin.reiche.securitas.controller.ClientController;
 import berlin.reiche.securitas.controller.DetectionState;
 import berlin.reiche.securitas.model.ClientModel;
 import berlin.reiche.securitas.model.ClientModel.State;
-import berlin.reiche.securitas.model.Protocol;
 import berlin.reiche.securitas.util.NotificationDialog;
 
 import com.google.android.gcm.GCMRegistrar;
@@ -95,12 +94,6 @@ public class MainActivity extends Activity implements Callback {
 	public TextView subtitle;
 
 	/**
-	 * The inbox handler takes requests and delegates them to the current
-	 * controller state object.
-	 */
-	private Handler handler;
-
-	/**
 	 * Whether all components are initialized and can be referenced.
 	 */
 	private boolean initialized;
@@ -132,7 +125,6 @@ public class MainActivity extends Activity implements Callback {
 
 		controller = Client.getController();
 		controller.addOutboxHandler(new Handler(this));
-		handler = Client.getController().getInboxHandler();
 
 		initializeReferences();
 		ensureConfiguration();
@@ -304,16 +296,15 @@ public class MainActivity extends Activity implements Callback {
 	public void toggleMotionDetection(View view) {
 		lockInterface();
 		if (detecting) {
-			handler.sendEmptyMessage(Protocol.STOP_DETECTION.code);
+			controller.stopDetection();
 		} else {
-			handler.sendEmptyMessage(Protocol.START_DETECTION.code);
+			controller.startDetection();
 		}
 	}
 
 	public void lockInterface() {
 		detectionToggle.setEnabled(false);
 		snapshot.setEnabled(false);
-		ProgressBar progress = (ProgressBar) findViewById(R.id.progress_bar);
 		progress.setVisibility(View.VISIBLE);
 		snapshot.setVisibility(View.INVISIBLE);
 	}
@@ -329,7 +320,6 @@ public class MainActivity extends Activity implements Callback {
 		detectionToggle.setEnabled(true);
 		snapshot.setEnabled(true);
 		progress.setVisibility(View.INVISIBLE);
-
 		if (detecting) {
 			snapshot.setVisibility(View.VISIBLE);
 		}
@@ -347,7 +337,7 @@ public class MainActivity extends Activity implements Callback {
 
 	public void refreshSnapshot(View view) {
 		lockInterface();
-		handler.sendEmptyMessage(Protocol.DOWNLOAD_LATEST_SNAPSHOT.code);
+		controller.downloadLatestSnapshot();
 	}
 
 	@Override
@@ -387,7 +377,6 @@ public class MainActivity extends Activity implements Callback {
 			Log.e(TAG, "Retrieved illegal action: " + action);
 			throw new IllegalStateException();
 		}
-
 		return true;
 	}
 }
