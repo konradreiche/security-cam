@@ -45,4 +45,10 @@ public class ClientController extends Controller<ClientModel.State> {
 		inboxHandler.sendEmptyMessage(what);
 	}
 
+	public void registerDevice(String id) {
+		int what = Protocol.REGISTER_DEVICE.code;
+		Message message = Message.obtain(inboxHandler, what, id);
+		inboxHandler.sendMessage(message);
+	}
+
 }

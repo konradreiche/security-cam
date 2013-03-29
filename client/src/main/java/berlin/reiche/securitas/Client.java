@@ -38,6 +38,12 @@ public class Client {
 	private static String endpoint;
 
 	/**
+	 * Whether the endpoint configuration is completed. Used to force the user
+	 * on the {@link SettingsActivity} otherwise.
+	 */
+	private static boolean configured;
+
+	/**
 	 * @return the application model.
 	 */
 	public static ClientModel getModel() {
@@ -108,6 +114,7 @@ public class Client {
 	 *            The context of the preferences whose values are wanted.
 	 */
 	public static void updateSettings(Context context) {
+
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(context);
 
@@ -119,5 +126,15 @@ public class Client {
 
 		Client.settings = new Settings(host, port, username, password, gcmId);
 		setEndpoint("http://" + settings.getHost() + ":" + settings.getPort());
+
+		configured = !host.equals("") && !port.equals("")
+				&& !username.equals("") && !password.equals("")
+				&& !gcmId.equals("");
 	}
+
+	public static boolean isConfigured(Context context) {
+		updateSettings(context);
+		return configured;
+	}
+	
 }

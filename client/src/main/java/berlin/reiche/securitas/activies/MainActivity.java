@@ -5,7 +5,6 @@ import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -16,7 +15,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -137,7 +135,7 @@ public class MainActivity extends Activity implements Callback {
 		handler = Client.getController().getInboxHandler();
 
 		initializeReferences();
-		updateSettings();
+		ensureConfiguration();
 
 		// restore image due to orientation change
 		if (getLastNonConfigurationInstance() != null) {
@@ -179,7 +177,6 @@ public class MainActivity extends Activity implements Callback {
 	public void onResume() {
 		super.onResume();
 		Log.i(TAG, "onResume");
-		updateSettings();
 
 		if (detecting) {
 			controller.setState(new DetectionState(controller));
@@ -284,42 +281,19 @@ public class MainActivity extends Activity implements Callback {
 	}
 
 	/**
-	 * The entry point for starting the {@link SettingsActivity}.
+	 * This method is used at the beginning of the main activity to make sure,
+	 * that the client's configuration is completed.
 	 */
-	private void updateSettings() {
-
-		if (!isConfigured()) {
+	private void ensureConfiguration() {
+		if (!Client.isConfigured(this)) {
 			startSettingsActivity(true);
-		} else {
-			Client.updateSettings(this);
-			Log.i(TAG, "Updated endpoint to " + Client.getEndpoint());
-			manageDeviceRegistration();
 		}
 	}
 
-	private void startSettingsActivity(boolean forceConfiguration) {
+	private void startSettingsActivity(boolean force) {
 		Intent intent = new Intent(this, SettingsActivity.class);
-		intent.putExtra(SettingsActivity.DISPLAY_INSTRUCTION,
-				forceConfiguration);
+		intent.putExtra(SettingsActivity.DISPLAY_INSTRUCTION, force);
 		startActivity(intent);
-	}
-
-	/**
-	 * @return whether all setting attributes are set to a non-null,
-	 *         respectively a non-empty String.
-	 */
-	private boolean isConfigured() {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(this);
-
-		String host = sp.getString(SettingsActivity.HOST, "");
-		String port = sp.getString(SettingsActivity.PORT, "");
-		String username = sp.getString(SettingsActivity.USER, "");
-		String password = sp.getString(SettingsActivity.PASSWORD, "");
-		String gcmId = sp.getString(SettingsActivity.GCM_SENDER_ID, "");
-
-		return !host.equals("") && !port.equals("") && !username.equals("")
-				&& !password.equals("") && !gcmId.equals("");
 	}
 
 	/**
@@ -361,24 +335,6 @@ public class MainActivity extends Activity implements Callback {
 
 		if (detecting) {
 			snapshot.setVisibility(View.VISIBLE);
-		}
-	}
-
-	/**
-	 * Registers the device on the GCM service. If the device is already
-	 * registered the cached registration ID will be used.
-	 */
-	public void manageDeviceRegistration() {
-		GCMRegistrar.checkDevice(this);
-		GCMRegistrar.checkManifest(this);
-		String id = GCMRegistrar.getRegistrationId(this);
-		if (id.equals("")) {
-			Log.i(TAG, "No device id yet, issue registration indent.");
-			String senderId = Client.getSettings().getGcmSenderId();
-			GCMRegistrar.register(this, senderId);
-		} else if (!GCMRegistrar.isRegisteredOnServer(this)) {
-			handler.sendMessage(Message.obtain(handler,
-					Protocol.REGISTER_DEVICE.code, id));
 		}
 	}
 
