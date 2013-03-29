@@ -3,14 +3,11 @@ package berlin.reiche.securitas.activies;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
@@ -323,16 +320,6 @@ public class MainActivity extends Activity implements Callback {
 		if (detecting) {
 			snapshot.setVisibility(View.VISIBLE);
 		}
-	}
-
-	// TODO: make use of it
-	public boolean isNetworkAvailable() {
-		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-		if (networkInfo != null && networkInfo.isConnected()) {
-			return true;
-		}
-		return false;
 	}
 
 	public void refreshSnapshot(View view) {

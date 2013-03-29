@@ -5,7 +5,6 @@ import android.preference.PreferenceActivity;
 import android.util.Log;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.R;
-import berlin.reiche.securitas.controller.ClientController;
 import berlin.reiche.securitas.util.NotificationDialog;
 
 import com.google.android.gcm.GCMRegistrar;
@@ -20,16 +19,12 @@ public class SettingsActivity extends PreferenceActivity {
 
 	public static final String DISPLAY_INSTRUCTION = "displayInstruction";
 	private static final String TAG = SettingsActivity.class.getSimpleName();
-	
-	ClientController controller;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "onCreate");
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
-
-		controller = Client.getController();
 		if (getIntent().getExtras().getBoolean(DISPLAY_INSTRUCTION)) {
 			NotificationDialog.create(this, R.string.configuration_hint).show();
 		}
@@ -55,7 +50,7 @@ public class SettingsActivity extends PreferenceActivity {
 			String senderId = Client.getSettings().getGcmSenderId();
 			GCMRegistrar.register(this, senderId);
 		} else if (!GCMRegistrar.isRegisteredOnServer(this)) {
-			controller.registerDevice(id);
+			Client.getController().registerDevice(id);
 		}
 	}
 	
