@@ -239,7 +239,7 @@ public class MainActivity extends Activity implements Callback {
 	public void onSaveInstanceState(Bundle savedInstanceState) {
 		super.onSaveInstanceState(savedInstanceState);
 		savedInstanceState.putBoolean("detectionActive", detecting);
-		
+
 		if (snapshot.getDrawable() != null) {
 			BitmapDrawable drawable = ((BitmapDrawable) snapshot.getDrawable());
 			Bitmap bitmap = drawable.getBitmap();
@@ -381,6 +381,7 @@ public class MainActivity extends Activity implements Callback {
 			break;
 		case ALERT_PROBLEM:
 			NotificationDialog.create(this, message.obj.toString()).show();
+			unlockInterface(detecting);
 			break;
 		default:
 			Log.e(TAG, "Retrieved illegal action: " + action);
