@@ -31,6 +31,7 @@ import android.widget.TextView;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.R;
 import berlin.reiche.securitas.controller.ClientController;
+import berlin.reiche.securitas.controller.DetectionState;
 import berlin.reiche.securitas.model.ClientModel;
 import berlin.reiche.securitas.model.ClientModel.State;
 import berlin.reiche.securitas.model.Protocol;
@@ -52,6 +53,11 @@ public class MainActivity extends Activity implements Callback {
 	 * Tag for logging.
 	 */
 	private static String TAG = MainActivity.class.getSimpleName();
+
+	/**
+	 * Specific client controller which is used to make requests.
+	 */
+	ClientController controller;
 
 	/**
 	 * This {@link ImageView} will display the latest snapshot or the snapshot
@@ -126,7 +132,8 @@ public class MainActivity extends Activity implements Callback {
 		Client.setModel(new ClientModel());
 		Client.setController(new ClientController(Client.getModel()));
 
-		Client.getController().addOutboxHandler(new Handler(this));
+		controller = Client.getController();
+		controller.addOutboxHandler(new Handler(this));
 		handler = Client.getController().getInboxHandler();
 
 		initializeReferences();
@@ -149,12 +156,12 @@ public class MainActivity extends Activity implements Callback {
 		} else if (getIntent().getExtras() == null) {
 			// activity was destroyed, restore state based on the server state
 			lockInterface();
-			Client.getController().restoreClientState(null);
+			controller.restoreClientState(null);
 		} else {
 			// activity was destroyed, activity started through notification
 			lockInterface();
 			String filename = getIntent().getExtras().getString("filename");
-			Client.getController().restoreClientState(filename);
+			controller.restoreClientState(filename);
 		}
 	}
 
@@ -167,6 +174,12 @@ public class MainActivity extends Activity implements Callback {
 		Log.i(TAG, "onResume");
 		updateSettings();
 
+		if (detecting) {
+
+			controller.setState(new DetectionState(controller));
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+			detectionToggle.setText(R.string.button_stop_detection);
+		}
 		int orientation = getResources().getConfiguration().orientation;
 		if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
 			getWindow().setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN);
@@ -174,15 +187,11 @@ public class MainActivity extends Activity implements Callback {
 			layout.setBackgroundDrawable(null);
 			snapshotArea.setLayoutParams(params);
 		}
-		if (detecting) {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-			detectionToggle.setText(R.string.button_stop_detection);
-		}
 		boolean notification = getIntent().getExtras() != null;
 		if (notification) {
 			lockInterface();
 			String filename = getIntent().getExtras().getString("filename");
-			Client.getController().downloadMotionSnapshot(filename);
+			controller.downloadMotionSnapshot(filename);
 		}
 	}
 
@@ -195,7 +204,7 @@ public class MainActivity extends Activity implements Callback {
 	@Override
 	public void onDestroy() {
 		try {
-			Client.getController().dispose();
+			controller.dispose();
 		} catch (Throwable t) {
 			Log.e(TAG, "Failed to destroy the controller", t);
 		} finally {
