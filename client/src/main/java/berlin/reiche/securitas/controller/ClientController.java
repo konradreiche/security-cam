@@ -1,6 +1,8 @@
 package berlin.reiche.securitas.controller;
 
+import android.graphics.Bitmap;
 import android.os.Message;
+import berlin.reiche.securitas.activies.Action;
 import berlin.reiche.securitas.model.ClientModel;
 import berlin.reiche.securitas.model.Protocol;
 
@@ -57,6 +59,14 @@ public class ClientController extends Controller<ClientModel.State> {
 
 	public void startDetection() {
 		inboxHandler.sendEmptyMessage(Protocol.START_DETECTION.code);
+	}
+
+	public void alertProblem(String message) {
+		notifyOutboxHandlers(Action.ALERT_PROBLEM.code, message);
+	}
+	
+	public void setSnapshot(Bitmap snapshot) {
+		notifyOutboxHandlers(Action.SET_SNAPSHOT.code, snapshot);
 	}
 
 }
