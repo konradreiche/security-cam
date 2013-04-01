@@ -73,4 +73,12 @@ public class ClientController extends Controller<ClientModel.State> {
 		notifyOutboxHandlers(Action.SET_REGISTERED_ON_SERVER.code, flag);
 	}
 
+	public void setDetectionMode() {
+		notifyOutboxHandlers(Action.SET_DETECTION_MODE.code);
+	}
+
+	public void setIdleMode() {
+		notifyOutboxHandlers(Action.SET_IDLE_MODE.code);
+	}
+
 }

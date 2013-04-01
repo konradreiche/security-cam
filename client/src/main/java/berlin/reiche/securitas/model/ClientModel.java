@@ -30,14 +30,6 @@ public class ClientModel extends Model<State> {
 		super.setState(state);
 	}
 
-	/**
-	 * @return the previous state to which the model is set again.
-	 */
-	public State onRequestFail() {
-		setState(previous);
-		return previous;
-	}
-
 	public void setRegisteredOnServer(boolean flag) {
 		registeredOnServer = flag;
 	}
