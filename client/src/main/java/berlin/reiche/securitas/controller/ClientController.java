@@ -64,9 +64,13 @@ public class ClientController extends Controller<ClientModel.State> {
 	public void alertProblem(String message) {
 		notifyOutboxHandlers(Action.ALERT_PROBLEM.code, message);
 	}
-	
+
 	public void setSnapshot(Bitmap snapshot) {
 		notifyOutboxHandlers(Action.SET_SNAPSHOT.code, snapshot);
+	}
+
+	public void setRegisteredOnServer(boolean flag) {
+		notifyOutboxHandlers(Action.SET_REGISTERED_ON_SERVER.code, flag);
 	}
 
 }

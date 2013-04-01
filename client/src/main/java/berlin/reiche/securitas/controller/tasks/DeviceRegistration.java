@@ -12,12 +12,11 @@ import org.apache.http.client.methods.HttpPost;
 import android.os.AsyncTask;
 import android.util.Log;
 import berlin.reiche.securitas.Client;
-import berlin.reiche.securitas.activies.Action;
 import berlin.reiche.securitas.activies.MainActivity;
-import berlin.reiche.securitas.controller.Controller;
+import berlin.reiche.securitas.controller.ClientController;
 import berlin.reiche.securitas.model.ClientModel;
-import berlin.reiche.securitas.model.Model;
 import berlin.reiche.securitas.model.ClientModel.State;
+import berlin.reiche.securitas.model.Model;
 import berlin.reiche.securitas.util.HttpUtilities;
 
 /**
@@ -39,11 +38,13 @@ public class DeviceRegistration extends AsyncTask<String, Void, HttpResponse> {
 
 	ClientModel model;
 
-	Controller<State> controller;
+	ClientController controller;
+
+	IOException exception;
 
 	private static String TAG = MainActivity.class.getSimpleName();
 
-	public DeviceRegistration(Model<State> model, Controller<State> controller,
+	public DeviceRegistration(Model<State> model, ClientController controller,
 			String id, Command command) {
 		super();
 		this.model = (ClientModel) model;
@@ -66,36 +67,31 @@ public class DeviceRegistration extends AsyncTask<String, Void, HttpResponse> {
 			return client.execute(post);
 		} catch (IOException e) {
 			Log.i(TAG, command + " failed, due to " + e.getMessage());
-			int what = Action.SET_REGISTERED_ON_SERVER.code;
-			model.setRegisteredOnServer(false);
-			controller.notifyOutboxHandlers(what, false);
+			exception = e;
 		} finally {
 			HttpUtilities.closeClient(client);
 		}
-
 		return null;
 	}
 
 	@Override
 	protected void onPostExecute(HttpResponse response) {
 
-		int what;
+		if (exception != null) {
+			model.setRegisteredOnServer(false);
+			controller.setRegisteredOnServer(false);
+		}
+
 		if (response == null) {
-			Log.e(TAG, "Response is null without an exception. "
+			controller.alertProblem("Response is null without an exception. "
 					+ "The endpoint probably ran into a problem.");
+		} else if (response.getStatusLine().getStatusCode() == SC_OK) {
+			boolean isRegistered = command == REGISTER;
+			model.setRegisteredOnServer(isRegistered);
+			controller.setRegisteredOnServer(isRegistered);
 		} else {
-			switch (response.getStatusLine().getStatusCode()) {
-			case SC_OK:
-				boolean isRegistered = command == REGISTER;
-				model.setRegisteredOnServer(isRegistered);
-				if (isRegistered) {
-					what = Action.SET_REGISTERED_ON_SERVER.code;
-					controller.notifyOutboxHandlers(what, isRegistered);
-				}
-				break;
-			default:
-				Log.i(TAG, response.getStatusLine().getReasonPhrase());
-			}
+			Log.i(TAG, response.getStatusLine().getReasonPhrase());
+			controller.alertProblem(response.getStatusLine().getReasonPhrase());
 		}
 	}
 
