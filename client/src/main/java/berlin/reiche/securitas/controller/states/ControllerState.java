@@ -1,6 +1,7 @@
-package berlin.reiche.securitas.controller;
+package berlin.reiche.securitas.controller.states;
 
 import android.os.Message;
+import berlin.reiche.securitas.controller.Controller;
 import berlin.reiche.securitas.model.Model;
 
 /**

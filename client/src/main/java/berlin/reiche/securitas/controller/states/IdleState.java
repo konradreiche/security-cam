@@ -1,8 +1,9 @@
-package berlin.reiche.securitas.controller;
+package berlin.reiche.securitas.controller.states;
 
 import android.os.Message;
 import android.util.Log;
 import berlin.reiche.securitas.Client;
+import berlin.reiche.securitas.controller.ClientController;
 import berlin.reiche.securitas.controller.tasks.DetectionRequest;
 import berlin.reiche.securitas.controller.tasks.DetectionRequest.DetectionCommand;
 import berlin.reiche.securitas.controller.tasks.BitmapDownloadTask;

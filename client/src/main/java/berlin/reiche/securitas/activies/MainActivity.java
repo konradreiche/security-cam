@@ -26,7 +26,7 @@ import android.widget.TextView;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.R;
 import berlin.reiche.securitas.controller.ClientController;
-import berlin.reiche.securitas.controller.DetectionState;
+import berlin.reiche.securitas.controller.states.DetectionState;
 import berlin.reiche.securitas.model.ClientModel;
 import berlin.reiche.securitas.model.ClientModel.State;
 import berlin.reiche.securitas.util.NotificationDialog;
