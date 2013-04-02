@@ -31,6 +31,11 @@ public class GCMIntentService extends GCMBaseIntentService {
 
 	private static final String NS = Context.NOTIFICATION_SERVICE;
 
+	private static final int NOTIFICATION_ID = 1;
+
+	private static final int FLAGS = Intent.FLAG_ACTIVITY_SINGLE_TOP
+			| Intent.FLAG_ACTIVITY_CLEAR_TOP;
+
 	/**
 	 * The number of motions until the first notification response.
 	 */
@@ -78,8 +83,13 @@ public class GCMIntentService extends GCMBaseIntentService {
 		NotificationManager nm = (NotificationManager) getSystemService(NS);
 		String timestamp = intent.getExtras().getString("timestamp");
 		String filename = intent.getExtras().getString("filename");
-
 		Log.i(TAG, "Received filename " + filename);
+
+		Notification notification = createNotification(timestamp, filename);
+		nm.notify(NOTIFICATION_ID, notification);
+	}
+
+	private Notification createNotification(String timestamp, String filename) {
 
 		String text = "Motion Alert";
 		if (motionsDetected > 1) {
@@ -87,27 +97,24 @@ public class GCMIntentService extends GCMBaseIntentService {
 		}
 
 		int icon = R.drawable.ic_stat;
-		CharSequence tickerText = text;
 		long when = System.currentTimeMillis();
-		Notification notification = new Notification(icon, tickerText, when);
+		Notification notification = new Notification(icon, text, when);
 		notification.defaults |= Notification.DEFAULT_ALL;
 		notification.flags |= Notification.FLAG_AUTO_CANCEL;
 
-		context = getApplicationContext();
+		Context context = getApplicationContext();
 		CharSequence contentTitle = text;
 		CharSequence contentText = timestamp;
 		Intent notificationIntent = new Intent(this, MainActivity.class);
-		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP
-				| Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		notificationIntent.setFlags(FLAGS);
 
 		notificationIntent.putExtra("filename", filename);
-
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
 				notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
 		notification.setLatestEventInfo(context, contentTitle, contentText,
 				contentIntent);
-		nm.notify(1, notification);
+
+		return notification;
 	}
 
 	/**

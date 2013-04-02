@@ -26,6 +26,7 @@ import android.widget.TextView;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.R;
 import berlin.reiche.securitas.controller.ClientController;
+import berlin.reiche.securitas.controller.GCMIntentService;
 import berlin.reiche.securitas.controller.states.DetectionState;
 import berlin.reiche.securitas.model.ClientModel;
 import berlin.reiche.securitas.model.ClientModel.State;
@@ -182,6 +183,7 @@ public class MainActivity extends Activity implements Callback {
 			lockInterface();
 			String filename = getIntent().getExtras().getString("filename");
 			controller.downloadMotionSnapshot(filename);
+			GCMIntentService.resetMotionsDetected(this);
 		}
 	}
 
