@@ -38,7 +38,7 @@ public enum Action {
 	/**
 	 * Creates a notification dialog to inform about a problem.
 	 */
-	ALERT_PROBLEM(6),
+	REPORT_ERROR(6),
 
 	/**
 	 * Updates the snapshot image.

@@ -357,7 +357,7 @@ public class MainActivity extends Activity implements Callback {
 			snapshot.setImageBitmap((Bitmap) message.obj);
 			unlockInterface(detecting);
 			break;
-		case ALERT_PROBLEM:
+		case REPORT_ERROR:
 			NotificationDialog.create(this, message.obj.toString()).show();
 			unlockInterface(detecting);
 			break;

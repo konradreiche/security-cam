@@ -11,13 +11,11 @@ import org.apache.http.client.methods.HttpGet;
 import android.os.AsyncTask;
 import android.util.Log;
 import berlin.reiche.securitas.Client;
-import berlin.reiche.securitas.activies.Action;
 import berlin.reiche.securitas.controller.ClientController;
 import berlin.reiche.securitas.controller.DetectionState;
 import berlin.reiche.securitas.model.ClientModel;
 import berlin.reiche.securitas.model.ClientModel.State;
 import berlin.reiche.securitas.model.Model;
-import berlin.reiche.securitas.model.Protocol;
 import berlin.reiche.securitas.util.HttpUtilities;
 
 public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
@@ -33,6 +31,8 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 	ClientController controller;
 
 	String motionFilename;
+
+	IOException exception;
 
 	public StatusTask(Model<State> model, ClientController controller,
 			String motionFilename) {
@@ -52,73 +52,70 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 		try {
 			return client.execute(get);
 		} catch (IOException e) {
-			String problem = "Get status failed, due to " + e.getMessage();
-			Log.e(TAG, problem);
-			int what = Action.ALERT_PROBLEM.code;
-			controller.notifyOutboxHandlers(what, problem);
-			return null;
+			exception = e;
 		} finally {
 			HttpUtilities.closeClient(client);
 		}
+		return null;
 	}
 
 	@Override
 	protected void onPostExecute(HttpResponse response) {
 
-		int what;
+		if (exception != null) {
+			String message = "Get status failed, due to ";
+			message += exception.getMessage();
+			Log.e(TAG, message);
+			controller.reportError(message);
+		}
+
 		if (response == null) {
-			what = Action.UNLOCK_INTERFACE.code;
-			controller.notifyOutboxHandlers(what, false);
+			controller.unlockInterface(false);
 			return;
 		}
 
 		try {
-			String content = getString(response.getEntity().getContent());
+			String content = readString(response.getEntity().getContent());
 			if (content == null) {
 				Log.i(TAG, "Status response is null, retry.");
-				String uri = Client.getEndpoint();
-				uri += Protocol.RESTORE_CLIENT_STATE.operation;
-				new StatusTask(model, controller, motionFilename).execute(uri);
+				controller.restoreClientState(motionFilename);
 				return;
 			}
-
 			content = content.toUpperCase(Locale.US);
 			ServerStatus status = ServerStatus.valueOf(content);
-			switch (status) {
-			case IDLE:
-				if (model.isRegisteredOnServer()) {
-					model.setRegisteredOnServer(false);
-				}
-				what = Action.UNLOCK_INTERFACE.code;
-				controller.notifyOutboxHandlers(what, false);
-				break;
-			case READY:
-				what = Action.UNLOCK_INTERFACE.code;
-				controller.notifyOutboxHandlers(what, false);
-				break;
-			case RUNNING:
-				model.setState(State.DETECTING);
-				controller.setState(new DetectionState(controller));
-				what = Action.SET_DETECTION_MODE.code;
-				controller.notifyOutboxHandlers(what);
-				if (motionFilename == null) {
-					controller.downloadLatestSnapshot();
-				} else {
-					controller.downloadMotionSnapshot(motionFilename);
-				}
-				break;
-			}
+			processResponse(response, status);
 		} catch (IOException e) {
 			String problem = "The stream of the response could not be created.";
 			Log.e(TAG, problem);
-			what = Action.UNLOCK_INTERFACE.code;
-			controller.notifyOutboxHandlers(what, false);
-			what = Action.ALERT_PROBLEM.code;
-			controller.notifyOutboxHandlers(what, problem);
+			controller.unlockInterface(false);
+			controller.reportError(problem);
 		}
 	}
 
-	public static String getString(InputStream stream) {
+	private void processResponse(HttpResponse response, ServerStatus status) {
+
+		switch (status) {
+		case IDLE:
+			model.setRegisteredOnServer(false);
+			controller.unlockInterface(false);
+			break;
+		case READY:
+			controller.unlockInterface(false);
+			break;
+		case RUNNING:
+			model.setState(State.DETECTING);
+			controller.setState(new DetectionState(controller));
+			controller.setDetectionMode();
+			if (motionFilename == null) {
+				controller.downloadLatestSnapshot();
+			} else {
+				controller.downloadMotionSnapshot(motionFilename);
+			}
+			break;
+		}
+	}
+
+	public static String readString(InputStream stream) {
 		java.util.Scanner s = new java.util.Scanner(stream).useDelimiter("\\A");
 		return s.hasNext() ? s.next() : null;
 	}

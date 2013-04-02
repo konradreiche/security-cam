@@ -57,7 +57,7 @@ public class BitmapDownloadTask extends AsyncTask<String, Void, Bitmap> {
 	@Override
 	protected void onPostExecute(Bitmap result) {
 		if (exception != null) {
-			controller.alertProblem(exception.getMessage());			
+			controller.reportError(exception.getMessage());			
 		}
 		model.setSnapshot(result);
 		controller.setSnapshot(result);

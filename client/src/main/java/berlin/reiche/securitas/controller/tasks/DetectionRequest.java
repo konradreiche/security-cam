@@ -66,12 +66,12 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 	protected void onPostExecute(HttpResponse response) {
 
 		if (exception != null && response == null) {
-			controller.alertProblem(exception.getMessage());
+			controller.reportError(exception.getMessage());
 			controller.setState(new IdleState(controller));
 		} else if (response == null) {
 			String error = "Response is null without an exception. "
 					+ "The endpoint probably ran into a problem.";
-			controller.alertProblem(error);
+			controller.reportError(error);
 			Log.e(TAG, error);
 		} else {
 			processResponse(response);
@@ -99,17 +99,17 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 		StatusLine statusLine = response.getStatusLine();
 		String status = statusLine.getStatusCode() + " ";
 		status += statusLine.getReasonPhrase();
-		controller.alertProblem(status);
+		controller.reportError(status);
 	}
 
 	private void handleAbsentDeviceRegistration() {
 		model.setRegisteredOnServer(false);
 		controller.setRegisteredOnServer(false);
-		controller.alertProblem("Device is not registered yet");
+		controller.reportError("Device is not registered yet");
 	}
 
 	private void alertAuthorizationProblem() {
-		controller.alertProblem("Unauthorized request, check "
+		controller.reportError("Unauthorized request, check "
 				+ "authentication data");
 	}
 

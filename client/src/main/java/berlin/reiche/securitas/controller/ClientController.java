@@ -61,8 +61,8 @@ public class ClientController extends Controller<ClientModel.State> {
 		inboxHandler.sendEmptyMessage(Protocol.START_DETECTION.code);
 	}
 
-	public void alertProblem(String message) {
-		notifyOutboxHandlers(Action.ALERT_PROBLEM.code, message);
+	public void reportError(String message) {
+		notifyOutboxHandlers(Action.REPORT_ERROR.code, message);
 	}
 
 	public void setSnapshot(Bitmap snapshot) {
@@ -79,6 +79,11 @@ public class ClientController extends Controller<ClientModel.State> {
 
 	public void setIdleMode() {
 		notifyOutboxHandlers(Action.SET_IDLE_MODE.code);
+	}
+
+	public void unlockInterface(boolean detecting) {
+		int what = Action.UNLOCK_INTERFACE.code;
+		notifyOutboxHandlers(what, detecting);
 	}
 
 }

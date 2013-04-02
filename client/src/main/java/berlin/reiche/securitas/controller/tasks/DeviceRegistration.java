@@ -83,7 +83,7 @@ public class DeviceRegistration extends AsyncTask<String, Void, HttpResponse> {
 		}
 
 		if (response == null) {
-			controller.alertProblem("Response is null without an exception. "
+			controller.reportError("Response is null without an exception. "
 					+ "The endpoint probably ran into a problem.");
 		} else if (response.getStatusLine().getStatusCode() == SC_OK) {
 			boolean isRegistered = command == REGISTER;
@@ -91,7 +91,7 @@ public class DeviceRegistration extends AsyncTask<String, Void, HttpResponse> {
 			controller.setRegisteredOnServer(isRegistered);
 		} else {
 			Log.i(TAG, response.getStatusLine().getReasonPhrase());
-			controller.alertProblem(response.getStatusLine().getReasonPhrase());
+			controller.reportError(response.getStatusLine().getReasonPhrase());
 		}
 	}
 
