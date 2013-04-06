@@ -67,9 +67,11 @@
 
         <activity
             android:name="berlin.reiche.securitas.activities.LauncherActivity"
-            android:label="@string/title_activity_launcher" >
+            android:label="@string/title_activity_launcher"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
