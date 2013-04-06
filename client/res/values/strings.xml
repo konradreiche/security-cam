@@ -15,7 +15,10 @@
     <string name="pref_user">User</string>
     <string name="pref_password">Password</string>
     <string name="pref_gcm_sender_id">GCM Sender ID</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="title_activity_launcher">LauncherActivity</string>
+    <string name="instructions">Please make sure you have the backend software installed.
+        This application will not work without a running backend. The Android application
+        will serve as the remote control. In the next step you will be asked to configure
+        the details. </string>
+    <string name="title_activity_launcher">Security Cam</string>
 
 </resources>

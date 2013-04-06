@@ -1,8 +1,9 @@
-package berlin.reiche.securitas;
+package berlin.reiche.securitas.activities;
 
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
+import berlin.reiche.securitas.R;
 
 public class LauncherActivity extends Activity {
 

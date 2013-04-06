@@ -1,4 +1,4 @@
-package berlin.reiche.securitas.activies;
+package berlin.reiche.securitas.activities;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;

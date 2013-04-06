@@ -12,7 +12,7 @@ import org.apache.http.client.methods.HttpPost;
 import android.os.AsyncTask;
 import android.util.Log;
 import berlin.reiche.securitas.Client;
-import berlin.reiche.securitas.activies.MainActivity;
+import berlin.reiche.securitas.activities.MainActivity;
 import berlin.reiche.securitas.controller.ClientController;
 import berlin.reiche.securitas.model.ClientModel;
 import berlin.reiche.securitas.model.ClientModel.State;

@@ -2,7 +2,7 @@ package berlin.reiche.securitas.controller;
 
 import android.graphics.Bitmap;
 import android.os.Message;
-import berlin.reiche.securitas.activies.Action;
+import berlin.reiche.securitas.activities.Action;
 import berlin.reiche.securitas.controller.states.IdleState;
 import berlin.reiche.securitas.model.ClientModel;
 import berlin.reiche.securitas.model.Protocol;

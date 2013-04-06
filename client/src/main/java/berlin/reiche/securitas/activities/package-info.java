@@ -4,4 +4,4 @@
  * @author Konrad Reiche
  * 
  */
-package berlin.reiche.securitas.activies;
+package berlin.reiche.securitas.activities;

@@ -3,8 +3,8 @@ package berlin.reiche.securitas;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import berlin.reiche.securitas.activies.MainActivity;
-import berlin.reiche.securitas.activies.SettingsActivity;
+import berlin.reiche.securitas.activities.MainActivity;
+import berlin.reiche.securitas.activities.SettingsActivity;
 import berlin.reiche.securitas.controller.ClientController;
 import berlin.reiche.securitas.model.ClientModel;
 
