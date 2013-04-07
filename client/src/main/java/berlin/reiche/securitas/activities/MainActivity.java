@@ -116,7 +116,7 @@ public class MainActivity extends Activity implements Callback {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.i(TAG, "onCreate");
-		setContentView(R.layout.main);
+		setContentView(R.layout.activity_main);
 
 		Client.setModel(new ClientModel());
 		Client.setController(new ClientController(Client.getModel()));
