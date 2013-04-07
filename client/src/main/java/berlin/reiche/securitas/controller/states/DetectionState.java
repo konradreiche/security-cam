@@ -17,6 +17,8 @@ public class DetectionState extends ControllerState<State> {
 	 */
 	private static final String TAG = DetectionState.class.getSimpleName();
 
+	BitmapDownloadTask bitmapDownloadTask;
+
 	/**
 	 * Hides the super class controller field in order to avoid type casting.
 	 */
@@ -32,6 +34,7 @@ public class DetectionState extends ControllerState<State> {
 		Protocol request = Protocol.valueOf(msg.what);
 		switch (request) {
 		case STOP_DETECTION:
+			cancelSnapshotDownload();
 			requestDetectionStop();
 			break;
 		case DOWNLOAD_LATEST_SNAPSHOT:
@@ -49,7 +52,8 @@ public class DetectionState extends ControllerState<State> {
 	private void downloadMotionSnapshot(String filename) {
 		String uri = Client.getEndpoint();
 		uri += Protocol.DOWNLOAD_MOTION_SNAPSHOT.operation + filename;
-		new BitmapDownloadTask(model, controller).execute(uri);
+		bitmapDownloadTask = new BitmapDownloadTask(model, controller);
+		bitmapDownloadTask.execute(uri);
 	}
 
 	private void requestDetectionStop() {
@@ -62,7 +66,14 @@ public class DetectionState extends ControllerState<State> {
 	private void downloadLatestSnapshot() {
 		String uri = Client.getEndpoint();
 		uri += Protocol.DOWNLOAD_LATEST_SNAPSHOT.operation;
-		new BitmapDownloadTask(model, controller).execute(uri);
+		bitmapDownloadTask = new BitmapDownloadTask(model, controller);
+		bitmapDownloadTask.execute(uri);
+	}
+
+	private void cancelSnapshotDownload() {
+		if (bitmapDownloadTask != null) {
+			bitmapDownloadTask.cancel(true);
+		}
 	}
 
 }
