@@ -82,12 +82,12 @@ public class MainActivity extends Activity implements Callback {
 	public ProgressBar progress;
 
 	/**
-	 * Simply a headline.
+	 * Headline title.
 	 */
 	public TextView headline;
 
 	/**
-	 * Simply a subtitle to the headline.
+	 * Headline subtitle.
 	 */
 	public TextView subtitle;
 
@@ -204,6 +204,10 @@ public class MainActivity extends Activity implements Callback {
 		}
 	}
 
+	/**
+	 * Initializes the application menu, used to make the
+	 * {@link SettingsActivity} accessible.
+	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
@@ -211,6 +215,10 @@ public class MainActivity extends Activity implements Callback {
 		return true;
 	}
 
+	/**
+	 * Initializes actions for the application menu, used to make the
+	 * {@link SettingsActivity} accessible.
+	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -278,6 +286,15 @@ public class MainActivity extends Activity implements Callback {
 		}
 	}
 
+	/**
+	 * Starts the settings activity. This method is used when accessing the
+	 * {@link SettingsActivity} via the menu and when it is required due to
+	 * incomplete endpoint configuration.
+	 * 
+	 * @param force
+	 *            whether instruction should be displayed which tell the user
+	 *            that he/she needs to complete the endpoint configuration.
+	 */
 	private void startSettingsActivity(boolean force) {
 		Intent intent = new Intent(this, SettingsActivity.class);
 		intent.putExtra(SettingsActivity.DISPLAY_INSTRUCTION, force);
@@ -301,6 +318,10 @@ public class MainActivity extends Activity implements Callback {
 		}
 	}
 
+	/**
+	 * Locks the interface so the user cannot interact anymore until the current
+	 * actions have finished.
+	 */
 	public void lockInterface() {
 		detectionToggle.setEnabled(false);
 		snapshot.setEnabled(false);
@@ -324,11 +345,22 @@ public class MainActivity extends Activity implements Callback {
 		}
 	}
 
+	/**
+	 * Issues a request to download the latest snapshot.
+	 * 
+	 * @param view
+	 *            not required.
+	 */
 	public void refreshSnapshot(View view) {
 		lockInterface();
 		controller.downloadLatestSnapshot();
 	}
 
+	/**
+	 * Callback handler which is used to react on messages sent from the
+	 * controller. This method is called if there are new changes which need to
+	 * be displayed on the interface.
+	 */
 	@Override
 	public boolean handleMessage(Message message) {
 

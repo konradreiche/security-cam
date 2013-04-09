@@ -9,17 +9,61 @@ import berlin.reiche.securitas.util.NotificationDialog;
 
 import com.google.android.gcm.GCMRegistrar;
 
+/**
+ * Settings activity for configuring the server endpoint.
+ * 
+ * @author Konrad Reiche
+ * 
+ */
+/**
+ * @author Konrad
+ *
+ */
+/**
+ * @author Konrad
+ * 
+ */
 public class SettingsActivity extends PreferenceActivity {
 
+	/**
+	 * Key for the host preference.
+	 */
 	public static final String HOST = "pref_host";
+
+	/**
+	 * Key for the port preference.
+	 */
 	public static final String PORT = "pref_port";
+
+	/**
+	 * Key for the user preference.
+	 */
 	public static final String USER = "pref_user";
+
+	/**
+	 * Key for the password preference.
+	 */
 	public static final String PASSWORD = "pref_password";
+
+	/**
+	 * Key for the GCM Sender ID preference.
+	 */
 	public static final String GCM_SENDER_ID = "pref_gcm_sender_id";
 
+	/**
+	 * Key for displaying instruction boolean.
+	 */
 	public static final String DISPLAY_INSTRUCTION = "displayInstruction";
+
+	/**
+	 * Tag for logging.
+	 */
 	private static final String TAG = SettingsActivity.class.getSimpleName();
 
+	/**
+	 * Creates the preference screen and issues a notification dialog based on
+	 * the intent that started this activity.
+	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "onCreate");
@@ -29,14 +73,18 @@ public class SettingsActivity extends PreferenceActivity {
 			NotificationDialog.create(this, R.string.configuration_hint).show();
 		}
 	}
-	
+
+	/**
+	 * When the user hits the back button the settings need to be updated and
+	 * propagated.
+	 */
 	@Override
 	public void onPause() {
 		super.onPause();
 		Client.updateSettings(this);
 		manageDeviceRegistration();
 	}
-	
+
 	/**
 	 * Registers the device on the GCM service. If the device is already
 	 * registered the cached registration ID will be used.
@@ -53,6 +101,5 @@ public class SettingsActivity extends PreferenceActivity {
 			Client.getController().registerDevice(id);
 		}
 	}
-	
 
 }

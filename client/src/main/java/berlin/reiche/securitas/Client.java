@@ -111,7 +111,7 @@ public class Client {
 	 * be the case after the {@link SettingsActivity} was processed.
 	 * 
 	 * @param context
-	 *            The context of the preferences whose values are wanted.
+	 *            the context of the preferences whose values are wanted.
 	 */
 	public static void updateSettings(Context context) {
 
@@ -132,9 +132,16 @@ public class Client {
 				&& !gcmId.equals("");
 	}
 
+	/**
+	 * Checks whether the endpoint is completely configured.
+	 * 
+	 * @param context
+	 *            the context of the preferences whose values are wanted.
+	 * @return whether the endpoint configuration is complete.
+	 */
 	public static boolean isConfigured(Context context) {
 		updateSettings(context);
 		return configured;
 	}
-	
+
 }

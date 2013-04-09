@@ -20,6 +20,9 @@ import berlin.reiche.securitas.model.ClientModel.State;
  */
 public class IdleState extends ControllerState<State> {
 
+	/**
+	 * Tag for logging.
+	 */
 	private static final String TAG = IdleState.class.getSimpleName();
 
 	/**
@@ -27,11 +30,21 @@ public class IdleState extends ControllerState<State> {
 	 */
 	ClientController controller;
 
+	/**
+	 * Default constructor.
+	 * 
+	 * @param controller
+	 *            controller reference for issuing requests.
+	 */
 	public IdleState(ClientController controller) {
 		super(controller);
 		this.controller = controller;
 	}
 
+	/**
+	 * Handles incoming messages from the interface based on the defined
+	 * {@link Protocol}.
+	 */
 	@Override
 	public void handleMessage(Message msg) {
 
@@ -61,36 +74,72 @@ public class IdleState extends ControllerState<State> {
 		}
 	}
 
+	/**
+	 * Downloads the latest snapshot, respectively issues to create a current
+	 * one.
+	 */
 	private void downloadLatestSnapshot() {
 		String uri = Client.getEndpoint();
 		uri += Protocol.DOWNLOAD_LATEST_SNAPSHOT.operation;
 		new BitmapDownloadTask(model, controller).execute(uri);
 	}
 
+	/**
+	 * Downloads a specified snapshot.
+	 * 
+	 * @param filename
+	 *            the filename of the snapshot that should be downloaded.
+	 */
 	private void downloadMotionSnapshot(String filename) {
 		String uri = Client.getEndpoint();
 		uri += Protocol.DOWNLOAD_MOTION_SNAPSHOT.operation + filename;
 		new BitmapDownloadTask(model, controller).execute(uri);
 	}
 
+	/**
+	 * Synchronize the client with the server backend.
+	 * 
+	 * @param motionFilename
+	 *            If a notification was selected then the client is synchronized
+	 *            and the snapshot that triggered a motion event is fetched.
+	 */
 	private void restoreClientState(String motionFilename) {
 		String uri = Client.getEndpoint()
 				+ Protocol.RESTORE_CLIENT_STATE.operation;
 		new StatusTask(model, controller, motionFilename).execute(uri);
 	}
 
+	/**
+	 * Issues a detection start.
+	 */
 	private void requestDetectionStart() {
 		String uri = Client.getEndpoint() + Protocol.START_DETECTION.operation;
 		new DetectionRequest(model, controller, DetectionCommand.START)
 				.execute(uri);
 	}
 
+	/**
+	 * Registers the device with the server endpoint in order to be able to
+	 * receive push notifications and issue a detection start in the first
+	 * place.
+	 * 
+	 * @param id
+	 *            id which is used for identifying the device in order to
+	 *            receive push notifications.
+	 */
 	private void registerDevice(String id) {
 		String uri = Client.getEndpoint() + Protocol.REGISTER_DEVICE.operation;
 		new DeviceRegistration(model, controller, id,
 				DeviceRegistration.Command.REGISTER).execute(uri);
 	}
 
+	/**
+	 * Undo the device registration.
+	 * 
+	 * @param id
+	 *            id which was used for identifying the device for receiving
+	 *            push notifications.
+	 */
 	private void unregisterDevice(String id) {
 		String uri = Client.getEndpoint()
 				+ Protocol.UNREGISTER_DEVICE.operation;

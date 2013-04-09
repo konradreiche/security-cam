@@ -1,9 +1,12 @@
 package berlin.reiche.securitas.activities;
 
+import android.os.Message;
 import android.util.SparseArray;
 
 /**
- * Actions that are processed by the activities to update the interface.
+ * Actions that are processed by the activities to update the interface. Each
+ * action is associated with a numerical code in order to be compatible with the
+ * methods provided by the {@link Message} class.
  * 
  * @author Konrad Reiche
  * 
