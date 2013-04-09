@@ -19,20 +19,57 @@ import berlin.reiche.securitas.model.Model;
 import berlin.reiche.securitas.util.FlushedInputStream;
 import berlin.reiche.securitas.util.HttpUtilities;
 
+/**
+ * Asynchronous task for downloading snapshots from the backend.
+ * 
+ * @author Konrad Reiche
+ * 
+ */
+/**
+ * @author Konrad
+ * 
+ */
 public class BitmapDownloadTask extends AsyncTask<String, Void, Bitmap> {
-	
+
+	/**
+	 * The model is used for setting the bitmap after the snapshot has been
+	 * received.
+	 */
 	ClientModel model;
 
+	/**
+	 * The controller is used to communicate with the interface if there are
+	 * changes.
+	 */
 	ClientController controller;
-	
+
+	/**
+	 * The exception is stored in a field, this way the exception can be
+	 * processed after the background task has been finished.
+	 */
 	IOException exception;
 
+	/**
+	 * Default constructor.
+	 * 
+	 * @param model
+	 *            the model is used for setting the bitmap after the snapshot
+	 *            has been received.
+	 * @param controller
+	 *            the controller is used to communicate with the interface if
+	 *            there are changes.
+	 */
 	public BitmapDownloadTask(Model<State> model, ClientController controller) {
 		super();
 		this.model = (ClientModel) model;
 		this.controller = controller;
 	}
 
+	/**
+	 * Issues a HTTP GET request and reads the response which is used to
+	 * construct the final {@link Bitmap}. A customized flushed input stream is
+	 * used in order to avoid a bug in the Android library.
+	 */
 	@Override
 	protected Bitmap doInBackground(String... url) {
 
@@ -54,10 +91,13 @@ public class BitmapDownloadTask extends AsyncTask<String, Void, Bitmap> {
 		return null;
 	}
 
+	/**
+	 * Sets the snapshot and reports back to interface.
+	 */
 	@Override
 	protected void onPostExecute(Bitmap result) {
 		if (exception != null) {
-			controller.reportError(exception.getMessage());			
+			controller.reportError(exception.getMessage());
 		}
 		model.setSnapshot(result);
 		controller.setSnapshot(result);

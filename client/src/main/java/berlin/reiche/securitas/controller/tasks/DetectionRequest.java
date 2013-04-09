@@ -23,22 +23,67 @@ import berlin.reiche.securitas.model.ClientModel.State;
 import berlin.reiche.securitas.model.Model;
 import berlin.reiche.securitas.util.HttpUtilities;
 
+/**
+ * Asynchronous task for requesting a change to the motion detection. Either to
+ * start the motion detection or to stop the motion detection.
+ * 
+ * @author Konrad Reiche
+ * 
+ */
 public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 
+	/**
+	 * Detection command is used to distinguish between which kind of detection
+	 * request issued.
+	 * 
+	 * @author Konrad Reiche
+	 * 
+	 */
 	public enum DetectionCommand {
 		START, STOP
 	};
 
+	/**
+	 * The exception is stored in a field, this way the exception can be
+	 * processed after the background task has been finished.
+	 */
 	IOException exception;
 
+	/**
+	 * Detection command is used to distinguish between which kind of detection
+	 * request issued.
+	 */
 	DetectionCommand command;
 
+	/**
+	 * The model is used for setting the bitmap after the snapshot has been
+	 * received.
+	 */
 	ClientModel model;
 
+	/**
+	 * The controller is used to communicate with the interface if there are
+	 * changes.
+	 */
 	ClientController controller;
 
+	/**
+	 * Tag for logging.
+	 */
 	private static String TAG = DetectionRequest.class.getSimpleName();
 
+	/**
+	 * Default constructor.
+	 * 
+	 * @param model
+	 *            the model is used for setting the bitmap after the snapshot
+	 *            has been received.
+	 * @param controller
+	 *            the controller is used to communicate with the interface if
+	 *            there are changes.
+	 * @param command
+	 *            the kind of detection command that should be issued.
+	 */
 	public DetectionRequest(Model<State> model, ClientController controller,
 			DetectionCommand command) {
 		this.model = (ClientModel) model;
@@ -46,6 +91,9 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 		this.command = command;
 	}
 
+	/**
+	 * Issues a HTTP GET request based on the given URI.
+	 */
 	@Override
 	protected HttpResponse doInBackground(String... uri) {
 
@@ -63,6 +111,9 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 		return null;
 	}
 
+	/**
+	 * Processed the HTTP response.
+	 */
 	protected void onPostExecute(HttpResponse response) {
 
 		if (exception != null && response == null) {
@@ -78,8 +129,16 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 		}
 	}
 
+	/**
+	 * There are three possible outcomes: the server has executed the request,
+	 * the request was made with credentials which could not be authenticated
+	 * and the server is not ready to receive detection requests.
+	 * 
+	 * @param response
+	 *            the response to the request.
+	 */
 	private void processResponse(HttpResponse response) {
-		
+
 		switch (response.getStatusLine().getStatusCode()) {
 		case SC_OK:
 			performDetectionRequest();
@@ -95,6 +154,11 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 		}
 	}
 
+	/**
+	 * Wrapper for process the default case.
+	 * 
+	 * @param response 
+	 */
 	private void handleOtherErrors(HttpResponse response) {
 		StatusLine statusLine = response.getStatusLine();
 		String status = statusLine.getStatusCode() + " ";
