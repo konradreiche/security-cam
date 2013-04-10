@@ -25,10 +25,6 @@ import berlin.reiche.securitas.util.HttpUtilities;
  * @author Konrad Reiche
  * 
  */
-/**
- * @author Konrad
- * 
- */
 public class BitmapDownloadTask extends AsyncTask<String, Void, Bitmap> {
 
 	/**

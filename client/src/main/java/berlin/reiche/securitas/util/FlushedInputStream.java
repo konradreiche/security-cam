@@ -22,6 +22,12 @@ import android.graphics.BitmapFactory;
  */
 public class FlushedInputStream extends FilterInputStream {
 
+	/**
+	 * Default constructor.
+	 * 
+	 * @param inputStream
+	 *            the input stream to be wrapped.
+	 */
 	public FlushedInputStream(InputStream inputStream) {
 		super(inputStream);
 	}

@@ -17,17 +17,39 @@ import android.net.http.AndroidHttpClient;
 import android.util.Base64;
 import android.util.Log;
 
+/**
+ * A utility class with functionality for the HTTP communication.
+ * 
+ * @author Konrad Reiche
+ * 
+ */
 public class HttpUtilities {
 
+	/**
+	 * Tag for logging.
+	 */
 	private static final String TAG = HttpUtilities.class.getSimpleName();
 
-	// configuration in one place
+	/**
+	 * The Android HTTP client is used over and over again. This factory method
+	 * constructs one and sets the appropriate parameters.
+	 * 
+	 * @return a fully configured Android HTTP client.
+	 */
 	public static AndroidHttpClient newHttpClient() {
 		AndroidHttpClient client = AndroidHttpClient.newInstance("Android");
 		client.getParams().setIntParameter("http.connection.timeout", 2000);
 		return client;
 	}
 
+	/**
+	 * Sets the headers for delivering the credentials.
+	 * 
+	 * @param request
+	 *            The request to be modified.
+	 * @param settings
+	 *            the settings containing the necessary credentials.
+	 */
 	public static void setAuthorization(HttpRequestBase request,
 			Settings settings) {
 
@@ -39,6 +61,15 @@ public class HttpUtilities {
 		request.setHeader("Authorization", "Basic " + credentials);
 	}
 
+	/**
+	 * Sets the request body by taking a data array and transforming it to
+	 * parameter-value pairs.
+	 * 
+	 * @param request
+	 *            the request to be modified.
+	 * @param data
+	 *            two-dimensional data array containing parameter-value pairs.
+	 */
 	public static void setRequestBody(HttpPost request, String[][] data) {
 
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
@@ -52,13 +83,18 @@ public class HttpUtilities {
 		}
 	}
 
+	/**
+	 * Wrapper for closing the connection of a Android HTTP client.
+	 * 
+	 * @param client
+	 *            the client to be closed.
+	 */
 	public static void closeClient(HttpClient client) {
 		if (client instanceof AndroidHttpClient) {
 			((AndroidHttpClient) client).close();
 		} else {
 			client.getConnectionManager().shutdown();
 		}
-
 	}
 
 }

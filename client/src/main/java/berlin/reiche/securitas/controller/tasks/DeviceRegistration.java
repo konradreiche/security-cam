@@ -28,22 +28,59 @@ import berlin.reiche.securitas.util.HttpUtilities;
  */
 public class DeviceRegistration extends AsyncTask<String, Void, HttpResponse> {
 
+	/**
+	 * This command is used to distinguish whether the device should be
+	 * registered or unregistered with/from the endpoint.
+	 * 
+	 * @author Konrad Reiche
+	 * 
+	 */
 	public enum Command {
 		REGISTER, UNREGISTER
 	};
 
+	/**
+	 * Used to uniquely identify the device.
+	 */
 	String id;
 
+	/**
+	 * This command is stored for post-processing after the task has finished.
+	 */
 	Command command;
 
+	/**
+	 * The model is required for updating the state.
+	 */
 	ClientModel model;
 
+	/**
+	 * The controller is required for updating the interface.
+	 */
 	ClientController controller;
 
+	/**
+	 * The exception is post-processed after the task has finished.
+	 */
 	IOException exception;
 
+	/**
+	 * Tag for logging.
+	 */
 	private static String TAG = MainActivity.class.getSimpleName();
 
+	/**
+	 * Default constructor.
+	 * 
+	 * @param model
+	 *            the model is required for updating the state.
+	 * @param controller
+	 *            the controller is required for updating the interface.
+	 * @param id
+	 *            the id for the device registration.
+	 * @param command
+	 *            whether the id should be registered or unregistered.
+	 */
 	public DeviceRegistration(Model<State> model, ClientController controller,
 			String id, Command command) {
 		super();
@@ -53,6 +90,9 @@ public class DeviceRegistration extends AsyncTask<String, Void, HttpResponse> {
 		this.command = command;
 	}
 
+	/**
+	 * Performs the HTTP request with the provided URI.
+	 */
 	@Override
 	protected HttpResponse doInBackground(String... uri) {
 
@@ -74,6 +114,9 @@ public class DeviceRegistration extends AsyncTask<String, Void, HttpResponse> {
 		return null;
 	}
 
+	/**
+	 * Update the model and interface afterwards.
+	 */
 	@Override
 	protected void onPostExecute(HttpResponse response) {
 

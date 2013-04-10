@@ -155,9 +155,10 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 	}
 
 	/**
-	 * Wrapper for process the default case.
+	 * Processes all other responses.
 	 * 
-	 * @param response 
+	 * @param response
+	 *            the response to the request.
 	 */
 	private void handleOtherErrors(HttpResponse response) {
 		StatusLine statusLine = response.getStatusLine();
@@ -166,17 +167,26 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 		controller.reportError(status);
 	}
 
+	/**
+	 * Process HTTP 409 (Conflict)
+	 */
 	private void handleAbsentDeviceRegistration() {
 		model.setRegisteredOnServer(false);
 		controller.setRegisteredOnServer(false);
 		controller.reportError("Device is not registered yet");
 	}
 
+	/**
+	 * Reports the authorization problem to the interface.
+	 */
 	private void alertAuthorizationProblem() {
 		controller.reportError("Unauthorized request, check "
 				+ "authentication data");
 	}
 
+	/**
+	 * Finishes the detection request by updating the model and interface.
+	 */
 	private void performDetectionRequest() {
 		State newState = (command == START) ? State.DETECTING : State.IDLE;
 		model.setState(newState);

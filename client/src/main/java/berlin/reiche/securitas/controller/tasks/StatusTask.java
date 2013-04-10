@@ -18,22 +18,64 @@ import berlin.reiche.securitas.model.ClientModel.State;
 import berlin.reiche.securitas.model.Model;
 import berlin.reiche.securitas.util.HttpUtilities;
 
+/**
+ * This task is used to synchronize the client with the state of the server.
+ * 
+ * @author Konrad Reiche
+ * 
+ */
 public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 
+	/**
+	 * Different states of the server.
+	 * 
+	 * @author Konrad Reiche
+	 * 
+	 */
 	public enum ServerStatus {
 		IDLE, READY, RUNNING
 	}
 
+	/**
+	 * Tag for logging.
+	 */
 	private static final String TAG = StatusTask.class.getSimpleName();
 
+	/**
+	 * The model is required for updating the state.
+	 */
 	ClientModel model;
 
+	/**
+	 * The controller is required for updating the interface.
+	 */
 	ClientController controller;
 
+	/**
+	 * If the status task is executed due to the selection of a motion
+	 * notification this string is used to fetch the snapshot during the
+	 * synchronization.
+	 */
 	String motionFilename;
 
+	/**
+	 * The exception is stored here so it can be post-processed after the task
+	 * has been executed.
+	 */
 	IOException exception;
 
+	/**
+	 * Default constructor.
+	 * 
+	 * @param model
+	 *            the model is required for updating the state.
+	 * @param controller
+	 *            the controller is required for updating the interface.
+	 * @param motionFilename
+	 *            if the status task is executed due to the selection of a
+	 *            motion notification this string is used to fetch the snapshot
+	 *            during the synchronization.
+	 */
 	public StatusTask(Model<State> model, ClientController controller,
 			String motionFilename) {
 		super();
@@ -42,6 +84,9 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 		this.motionFilename = motionFilename;
 	}
 
+	/**
+	 * Performs the HTTP request with the provided URI.
+	 */
 	@Override
 	protected HttpResponse doInBackground(String... uri) {
 
@@ -59,6 +104,9 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 		return null;
 	}
 
+	/**
+	 * Reads the content of the response and processes it.
+	 */
 	@Override
 	protected void onPostExecute(HttpResponse response) {
 
@@ -92,6 +140,15 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 		}
 	}
 
+	/**
+	 * Processes the response and performs different action based on the server
+	 * state.
+	 * 
+	 * @param response
+	 *            the response to the request.
+	 * @param status
+	 *            the parsed server state.
+	 */
 	private void processResponse(HttpResponse response, ServerStatus status) {
 
 		switch (status) {
@@ -115,6 +172,13 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 		}
 	}
 
+	/**
+	 * Utility method for reading an {@link InputStream} to a string.
+	 * 
+	 * @param stream
+	 *            the stream of the received response.
+	 * @return the content read into a string.
+	 */
 	public static String readString(InputStream stream) {
 		java.util.Scanner s = new java.util.Scanner(stream).useDelimiter("\\A");
 		return s.hasNext() ? s.next() : null;

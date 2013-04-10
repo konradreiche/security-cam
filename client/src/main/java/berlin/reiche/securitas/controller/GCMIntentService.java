@@ -15,8 +15,19 @@ import berlin.reiche.securitas.model.Protocol;
 
 import com.google.android.gcm.GCMBaseIntentService;
 
+/**
+ * The GCM Intent Service is used to process received push notifications. For
+ * now this means that a motion was detected and now the device is notified
+ * about that.
+ * 
+ * @author Konrad Reiche
+ * 
+ */
 public class GCMIntentService extends GCMBaseIntentService {
 
+	/**
+	 * Tag for logging.
+	 */
 	private static String TAG = GCMIntentService.class.getSimpleName();
 
 	/**
@@ -29,10 +40,21 @@ public class GCMIntentService extends GCMBaseIntentService {
 	 */
 	static final String EXTRA_MESSAGE = "message";
 
+	/**
+	 * Identifies the notification system service for retrieving the object for
+	 * it.
+	 */
 	private static final String NS = Context.NOTIFICATION_SERVICE;
 
+	/**
+	 * Unique identifier across different types of notifications.
+	 */
 	private static final int NOTIFICATION_ID = 1;
 
+	/**
+	 * Used to make sure that after a notification is selected no new activies
+	 * are spawned.
+	 */
 	private static final int FLAGS = Intent.FLAG_ACTIVITY_SINGLE_TOP
 			| Intent.FLAG_ACTIVITY_CLEAR_TOP;
 
@@ -41,6 +63,9 @@ public class GCMIntentService extends GCMBaseIntentService {
 	 */
 	static volatile int motionsDetected = 0;
 
+	/**
+	 * Default constructor.
+	 */
 	public GCMIntentService() {
 		super();
 	}
@@ -89,6 +114,15 @@ public class GCMIntentService extends GCMBaseIntentService {
 		nm.notify(NOTIFICATION_ID, notification);
 	}
 
+	/**
+	 * Factory method for building the notification object.
+	 * 
+	 * @param timestamp
+	 *            the time when the motion was detected.
+	 * @param filename
+	 *            name of the file storing the snapshot.
+	 * @return the constructed notification object.
+	 */
 	private Notification createNotification(String timestamp, String filename) {
 
 		String text = "Motion Alert";
@@ -146,6 +180,12 @@ public class GCMIntentService extends GCMBaseIntentService {
 				Protocol.UNREGISTER_DEVICE.code, registrationId));
 	}
 
+	/**
+	 * Used to reset the counter for the number of motions detected.
+	 * 
+	 * @param context
+	 *            the context from which this method is invoked.
+	 */
 	public static void resetMotionsDetected(Context context) {
 		motionsDetected = 0;
 		((NotificationManager) context.getSystemService(NS)).cancelAll();
