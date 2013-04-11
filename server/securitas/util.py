@@ -1,8 +1,14 @@
+""" Utility functionality."""
 import ConfigParser
 import fileinput
 
 
 def read_settings(path):
+    """Reads the settings from a configuration file which are necessary for
+    establish required user authentication and push notification via Google
+    Cloud Message Service (GCM).
+
+    """
     config = ConfigParser.RawConfigParser()
     config.read(path)
     user = config.get('Authentication', 'user')
