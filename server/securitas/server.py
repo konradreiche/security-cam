@@ -34,7 +34,7 @@ class MotionProcess(object):
         elif self.process is None:
             LOG.info('Start motion process')
             self.process = subprocess.Popen(['motion', '-c',
-                                             'etc/motion.conf'])
+                                             'conf/motion.conf'])
         else:
             LOG.info('Motion process already running')
 
@@ -73,7 +73,7 @@ class MotionProcess(object):
         self.snapshot_event.clear()
 
 
-settings = util.read_settings('etc/settings.cfg')
+settings = util.read_settings('conf/settings.cfg')
 
 
 def authenticate(func):
