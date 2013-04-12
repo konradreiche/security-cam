@@ -1,3 +1,8 @@
+"""
+HTTP server for controlling the Motion process and serving the Android
+application. The module consists of the motion process and the functions for
+routing the HTTP requests.
+"""
 from bottle import abort, get, post, request, run, static_file, parse_auth
 from events import SnapshotEventHandler
 from notifier import AlertNotifier
@@ -17,7 +22,9 @@ LOG.addHandler(logging.StreamHandler())
 
 
 class MotionProcess(object):
-    """Encapsulates the motion process handling"""
+    """
+    Encapsulates the motion process handling.
+    """
 
     def __init__(self, settings):
         self.process = None
@@ -29,6 +36,10 @@ class MotionProcess(object):
         self.notifier = None
 
     def start(self):
+        """
+        Encapsulates the start procedure for creating the Motion process.
+        """
+
         if self.device is None:
             abort(409, 'Cannot start motion detection without device')
         elif self.process is None:
@@ -39,11 +50,19 @@ class MotionProcess(object):
             LOG.info('Motion process already running')
 
     def stop(self):
+        """
+        Encapsulates the start procedure for killing the Motion process.
+        """
+
         if self.process is not None:
             self.process.kill()
             self.process = None
 
     def status(self):
+        """
+        Returns the server state based on the device and process state.
+        """
+
         if self.device is None:
             return 'Idle'
         elif self.process is None:
@@ -51,23 +70,41 @@ class MotionProcess(object):
         else:
             return 'Running'
 
-    def set_device(self, id):
-        self.device = id
-        if id is None:
+    def set_device(self, identifier):
+        """
+        Method for registering the device with the server.
+        """
+
+        self.device = identifier
+        if identifier is None:
             self.notifier = None
         else:
             self.notifier = AlertNotifier(self.settings,  id)
 
     def alert(self, filename):
+        """
+        Sends a push notification to the registered device.
+        """
+
         self.notifier.notify(filename)
 
     def request_snapshot(self):
+        """
+        Issues the creation of a new snapshot and returns it after the file has
+        been saved.
+        """
+
         url = 'http://localhost:%d/0/action/snapshot' % self.control_port
         requests.get(url)
         self.snapshot_event.wait()
         return self.latest_snapshot
 
     def notify_about_snapshot(self, filename):
+        """
+        Used to set the filename and clear the lock so the request snapshot
+        routine eventually returns the image.
+        """
+
         self.latest_snapshot = filename
         self.snapshot_event.set()
         self.snapshot_event.clear()
@@ -77,7 +114,15 @@ settings = util.read_settings('conf/settings.cfg')
 
 
 def authenticate(func):
+    """
+    Parses the credentials from the HTTP header and validates them.
+    """
+
     def validate(*args, **kwargs):
+        """
+        Validation function for checking the credentials.
+        """
+
         auth_header = request.headers.get('Authorization')
         if auth_header is None:
             abort(401, 'Access denied')
@@ -101,24 +146,38 @@ observer.start()
 
 @get('/server/status', apply=[authenticate])
 def get_status():
+    """
+    For synchnorizing the client with the server state.
+    """
+
     return motion.status()
 
 
 @get('/motion/detection/start', apply=[authenticate])
 def start_motion_detection():
-    """Starts the motion process including detection for motion"""
+    """
+    Starts the motion process including detection for motion.
+    """
+
     motion.start()
     time.sleep(3)  # camera initialization phase
 
 
 @get('/motion/detection/stop', apply=[authenticate])
 def stop_motion_detection():
-    """Stops the motion process"""
+    """
+    Stops the motion process by killing it.
+    """
+
     motion.stop()
 
 
 @get('/server/action/snapshot', apply=[authenticate])
 def make_snapshot():
+    """
+    Issues the creation of a new snapshot.
+    """
+
     filename = motion.request_snapshot()
     return static_file(filename, root='captures',
                        mimetype='image/jpg')
@@ -126,23 +185,37 @@ def make_snapshot():
 
 @get('/static/captures/<filename:re:.*\.jpg>', apply=[authenticate])
 def send_snapshot(filename):
+    """
+    Returns the specified snapshot, used for returning either a new current
+    snapshot or a snapshot that triggered the motion detection.
+    """
+
     return static_file(filename, root='captures', mimetype='image/jpg')
 
 
 @post('/device/register', apply=[authenticate])
 def register_device():
-    id = request.forms.get('id')
-    if id is None:
+    """
+    Registers the client as device with the server. The identifier has to be
+    defined in the HTTP header.
+    """
+
+    identifier = request.forms.get('identifier')
+    if identifier is None:
         abort(400, 'Bad request')
     else:
-        LOG.debug('Register device %s' % id)
-        motion.set_device(id)
+        LOG.debug('Register device %s' % identifier)
+        motion.set_device(identifier)
 
 
 @post('/device/unregister', apply=[authenticate])
 def unregister_device():
-    id = request.forms.get('id')
-    LOG.debug('Unregister device %s' % id)
+    """
+    Unregisters the device again.
+    """
+
+    identifier = request.forms.get('identifier')
+    LOG.debug('Unregister device %s' % identifier)
     motion.set_device(None)
 
 
