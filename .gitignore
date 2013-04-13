@@ -33,6 +33,7 @@ local.properties
 # Settings file
 settings.cfg
 motion.conf
+dropbox_token_file
 
 # Vim
 *.swp

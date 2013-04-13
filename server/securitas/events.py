@@ -8,6 +8,8 @@ from watchdog.events import FileSystemEventHandler
 import os
 import webbrowser
 
+TOKEN_FILE = 'conf/dropbox_token_file'
+
 
 class SnapshotEventHandler(FileSystemEventHandler):
     """
@@ -41,22 +43,41 @@ class SnapshotEventHandler(FileSystemEventHandler):
                                             settings['dropbox_app_secret'],
                                             settings['dropbox_access_type'])
 
-        request_token = db_session.obtain_request_token()
-        url = db_session.build_authorize_url(request_token)
-
-        save_output = os.dup(1)
-        os.close(1)
-        os.open(os.devnull, os.O_RDWR)
-        try:
-            webbrowser.open(url)
-        finally:
-            os.dup2(save_output, 1)
-
-        print 'Please visit:', url
-        raw_input("After authorization press 'Enter' to continue")
-
-        db_session.obtain_access_token(request_token)
+        token_key, token_secret = self.retrieve_request_token(db_session)
+        db_session.set_token(token_key, token_secret)
         self.dropbox_client = client.DropboxClient(db_session)
+
+    def retrieve_request_token(self, db_session):
+        """
+        Either creates a new request token or loads a previous from a file.
+        """
+
+        if os.path.exists(TOKEN_FILE):
+            token_file = open(TOKEN_FILE)
+            token_key, token_secret = token_file.read().split('|')
+            token_file.close()
+        else:
+            request_token = db_session.obtain_request_token()
+            url = db_session.build_authorize_url(request_token)
+
+            save_output = os.dup(1)
+            os.close(1)
+            os.open(os.devnull, os.O_RDWR)
+            try:
+                webbrowser.open(url)
+            finally:
+                os.dup2(save_output, 1)
+
+            print 'Please visit:', url
+            raw_input("After authorization press 'Enter' to continue")
+
+            access_token = db_session.obtain_access_token(request_token)
+            token_file = open(TOKEN_FILE, 'w')
+            token_file.write("%s|%s" % (access_token.key, access_token.secret))
+            token_file.close()
+            token_key, token_secret = access_token.key, access_token.secret
+
+        return token_key, token_secret
 
     def backup_snapshot(self, path, filename):
         """
