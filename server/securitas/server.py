@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 HTTP server for controlling the Motion process and serving the Android
 application. The module consists of the motion process and the functions for
@@ -145,11 +146,10 @@ def authenticate(func):
 
     return validate
 
-
 motion = MotionProcess(settings)
 event_handler = SnapshotEventHandler(motion)
 observer = Observer()
-observer.schedule(event_handler, 'captures', recursive=False)
+observer.schedule(event_handler, settings['captures_path'], recursive=False)
 observer.start()
 
 

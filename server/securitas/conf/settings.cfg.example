@@ -1,3 +1,6 @@
+[Captures]
+directory = ~/security-cam/captures
+
 [Authentication]
 user =
 password =

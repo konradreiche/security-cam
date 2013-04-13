@@ -15,12 +15,19 @@ def read_settings(path):
 
     config = ConfigParser.RawConfigParser()
     config.read(path)
+    captures_path = config.get('Captures', 'directory')
     user = config.get('Authentication', 'user')
     password = config.get('Authentication', 'password')
     gcm_api_key = config.get('GCM', 'api_key')
     dropbox_api_key = config.get('Dropbox', 'api_key')
     dropbox_app_secret = config.get('Dropbox', 'app_secret')
     dropbox_access_type = config.get('Dropbox', 'access_type')
+
+    if captures_path.startswith('~'):
+        captures_path = captures_path.replace("~", os.path.expanduser("~"))
+
+    if not os.path.exists(captures_path):
+        os.makedirs(captures_path)
 
     default_path = '/usr/local/etc/security-cam/motion.conf'
     if os.path.exists(default_path):
@@ -35,7 +42,11 @@ def read_settings(path):
             break
     fileinput.close()
 
-    return {'user': user, 'password': password, 'gcm_api_key': gcm_api_key,
-            'control_port': control_port, 'dropbox_api_key': dropbox_api_key,
+    return {'captures_path': captures_path,
+            'user': user,
+            'password': password,
+            'gcm_api_key': gcm_api_key,
+            'control_port': control_port,
+            'dropbox_api_key': dropbox_api_key,
             'dropbox_app_secret': dropbox_app_secret,
             'dropbox_access_type': dropbox_access_type}
