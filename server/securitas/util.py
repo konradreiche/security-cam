@@ -17,6 +17,9 @@ def read_settings(path):
     user = config.get('Authentication', 'user')
     password = config.get('Authentication', 'password')
     gcm_api_key = config.get('GCM', 'api_key')
+    dropbox_api_key = config.get('Dropbox', 'api_key')
+    dropbox_app_secret = config.get('Dropbox', 'app_secret')
+    dropbox_access_type = config.get('Dropbox', 'access_type')
 
     for line in fileinput.input('conf/motion.conf'):
         split = line.split('control_port')
@@ -26,4 +29,6 @@ def read_settings(path):
     fileinput.close()
 
     return {'user': user, 'password': password, 'gcm_api_key': gcm_api_key,
-            'control_port': control_port}
+            'control_port': control_port, 'dropbox_api_key': dropbox_api_key,
+            'dropbox_app_secret': dropbox_app_secret,
+            'dropbox_access_type': dropbox_access_type}

@@ -1,6 +1,11 @@
 [Authentication]
-user=
-password=
+user =
+password =
 
 [GCM]
-api_key=
+api_key =
+
+[Dropbox]
+api_key =
+app_secret =
+access_type =

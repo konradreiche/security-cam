@@ -200,12 +200,12 @@ def register_device():
     defined in the HTTP header.
     """
 
-    identifier = request.forms.get('identifier')
-    if identifier is None:
-        abort(400, 'Bad request')
-    else:
+    identifier = request.forms.get('id')
+    if identifier:
         LOG.debug('Register device %s' % identifier)
         motion.set_device(identifier)
+    else:
+        abort(400, 'Bad request')
 
 
 @post('/device/unregister', apply=[authenticate])
