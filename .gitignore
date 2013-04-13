@@ -24,11 +24,28 @@ local.properties
 .project
 .settings
 
-# Rope
+# Pythob
 .ropeproject
+*.py[cod]
 
-# Python
-*.pyc
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.instaled.cfg
+lib
+lib64
+__pycache__
+
+# Installer logs
+pip-log.txt
 
 # Settings file
 settings.cfg
