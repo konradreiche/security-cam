@@ -79,7 +79,7 @@ class MotionProcess(object):
         if identifier is None:
             self.notifier = None
         else:
-            self.notifier = AlertNotifier(self.settings,  id)
+            self.notifier = AlertNotifier(self.settings,  identifier)
 
     def alert(self, filename):
         """

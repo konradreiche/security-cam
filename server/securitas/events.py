@@ -58,6 +58,16 @@ class SnapshotEventHandler(FileSystemEventHandler):
         db_session.obtain_access_token(request_token)
         self.dropbox_client = client.DropboxClient(db_session)
 
+    def backup_snapshot(self, path, filename):
+        """
+        Runs an asynchronous routine for uploading the snapshot to Dropbox.
+        """
+
+        if self.dropbox_client:
+            f = open(path)
+            self.dropbox_client.put_file(filename, f)
+            f.close()
+
     def on_modified(self, event):
         """
         Triggered when a snapshot is created. This event is used to notify the
@@ -65,10 +75,9 @@ class SnapshotEventHandler(FileSystemEventHandler):
         waiting.
         """
 
-        filename = basename(event.src_path)
-        if self.dropbox_client:
-            f = open(event.src_path)
-            self.dropbox_client.put_file(filename, f)
+        path = event.src_path
+        filename = basename(path)
+        self.backup_snapshot(path, filename)
 
         if filename.endswith('snapshot.jpg'):
             self.motion_process.notify_about_snapshot(filename)
