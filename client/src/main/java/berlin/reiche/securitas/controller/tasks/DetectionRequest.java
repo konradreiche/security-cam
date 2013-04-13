@@ -172,7 +172,7 @@ public class DetectionRequest extends AsyncTask<String, Void, HttpResponse> {
 	 */
 	private void handleAbsentDeviceRegistration() {
 		model.setRegisteredOnServer(false);
-		controller.setRegisteredOnServer(false);
+		controller.issueDeviceRegistration();
 		controller.reportError("Device is not registered yet");
 	}
 
