@@ -8,6 +8,7 @@ from events import SnapshotEventHandler
 from notifier import AlertNotifier
 from watchdog.observers import Observer
 
+import os
 import logging
 import requests
 import subprocess
@@ -44,8 +45,12 @@ class MotionProcess(object):
             abort(409, 'Cannot start motion detection without device')
         elif self.process is None:
             LOG.info('Start motion process')
-            self.process = subprocess.Popen(['motion', '-c',
-                                             'conf/motion.conf'])
+            default_path = '/usr/local/etc/security-cam/motion.conf'
+            if os.path.exists(default_path):
+                self.process = subprocess.Popen(['motion', '-c', default_path])
+            else:
+                self.process = subprocess.Popen(['motion', '-c',
+                                                 'conf/motion.conf'])
         else:
             LOG.info('Motion process already running')
 
@@ -110,7 +115,11 @@ class MotionProcess(object):
         self.snapshot_event.clear()
 
 
-settings = util.read_settings('conf/settings.cfg')
+default_path = '/usr/local/etc/security-cam/settings.cfg'
+if os.path.exists(default_path):
+    settings = util.read_settings(default_path)
+else:
+    settings = util.read_settings('conf/settings.cfg')
 
 
 def authenticate(func):

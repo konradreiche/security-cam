@@ -3,6 +3,7 @@ Utility functionality.
 """
 import ConfigParser
 import fileinput
+import os
 
 
 def read_settings(path):
@@ -21,7 +22,13 @@ def read_settings(path):
     dropbox_app_secret = config.get('Dropbox', 'app_secret')
     dropbox_access_type = config.get('Dropbox', 'access_type')
 
-    for line in fileinput.input('conf/motion.conf'):
+    default_path = '/usr/local/etc/security-cam/motion.conf'
+    if os.path.exists(default_path):
+        lines = fileinput.input(default_path)
+    else:
+        lines = fileinput.input('conf/motion.conf')
+
+    for line in lines:
         split = line.split('control_port')
         if len(split) is 2:
             control_port = int(split[1])
