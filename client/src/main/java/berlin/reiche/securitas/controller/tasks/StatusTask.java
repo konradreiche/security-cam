@@ -154,6 +154,7 @@ public class StatusTask extends AsyncTask<String, Void, HttpResponse> {
 		switch (status) {
 		case IDLE:
 			model.setRegisteredOnServer(false);
+			controller.issueDeviceRegistration();
 			controller.unlockInterface(false);
 			break;
 		case READY:

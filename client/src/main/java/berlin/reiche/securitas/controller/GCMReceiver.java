@@ -16,7 +16,7 @@ public class GCMReceiver extends GCMBroadcastReceiver {
 
 	/**
 	 * This methods needs to be overridden so the context can find the intent
-	 * service. Class.getName() is used in ordre to harden this implementation
+	 * service. Class.getName() is used in order to harden this implementation
 	 * against refactoring.
 	 */
 	@Override

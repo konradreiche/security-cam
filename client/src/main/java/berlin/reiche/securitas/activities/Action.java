@@ -46,7 +46,13 @@ public enum Action {
 	/**
 	 * Updates the snapshot image.
 	 */
-	SET_SNAPSHOT(7);
+	SET_SNAPSHOT(7),
+
+	/**
+	 * Requests the interface to retrieve the GCM identifier and issue a device
+	 * registration with the server.
+	 */
+	ISSUE_DEVICE_REGISTRATION(8);
 
 	/**
 	 * The code is used to translate the mnemonic enumeration constants into an

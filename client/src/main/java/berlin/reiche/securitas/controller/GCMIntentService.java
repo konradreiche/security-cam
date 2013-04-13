@@ -5,15 +5,13 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import berlin.reiche.securitas.Client;
 import berlin.reiche.securitas.R;
 import berlin.reiche.securitas.activities.MainActivity;
-import berlin.reiche.securitas.model.Protocol;
 
 import com.google.android.gcm.GCMBaseIntentService;
+import com.google.android.gcm.GCMRegistrar;
 
 /**
  * The GCM Intent Service is used to process received push notifications. For
@@ -64,10 +62,76 @@ public class GCMIntentService extends GCMBaseIntentService {
 	static volatile int motionsDetected = 0;
 
 	/**
+	 * Registers the device on the GCM service. If the device is already
+	 * registered the cached registration ID will be used.
+	 */
+	public static void manageDeviceRegistration(Context context) {
+		GCMRegistrar.checkDevice(context);
+		GCMRegistrar.checkManifest(context);
+		String id = GCMRegistrar.getRegistrationId(context);
+		if (id.equals("")) {
+			Log.i(TAG, "No device id yet, issue registration indent.");
+			String senderId = Client.getSettings().getGcmSenderId();
+			GCMRegistrar.register(context, senderId);
+		} else {
+			Log.d(TAG, "Tell controller to register the id " + id);
+			Client.getController().registerDevice(id);
+		}
+	}
+
+	/**
+	 * Used to reset the counter for the number of motions detected.
+	 * 
+	 * @param context
+	 *            the context from which this method is invoked.
+	 */
+	public static void resetMotionsDetected(Context context) {
+		motionsDetected = 0;
+		((NotificationManager) context.getSystemService(NS)).cancelAll();
+	}
+
+	/**
 	 * Default constructor.
 	 */
 	public GCMIntentService() {
 		super();
+	}
+
+	/**
+	 * Factory method for building the notification object.
+	 * 
+	 * @param timestamp
+	 *            the time when the motion was detected.
+	 * @param filename
+	 *            name of the file storing the snapshot.
+	 * @return the constructed notification object.
+	 */
+	private Notification createNotification(String timestamp, String filename) {
+
+		String text = "Motion Alert";
+		if (motionsDetected > 1) {
+			text += " (" + motionsDetected + ")";
+		}
+
+		int icon = R.drawable.ic_stat;
+		long when = System.currentTimeMillis();
+		Notification notification = new Notification(icon, text, when);
+		notification.defaults |= Notification.DEFAULT_ALL;
+		notification.flags |= Notification.FLAG_AUTO_CANCEL;
+
+		Context context = getApplicationContext();
+		CharSequence contentTitle = text;
+		CharSequence contentText = timestamp;
+		Intent notificationIntent = new Intent(this, MainActivity.class);
+		notificationIntent.setFlags(FLAGS);
+
+		notificationIntent.putExtra("filename", filename);
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+				notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		notification.setLatestEventInfo(context, contentTitle, contentText,
+				contentIntent);
+
+		return notification;
 	}
 
 	/**
@@ -115,43 +179,6 @@ public class GCMIntentService extends GCMBaseIntentService {
 	}
 
 	/**
-	 * Factory method for building the notification object.
-	 * 
-	 * @param timestamp
-	 *            the time when the motion was detected.
-	 * @param filename
-	 *            name of the file storing the snapshot.
-	 * @return the constructed notification object.
-	 */
-	private Notification createNotification(String timestamp, String filename) {
-
-		String text = "Motion Alert";
-		if (motionsDetected > 1) {
-			text += " (" + motionsDetected + ")";
-		}
-
-		int icon = R.drawable.ic_stat;
-		long when = System.currentTimeMillis();
-		Notification notification = new Notification(icon, text, when);
-		notification.defaults |= Notification.DEFAULT_ALL;
-		notification.flags |= Notification.FLAG_AUTO_CANCEL;
-
-		Context context = getApplicationContext();
-		CharSequence contentTitle = text;
-		CharSequence contentText = timestamp;
-		Intent notificationIntent = new Intent(this, MainActivity.class);
-		notificationIntent.setFlags(FLAGS);
-
-		notificationIntent.putExtra("filename", filename);
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-				notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-		notification.setLatestEventInfo(context, contentTitle, contentText,
-				contentIntent);
-
-		return notification;
-	}
-
-	/**
 	 * Called after a registration intent is received, passes the registration
 	 * ID assigned by GCM to that device/application pair as parameter.
 	 * 
@@ -161,9 +188,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 	@Override
 	protected void onRegistered(Context context, String registrationId) {
 		Log.i(TAG, "onRegistered, registrationId = " + registrationId);
-		Handler handler = Client.getController().getInboxHandler();
-		handler.sendMessage(Message.obtain(handler,
-				Protocol.REGISTER_DEVICE.code, registrationId));
+		Client.getController().registerDevice(registrationId);
 	}
 
 	/**
@@ -175,20 +200,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 	@Override
 	protected void onUnregistered(Context context, String registrationId) {
 		Log.i(TAG, "onUnregistered, registrationId = " + registrationId);
-		Handler handler = Client.getController().getInboxHandler();
-		handler.sendMessage(Message.obtain(handler,
-				Protocol.UNREGISTER_DEVICE.code, registrationId));
-	}
-
-	/**
-	 * Used to reset the counter for the number of motions detected.
-	 * 
-	 * @param context
-	 *            the context from which this method is invoked.
-	 */
-	public static void resetMotionsDetected(Context context) {
-		motionsDetected = 0;
-		((NotificationManager) context.getSystemService(NS)).cancelAll();
+		Client.getController().unregisterDevice(registrationId);
 	}
 
 }

@@ -142,7 +142,7 @@ public class MainActivity extends Activity implements Callback {
 		} else if (getIntent().getExtras() == null) {
 			// activity was destroyed, restore state based on the server state
 			lockInterface();
-			controller.restoreClientState(null);
+			controller.restoreClientState();
 		} else {
 			// activity was destroyed, activity started through notification
 			lockInterface();
@@ -395,6 +395,11 @@ public class MainActivity extends Activity implements Callback {
 		case REPORT_ERROR:
 			NotificationDialog.create(this, message.obj.toString()).show();
 			unlockInterface(detecting);
+			break;
+		case ISSUE_DEVICE_REGISTRATION:
+			Log.d(TAG, "Received device registration issue.");
+			GCMRegistrar.setRegisteredOnServer(this, false);
+			GCMIntentService.manageDeviceRegistration(this);
 			break;
 		default:
 			Log.e(TAG, "Retrieved illegal action: " + action);
