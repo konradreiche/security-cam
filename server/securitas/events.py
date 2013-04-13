@@ -52,7 +52,8 @@ class SnapshotEventHandler(FileSystemEventHandler):
         finally:
             os.dup2(save_output, 1)
 
-        raw_input("After authorization please press 'Enter'")
+        print 'Please visit:', url
+        raw_input("After authorization press 'Enter' to continue")
 
         db_session.obtain_access_token(request_token)
         self.dropbox_client = client.DropboxClient(db_session)
