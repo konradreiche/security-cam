@@ -24,7 +24,7 @@ local.properties
 .project
 .settings
 
-# Pythob
+# Python
 .ropeproject
 *.py[cod]
 

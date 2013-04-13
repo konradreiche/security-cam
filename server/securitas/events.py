@@ -9,7 +9,7 @@ from watchdog.events import FileSystemEventHandler
 import os
 import webbrowser
 
-TOKEN_FILE = 'conf/dropbox_token_file'
+TOKEN_FILE = '/tmp/dropbox_token_file'
 
 
 class SnapshotEventHandler(FileSystemEventHandler):
