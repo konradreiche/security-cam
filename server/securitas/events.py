@@ -2,6 +2,7 @@
 Events related to the Motion process.
 """
 from dropbox import client, session
+from multiprocessing import Process, Queue
 from os.path import basename
 from watchdog.events import FileSystemEventHandler
 
@@ -46,6 +47,7 @@ class SnapshotEventHandler(FileSystemEventHandler):
         token_key, token_secret = self.retrieve_request_token(db_session)
         db_session.set_token(token_key, token_secret)
         self.dropbox_client = client.DropboxClient(db_session)
+        self.queue = DropboxSynchronizer(self.dropbox_client).start()
 
     def retrieve_request_token(self, db_session):
         """
@@ -79,26 +81,16 @@ class SnapshotEventHandler(FileSystemEventHandler):
 
         return token_key, token_secret
 
-    def backup_snapshot(self, path, filename):
-        """
-        Runs an asynchronous routine for uploading the snapshot to Dropbox.
-        """
-
-        if self.dropbox_client:
-            f = open(path)
-            self.dropbox_client.put_file(filename, f)
-            f.close()
-
     def on_modified(self, event):
         """
         Triggered when a snapshot is created. This event is used to notify the
-        client about the the final creation of snapshot without using busy
-        waiting.
+        client about the final creation of snapshot without using busy waiting.
         """
 
         path = event.src_path
         filename = basename(path)
-        self.backup_snapshot(path, filename)
+        if self.dropbox_client:
+            self.queue.put((path, filename))
 
         if filename.endswith('snapshot.jpg'):
             self.motion_process.notify_about_snapshot(filename)
@@ -106,3 +98,39 @@ class SnapshotEventHandler(FileSystemEventHandler):
             pass  # swallow
         else:
             self.motion_process.alert(filename)
+
+
+class DropboxSynchronizer(object):
+    """
+    Consumer class for uploading newly created snapshots asynchronously.
+    """
+
+    def __init__(self, client):
+        self.client = client
+        self.queue = Queue()
+
+    @staticmethod
+    def serve(queue, client):
+        """
+        Serves the queue by retrieving current snapshot files.
+        """
+
+        while True:
+            task = queue.get()
+            if not task:
+                break
+            else:
+                path, filename = task
+                snapshot_file = open(path)
+                client.put_file(filename, snapshot_file)
+                snapshot_file.close()
+
+    def start(self):
+        """
+        Starts the consumer process.
+        """
+
+        self.worker = Process(target=DropboxSynchronizer.serve,
+                              args=(self.queue, self.client))
+        self.worker.start()
+        return self.queue
