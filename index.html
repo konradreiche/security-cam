@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Security Cam by platzhirsch</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/platzhirsch/security-cam">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/platzhirsch/security-cam/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/platzhirsch/security-cam/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>Security Cam</h1>
+          <p>A Python and Android attachment for Motion to set up a security system.</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/platzhirsch">platzhirsch</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1>Security Cam</h1>
+
+<p>Security Cam is a <strong>Python</strong> and <strong>Android</strong> attachment for <a href="http://www.lavrsen.dk/foswiki/bin/view/Motion/WebHome">Motion</a>. Motion is a program that monitors the video signal from cameras. The Security Cam application is a client-server architecture on top of Motion.</p>
+
+<p>The Python server manages the Motion process and implements a <strong>REST API</strong> for controlling the server. The light-weight client runs on Android which is used to actively control the server.</p>
+
+<p><img src="http://konrad-reiche.com/images/security-cam/screenshots/device-1.png"><img src="http://konrad-reiche.com/images/security-cam/screenshots/device-2.png"><img src="http://konrad-reiche.com/images/security-cam/screenshots/device-3.png"><img src="http://konrad-reiche.com/images/security-cam/screenshots/device-4.png"><img src="http://konrad-reiche.com/images/security-cam/screenshots/device-5.png"></p>
+
+<h2>Features</h2>
+
+<ul>
+<li>Start and stop motion detection remotely</li>
+<li>Display current camera snapshots</li>
+<li>Push notifications when motion is detected</li>
+<li>Retrieve camera snapshots that triggered motion</li>
+<li>Upload each snapshot directly to your Dropbox</li>
+</ul><h2>Installation</h2>
+
+<ol>
+<li><p>Install Motion, either from <a href="http://www.lavrsen.dk/foswiki/bin/view/Motion/DownloadFiles">package</a> or from <a href="https://github.com/sackmotion/motion">source</a> (recommended).</p></li>
+<li><p>Download the <a href="https://play.google.com/store/apps/details?id=berlin.reiche.securitas">Android client</a> from the Google Play Market.</p></li>
+<li>
+<p>Get the server Python package:</p>
+
+<pre><code>$ pip install security-cam
+</code></pre>
+</li>
+<li>
+<p>Get a GCM API Key (required for receiving push notifications)</p>
+
+<ul>
+<li>Go to <a href="http://developer.android.com/google/gcm/gs.html#create-proj">GCM: Creating a Google API Project</a> and follow the instructions</li>
+<li>Take note of the API key</li>
+</ul>
+</li>
+<li>
+<p>Get a Dropbox API key and App Secret (optional)</p>
+
+<ul>
+<li>Go to the <a href="https://www.dropbox.com/developers/apps/">Dropbox Apps Console</a> and create a new app</li>
+<li>App type: Core API</li>
+<li>Permission: App folder</li>
+<li>Take note of the API key and App secret</li>
+</ul>
+</li>
+<li>
+<p>Configure the server <code>/usr/local/etc/security-cam/</code>:</p>
+
+<ul>
+<li>Rename <code>motion.conf.example -&gt; motion.conf</code>
+</li>
+<li>Rename <code>settings.cfg.example -&gt; settings.cfg</code>
+</li>
+<li>Edit the settings.cfg and configure it to your needs</li>
+</ul>
+</li>
+<li>
+<p>Start the server</p>
+
+<pre><code>$ ln -s /usr/local/lib/python/dist-packages/securitas/server.py /usr/bin/security-cam
+$ sudo chmod +x /usr/bin/security-cam
+$ security-cam
+</code></pre>
+
+<p>You will be prompted to authorize the application with your Dropbox account if you have followed step 5.</p>
+</li>
+<li>
+<p>Launch the Android application</p>
+
+<ul>
+<li>configure the settings to your needs</li>
+<li>Port: 4000</li>
+</ul>
+</li>
+<li><p>Enjoy!</p></li>
+</ol><h2>Future Work</h2>
+
+<p>Some ideas for the future development:</p>
+
+<ul>
+<li>Use Secure Socket Layer (SSL)</li>
+<li>Implement a snapshot picker</li>
+</ul>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-37176344-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
