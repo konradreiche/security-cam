@@ -125,7 +125,9 @@ public class MainActivity extends Activity implements Callback {
 		controller.addOutboxHandler(new Handler(this));
 
 		initializeReferences();
-		ensureConfiguration();
+		if (!ensureConfiguration()) {
+			return;
+		}
 
 		// restore image due to orientation change
 		if (getLastNonConfigurationInstance() != null) {
@@ -279,11 +281,15 @@ public class MainActivity extends Activity implements Callback {
 	/**
 	 * This method is used at the beginning of the main activity to make sure,
 	 * that the client's configuration is completed.
+	 * 
+	 * @return whether the endpoint configuration is complete.
 	 */
-	private void ensureConfiguration() {
-		if (!Client.isConfigured(this)) {
+	private boolean ensureConfiguration() {
+		boolean configured = Client.isConfigured(this);
+		if (!configured) {
 			startSettingsActivity(true);
 		}
+		return configured;
 	}
 
 	/**
@@ -407,6 +413,5 @@ public class MainActivity extends Activity implements Callback {
 		}
 		return true;
 	}
-
 
 }

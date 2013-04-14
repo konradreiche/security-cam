@@ -80,8 +80,9 @@ public class SettingsActivity extends PreferenceActivity {
 	public void onPause() {
 		Log.i(TAG, "onPause");
 		super.onPause();
-		Client.updateSettings(this);
-		Client.getController().restoreClientState();
+		if (Client.isConfigured(this)) {
+			Client.getController().restoreClientState();
+		}
 	}
 
 }

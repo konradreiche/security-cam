@@ -112,24 +112,29 @@ public class Client {
 	 * 
 	 * @param context
 	 *            the context of the preferences whose values are wanted.
+	 * 
+	 * @return whether the settings for the backend are complete.
 	 */
-	public static void updateSettings(Context context) {
+	public static boolean updateSettings(Context context) {
 
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(context);
 
-		String host = sp.getString(SettingsActivity.HOST, null);
-		String port = sp.getString(SettingsActivity.PORT, null);
-		String username = sp.getString(SettingsActivity.USER, null);
-		String password = sp.getString(SettingsActivity.PASSWORD, null);
-		String gcmId = sp.getString(SettingsActivity.GCM_SENDER_ID, null);
-
-		Client.settings = new Settings(host, port, username, password, gcmId);
-		setEndpoint("http://" + settings.getHost() + ":" + settings.getPort());
+		String host = sp.getString(SettingsActivity.HOST, "");
+		String port = sp.getString(SettingsActivity.PORT, "");
+		String username = sp.getString(SettingsActivity.USER, "");
+		String password = sp.getString(SettingsActivity.PASSWORD, "");
+		String id = sp.getString(SettingsActivity.GCM_SENDER_ID, "");
 
 		configured = !host.equals("") && !port.equals("")
 				&& !username.equals("") && !password.equals("")
-				&& !gcmId.equals("");
+				&& !id.equals("");
+
+		if (configured) {
+			Client.settings = new Settings(host, port, username, password, id);
+			setEndpoint("http://" + host + ":" + port);
+		}
+		return configured;
 	}
 
 	/**
