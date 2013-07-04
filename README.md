@@ -4,11 +4,11 @@ Security Cam is a **Python** and **Android** attachment for [Motion][1]. Motion 
 
 The Python server manages the Motion process and implements a **REST API** for controlling the server. The light-weight client runs on Android which is used to actively control the server.
 
-<img src="http://konrad-reiche.com/images/security-cam/screenshots/device-1.png" height="25%">
-<img src="http://konrad-reiche.com/images/security-cam/screenshots/device-2.png" height="25%">
-<img src="http://konrad-reiche.com/images/security-cam/screenshots/device-3.png" height="25%">
-<img src="http://konrad-reiche.com/images/security-cam/screenshots/device-4.png" height="25%">
-<img src="http://konrad-reiche.com/images/security-cam/screenshots/device-5.png" height="25%">
+<img src="http://konrad-reiche.com/images/security-cam/screenshots/device-1.png">
+<img src="http://konrad-reiche.com/images/security-cam/screenshots/device-2.png">
+<img src="http://konrad-reiche.com/images/security-cam/screenshots/device-3.png">
+<img src="http://konrad-reiche.com/images/security-cam/screenshots/device-4.png">
+<img src="http://konrad-reiche.com/images/security-cam/screenshots/device-5.png">
 
 ## Features
 
@@ -33,7 +33,7 @@ $ pip install security-cam
    - Go to [GCM: Creating a Google API Project][4] and follow the instructions
    - Take note of the API key
 
-5. Get a Dropbox API key and App Secret (optional)
+5. Get a Dropbox API access (optional)
    - Go to the [Dropbox Apps Console][5] and create a new app
    - App type: Core API
    - Permission: App folder
@@ -42,7 +42,7 @@ $ pip install security-cam
 6. Configure the server `/usr/local/etc/security-cam/`:
    - Rename `motion.conf.example -> motion.conf`
    - Rename `settings.cfg.example -> settings.cfg`
-   - Edit the settings.cfg and configure it to your needs
+   - Edit the `settings.cfg` and configure it to your needs
 
 7. Start the server
    ```
@@ -54,7 +54,7 @@ $ pip install security-cam
    You will be prompted to authorize the application with your Dropbox account if you have followed step 5.
 
 8. Launch the Android application
-   - configure the settings to your needs
+   - Configure the settings to your needs
    - Port: 4000
 
 9. Enjoy!
